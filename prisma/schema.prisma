@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Clients {
+  id            Int             @id @default(autoincrement())
+  nom           String          @db.VarChar(255)
+  prenom        String          @db.VarChar(255)
+  adresse       String?         @db.VarChar(255)
+  telephone     String?         @db.VarChar(20)
+  profession    String?         @db.VarChar(255)
+  nature        Nature
+  CompteClients CompteClients[]
+
+  @@index([nom, adresse, nature])
+}
+
+model CompteClients {
+  id                Int              @id @default(autoincrement())
+  client_id         Int
+  matricule         String?          @db.VarChar(255)
+  numero_compte     String?          @db.VarChar(255)
+  type_compte       String?          @db.VarChar(255)
+  date_ouverture    DateTime?
+  agence            String?          @db.VarChar(255)
+  code_gestionnaire String?          @db.VarChar(255)
+  client            Clients          @relation(fields: [client_id], references: [id])
+  TypesDocuments    TypesDocuments[]
+
+  @@index([matricule, type_compte, code_gestionnaire, agence])
+}
+
+model TypesDocuments {
+  id               Int           @id @default(autoincrement())
+  code             String?       @unique @db.VarChar(50)
+  nom_type         String        @db.VarChar(255)
+  compte_client_id Int
+  compteClient     CompteClients @relation(fields: [compte_client_id], references: [id])
+  Dossiers         Dossiers[]
+
+  @@index([nom_type])
+}
+
+model Dossiers {
+  id               Int            @id @default(autoincrement())
+  code             String         @unique @db.VarChar(50)
+  description      String?        @db.VarChar(255)
+  type_document_id Int
+  typeDocument     TypesDocuments @relation(fields: [type_document_id], references: [id])
+  MetaDonnees      MetaDonnees[]
+  Piece            Piece[]
+}
+
+model MetaDonnees {
+  id         Int      @id @default(autoincrement())
+  dossier_id Int
+  cle        String   @db.VarChar(255)
+  valeur     String?
+  dossier    Dossiers @relation(fields: [dossier_id], references: [id])
+}
+
+model Piece {
+  id            Int       @id @default(autoincrement())
+  code          String?   @db.VarChar(50)
+  nom           String?   @db.VarChar(50)
+  dossier_id    Int
+  date_creation DateTime?
+  dossier       Dossiers  @relation(fields: [dossier_id], references: [id])
+}
+
+enum Nature {
+  Physique
+  Morale
+}
