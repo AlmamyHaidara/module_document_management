@@ -27,9 +27,14 @@ import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { calculateCustomerTotal, formatCurrency, getCustomers, onCategoryChange, onInputChange, onInputNumberChange } from '../../utils/function';
-import { Client, CompteClient } from '@/types/types';
+import { Client, CompteClient, DocMetaPiece, Dossier, MetaDonnee, Piece, TypeDocument } from '@/types/types';
 
-const TableDemo = ({clients}:{clients:Client[]}) => {
+interface PropsType {
+    dossier: DocMetaPiece[];
+    findDossier: (code:string) => Promise<void>;
+}
+
+const DossierExpendTable = ({ dossier, findDossier }: PropsType) => {
     let emptyProduct: Demo.Product = {
         id: '',
         name: '',
@@ -48,7 +53,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
     const [loading1, setLoading1] = useState(true);
     const [loading2, setLoading2] = useState(true);
     const [idFrozen, setIdFrozen] = useState(false);
-    const [products, setProducts] = useState<Client[]>(clients);
+    const [dossiers, setDossiers] = useState<DocMetaPiece[]>(dossier);
     const [globalFilterValue1, setGlobalFilterValue1] = useState('');
     const [expandedRows, setExpandedRows] = useState<any[] | DataTableExpandedRows>([]);
     const [allExpanded, setAllExpanded] = useState(false);
@@ -114,7 +119,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
             setLoading2(false);
         });
         CustomerService.getCustomersMedium().then((data) => setCustomers3(data));
-        // ProductService.getProductsWithOrdersSmall().then((data) => setProducts(data));
+        // ProductService.getProductsWithOrdersSmall().then((data) => setDossiers(data));
         initFilters1();
     }, []);
 
@@ -190,7 +195,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
         setSubmitted(true);
 
         if (product.name.trim()) {
-            let _products = [...(products as any)];
+            let _products = [...(dossiers as any)];
             let _product = { ...product };
             if (product.id) {
                 const index = findIndexById(product.id);
@@ -214,7 +219,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                 });
             }
 
-            setProducts(_products as any);
+            setDossiers(_products as any);
             setProductDialog(false);
             setProduct(emptyProduct);
         }
@@ -231,8 +236,8 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
     };
 
     const deleteProduct = () => {
-        let _products = (products as any)?.filter((val: any) => val.id !== product.id);
-        setProducts(_products);
+        let _products = (dossiers as any)?.filter((val: any) => val.id !== product.id);
+        setDossiers(_products);
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         toast.current?.show({
@@ -245,8 +250,8 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
 
     const findIndexById = (id: string) => {
         let index = -1;
-        for (let i = 0; i < (products as any)?.length; i++) {
-            if ((products as any)[i].id === id) {
+        for (let i = 0; i < (dossiers as any)?.length; i++) {
+            if ((dossiers as any)[i].id === id) {
                 index = i;
                 break;
             }
@@ -273,8 +278,8 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
     };
 
     const deleteSelectedProducts = () => {
-        let _products = (products as any)?.filter((val: any) => !(selectedProducts as any)?.includes(val));
-        setProducts(_products);
+        let _products = (dossiers as any)?.filter((val: any) => !(selectedProducts as any)?.includes(val));
+        setDossiers(_products);
         setDeleteProductsDialog(false);
         setSelectedProducts(null);
         toast.current?.show({
@@ -397,15 +402,14 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
     //     );
     // };
 
-
-        // const representativeFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        //     return (
-        //         <>
-        //             <div className="mb-3 text-bold">Agent Picker</div>
-        //             <MultiSelect value={options.value} options={representatives} itemTemplate={representativesItemTemplate} onChange={(e) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />
-        //         </>
-        //     );
-        // };
+    // const representativeFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
+    //     return (
+    //         <>
+    //             <div className="mb-3 text-bold">Agent Picker</div>
+    //             <MultiSelect value={options.value} options={representatives} itemTemplate={representativesItemTemplate} onChange={(e) => options.filterCallback(e.value)} optionLabel="name" placeholder="Any" className="p-column-filter" />
+    //         </>
+    //     );
+    // };
     // const dateBodyTemplate = (rowData: Demo.Customer) => {
     //     return formatDate(rowData.date);
     // };
@@ -472,7 +476,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
 
     const expandAll = () => {
         let _expandedRows = {} as { [key: string]: boolean };
-        products.forEach((p) => (_expandedRows[`${p.id}`] = true));
+        dossiers.forEach((p) => (_expandedRows[`${p.dossier.id}`] = true));
 
         setExpandedRows(_expandedRows);
         setAllExpanded(true);
@@ -491,8 +495,13 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
         return <span className={`order-badge order-${rowData.status?.toLowerCase()}`}>{rowData.status}</span>;
     };
 
-    const searchBodyTemplate = () => {
-        return <Button icon="pi pi-search" />;
+    const searchBodyTemplate=(dossierCode: Dossier & MetaDonnee[] & Piece[]) => {
+        return <Button icon="pi pi-search" onClick={() =>findDossier(dossierCode.code)}  />;
+    };
+
+    const ViewBodyTemplate = (dossierCode: Dossier & MetaDonnee[] & Piece[]) => {
+
+        return <Button icon="pi pi-eye"  onClick={() =>findDossier(dossierCode.code)}  />;
     };
 
     const imageBodyTemplate = (rowData: Demo.Product) => {
@@ -511,31 +520,28 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
         return <span className={`product-badge status-${rowData.inventoryStatus?.toLowerCase()}`}>{rowData.inventoryStatus}</span>;
     };
 
-    const rowExpansionTemplate = (data: Client & CompteClient[]) => {
-        console.table(data.CompteClients)
+    const rowExpansionTemplate = (data:  DocMetaPiece ) => {
+        console.log(data)
         return (
             <div className="orders-subtable">
-                <h5>Orders for {data.id}</h5>
-                <DataTable value={data.CompteClients} responsiveLayout="scroll">
-                    <Column field="id" header="Id" sortable></Column>
-                    <Column field="matricule" header="Matricule" sortable></Column>
-                    <Column field="numero_compte" header="Numero Compte" sortable></Column>
-                    <Column field="type_compte" header="Type Compte" sortable></Column>
-                    <Column field="agence" header="Agence" sortable></Column>
-                    {/* <Column field="nature" header="Nature" body={amountBodyTemplate} sortable></Column> */}
-                    {/* <Column field="status" header="Status" body={statusOrderBodyTemplate} sortable></Column> */}
-                    <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
-                </DataTable>
-            </div>
+                 <h5>
+                    Type de compte
+                 </h5>
+                 <DataTable value={data.metadonne} responsiveLayout="scroll">
+                     <Column field="id" header="Id" sortable></Column>
+                     <Column field="cle" header="Cle" sortable></Column>
+                     <Column field="valeur" header="Valeur" sortable></Column>
+                     <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
+                 </DataTable>
+         </div>
         );
     };
 
     const header = (
         <React.Fragment>
             <div className="flex justify-content-between ">
-
-    <Button icon={allExpanded ? 'pi pi-minus' : 'pi pi-plus'} label={allExpanded ? 'Collapse All' : 'Expand All'} onClick={toggleAll} className="w-11rem" />
-<div className="flex justify-content-between">
+                {/* <Button icon={allExpanded ? 'pi pi-minus' : 'pi pi-plus'} label={allExpanded ? 'Collapse All' : 'Expand All'} onClick={toggleAll} className="w-11rem" /> */}
+                <div className="flex justify-content-between">
                     <span className="p-input-icon-left">
                         <i className="pi pi-search" />
                         <InputText value={globalFilterValue1} onChange={onGlobalFilterChange1} placeholder="Keyword Search" />
@@ -543,7 +549,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                 </div>
             </div>
         </React.Fragment>
-);
+    );
 
     const headerTemplate = (data: Demo.Customer) => {
         return (
@@ -560,7 +566,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                 <td colSpan={4} style={{ textAlign: 'right' }} className="text-bold pr-6">
                     Total Customers
                 </td>
-                <td>{calculateCustomerTotal(data.representative.name,customers3)}</td>
+                <td>{calculateCustomerTotal(data.representative.name, customers3)}</td>
             </React.Fragment>
         );
     };
@@ -579,9 +585,9 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
     //     return total;
     // };
 
-    useEffect(()=>{
-        console.log("Changed...",product)
-    },[product])
+    useEffect(() => {
+        console.log('Changed...', product);
+    }, [product]);
     const header1 = renderHeader1();
 
     return (
@@ -592,16 +598,17 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                     <h5>Row Expand</h5>
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
-                    <DataTable value={products} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll" rowExpansionTemplate={rowExpansionTemplate} dataKey="id" header={header}>
-                        <Column expander style={{ width: '3em' }} />
-                        <Column field="nom" header="Nom" sortable />
-                        <Column field="prenom" header="Prenom" sortable />
-                        <Column field="adresse" header="Adresse" sortable />
-                        <Column field="telephone" header="Telephone" sortable />
-                        <Column field="profession" header="Profession" sortable />
+                    <DataTable value={dossiers} responsiveLayout="scroll"  dataKey="id" header={header}>
+                        {/* <Column check style={{ width: '3em' }} /> */}
+                        <Column field="id" header="ID" sortable />
+                        <Column field="code" header="Matricule" sortable />
+                        <Column headerStyle={{ width: '4rem' }} body={ViewBodyTemplate}></Column>
+
+                        {/* <Column field="date_ouverture" header="Date d'ouverture" sortable /> */}
                         {/* <Column header="Image" body={imageBodyTemplate} /> */}
                         {/* <Column field="price" header="Price" sortable body={priceBodyTemplate} /> */}
-                        <Column field="nature" header="Nature" sortable />
+                        {/* <Column field="agence" header="Agence" sortable /> */}
+                        {/* <Column field="code_gestionnaire" header="Code Gestionnaire" sortable /> */}
                         {/* <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} /> */}
                         {/* <Column field="inventoryStatus" header="Status" sortable body={statusBodyTemplate2} /> */}
                     </DataTable>
@@ -613,7 +620,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                             <InputText
                                 id="name"
                                 value={product.name}
-                                onChange={(e) => setProduct(onInputChange(e, 'name',product))}
+                                onChange={(e) => setProduct(onInputChange(e, 'name', product))}
                                 required
                                 autoFocus
                                 className={classNames({
@@ -624,26 +631,26 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                         </div>
                         <div className="field">
                             <label htmlFor="description">Description</label>
-                            <InputTextarea id="description" value={product.description} onChange={(e) => setProduct(onInputChange(e, 'description',product))} required rows={3} cols={20} />
+                            <InputTextarea id="description" value={product.description} onChange={(e) => setProduct(onInputChange(e, 'description', product))} required rows={3} cols={20} />
                         </div>
 
                         <div className="field">
                             <label className="mb-3">Category</label>
                             <div className="formgrid grid">
                                 <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category1" name="category" value="Accessories" onChange={(e)=> setProduct(onCategoryChange(e,product))} checked={product.category === 'Accessories'} />
+                                    <RadioButton inputId="category1" name="category" value="Accessories" onChange={(e) => setProduct(onCategoryChange(e, product))} checked={product.category === 'Accessories'} />
                                     <label htmlFor="category1">Accessories</label>
                                 </div>
                                 <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category2" name="category" value="Clothing" onChange={(e)=> setProduct(onCategoryChange(e,product))} checked={product.category === 'Clothing'} />
+                                    <RadioButton inputId="category2" name="category" value="Clothing" onChange={(e) => setProduct(onCategoryChange(e, product))} checked={product.category === 'Clothing'} />
                                     <label htmlFor="category2">Clothing</label>
                                 </div>
                                 <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category3" name="category" value="Electronics" onChange={(e)=> setProduct(onCategoryChange(e,product))} checked={product.category === 'Electronics'} />
+                                    <RadioButton inputId="category3" name="category" value="Electronics" onChange={(e) => setProduct(onCategoryChange(e, product))} checked={product.category === 'Electronics'} />
                                     <label htmlFor="category3">Electronics</label>
                                 </div>
                                 <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category4" name="category" value="Fitness" onChange={(e)=> setProduct(onCategoryChange(e,product))} checked={product.category === 'Fitness'} />
+                                    <RadioButton inputId="category4" name="category" value="Fitness" onChange={(e) => setProduct(onCategoryChange(e, product))} checked={product.category === 'Fitness'} />
                                     <label htmlFor="category4">Fitness</label>
                                 </div>
                             </div>
@@ -656,7 +663,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                             </div>
                             <div className="field col">
                                 <label htmlFor="quantity">Quantity</label>
-                                <InputNumber id="quantity" value={product.quantity} onValueChange={(e) => setProduct(onInputNumberChange(e, 'quantity',product))} />
+                                <InputNumber id="quantity" value={product.quantity} onValueChange={(e) => setProduct(onInputNumberChange(e, 'quantity', product))} />
                             </div>
                         </div>
                     </Dialog>
@@ -675,7 +682,7 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
                     <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {product && <span>Are you sure you want to delete the selected products?</span>}
+                            {product && <span>Are you sure you want to delete the selected dossiers?</span>}
                         </div>
                     </Dialog>
                 </div>
@@ -684,4 +691,4 @@ const TableDemo = ({clients}:{clients:Client[]}) => {
     );
 };
 
-export default TableDemo;
+export default DossierExpendTable;

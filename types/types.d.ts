@@ -7,29 +7,29 @@ export interface Client {
     profession?: string;
     nature: Nature;
     CompteClients: CompteClient[];
-  }
+}
 
-  export interface CompteClient {
+export interface CompteClient {
     id: number;
     clientId: number;
-    matricule?: string;
-    numeroCompte?: string;
-    typeCompte?: string;
-    dateOuverture?: Date;
-    agence?: string;
-    codeGestionnaire?: string;
+    matricule: string;
+    numero_compte: string;
+    type_compte: string;
+    date_ouverture: Date;
+    agence: string;
+    code_gestionnaire: string;
     client: Client;
-    typesDocuments: TypeDocument[];
-  }
+    TypesDocuments: TypeDocument[];
+}
 
-  export interface TypeDocument {
+export interface TypeDocument {
     id: number;
     code?: string;
     nomType: string;
     compteClientId: number;
     compteClient: CompteClient;
     dossiers: Dossier[];
-  }
+}
 
 export interface Dossier {
     id: number;
@@ -39,15 +39,15 @@ export interface Dossier {
     typeDocument: TypeDocument;
     metaDonnees: MetaDonnee[];
     pieces: Piece[];
-  }
+}
 
-  export interface MetaDonnee {
+export interface MetaDonnee {
     id: number;
     dossierId: number;
     cle: string;
     valeur?: string;
     dossier: Dossier;
-  }
+}
 
 export interface Piece {
     id: number;
@@ -56,12 +56,15 @@ export interface Piece {
     dossierId: number;
     dateCreation?: Date;
     dossier: Dossier;
-  }
+}
 
- export  enum Nature {
+export enum Nature {
     Physique = 'Physique',
-    Morale = 'Morale',
-  }
+    Morale = 'Morale'
+}
 
-
-
+export interface DocMetaPiece{
+    dossier:Dossier;
+    metadonne:MetaDonnee[];
+    piece:Piece[];
+}

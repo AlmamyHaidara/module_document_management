@@ -7,21 +7,20 @@ import { CompteService } from '@/demo/service/Compte.service';
 import { Dialog } from 'primereact/dialog';
 import DialogueCompte from '@/demo/components/DialogueCompte';
 import { CompteClient, TypeDocument } from '@/types/types';
+import ComptExpendTable from '../uikit/table/CompteExpandTable';
 
-function ClientsComponent() {
+function CompteComponent() {
     const [visible, setVisible] = useState(false);
     const [compte, setCompte] = useState<CompteClient & TypeDocument[]>();
-    const [matricule, setMatricule] = useState<string>("");
-    const { createClient } = ClientService;
 
-    const { isPending, isError, data, error } = useQuery({ queryKey: ['`client'], queryFn: createClient });
-
+    const { isPending, isError, data, error } = useQuery({ queryKey: ['`compte'], queryFn:CompteService.findClientComptes });
     if (isPending) {
         return (
             <div className="w-full h-full flex align-items-center justify-content-center">
                 <span>Loading...</span>
             </div>
         );
+        return <span className="loading loading-ball loading-lg"></span>;
     }
 
     if (isError) {
@@ -29,19 +28,28 @@ function ClientsComponent() {
     }
 
     const findClientCompte = async (matricule: string) => {
-        setMatricule(matricule);
+        console.log(matricule);
+        const comptesClient = await CompteService.findClientCompte(matricule);
+        setCompte(comptesClient);
         setVisible(true);
+        console.dir(comptesClient);
+    };
+
+    const findCompte = async () => {
+        const comptesClientt = await CompteService.findClientComptes();
+
+        console.log(comptesClientt);
     };
 
     return (
         <>
-            <RowExpandTable clients={data} findClientCompte={findClientCompte} />
-            {
+            <ComptExpendTable comptesClient={data} findCompte={findCompte} />
+            {/* {
                 visible &&
-            <DialogueCompte visible={visible} setVisible={setVisible} matricule={matricule}  />
-            }
+            <DialogueCompte visible={visible} setVisible={setVisible}  />
+            } */}
         </>
     );
 }
 
-export default ClientsComponent;
+export default CompteComponent;

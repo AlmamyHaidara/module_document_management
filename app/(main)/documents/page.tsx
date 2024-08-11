@@ -1,5 +1,5 @@
 import React from 'react';
-import RowExpandTable from '../uikit/table/RowExpandTable';
+import RowExpandTable from '../uikit/table/ClientExpandTable';
 
 function page() {
     return (

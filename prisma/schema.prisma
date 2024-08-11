@@ -10,14 +10,14 @@ datasource db {
 model Clients {
   id            Int             @id @default(autoincrement())
   nom           String
-  prenom        String          @db.VarChar(255)
+  prenom        String          @db.VarChar(50)
   adresse       String
   telephone     String          @db.VarChar(20)
-  profession    String          @db.VarChar(255)
+  profession    String          @db.VarChar(20)
   nature        Nature
   CompteClients CompteClients[]
 
-  @@index([nom, adresse, nature])
+  @@index([nom, telephone, nature])
 }
 
 model CompteClients {
