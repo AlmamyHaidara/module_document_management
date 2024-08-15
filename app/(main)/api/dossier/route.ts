@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 export async function GET() {
     const dossiers: DocMetaPiece[] = (await prisma.dossiers.findMany({
     include: {
-            MetaDonnees: true,
-            Piece:true,
+            // MetaDonnees: true,
+            // Piece:true,
         }
     })) as unknown as  DocMetaPiece[];
 

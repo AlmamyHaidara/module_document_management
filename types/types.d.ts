@@ -25,7 +25,7 @@ export interface CompteClient {
 export interface TypeDocument {
     id: number;
     code?: string;
-    nomType: string;
+    nom_type: string;
     compteClientId: number;
     compteClient: CompteClient;
     dossiers: Dossier[];
