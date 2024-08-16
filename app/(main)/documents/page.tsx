@@ -16,7 +16,7 @@ function DocumentComponent() {
     const [matricule, setMatricule] = useState<string>('');
     const { findAllDocument } = DocumentService;
 
-    const { isPending, isError, data, error } = useQuery({ queryKey: ['`document'], queryFn: findAllDocument });
+    const { isPending, isError, data, error } = useQuery({ queryKey: ['document'], queryFn: findAllDocument });
 
     if (isPending) {
         return (
@@ -34,8 +34,6 @@ function DocumentComponent() {
         setMatricule(dossierCode);
         setVisible(true);
     };
-
-    console.log("---------------DocumentController: ",data)
 
 
 

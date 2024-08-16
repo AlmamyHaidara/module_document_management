@@ -1,11 +1,11 @@
-
-
 export const DocumentService = {
 
-    async createDocument(document:any){
-        console.log("-----------DocumentApi: ", document.nom_type)
-        const response = await fetch(`/api/document/`,{
-            method:"POST",
+    async createDocument(document: any) {
+        const response = await fetch(`/api/document/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(document)
         });
 
@@ -13,12 +13,11 @@ export const DocumentService = {
             throw new Error('Network response was not ok');
         }
 
-
         return response.json();
     },
+
     async findDocumentByCode(code: string) {
         console.log('code', code);
-        // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
         const response = await fetch(`/api/document/${code.toLowerCase()}`);
 
         if (!response.ok) {
@@ -26,37 +25,63 @@ export const DocumentService = {
         }
         return response.json();
     },
+
     async findAllDocument() {
-        // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
         const response = await fetch(`/api/document/`);
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
 
-        console.log("-----------DocumentApi: ", response)
         return response.json();
     },
 
-    async updateDocument(id: string, doc: DocumentType){
-        const response = await fetch(`/api/document/${id}`);
+    async updateDocument(id: string, doc: any) {
+        console.log("eddws",id,doc);
+
+         // Remplacez DocumentType par any si DocumentType n'est pas défini
+        const response = await fetch(`/api/document/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(doc)
+        });
+
+        if (!response.ok) {
+            console.log("---------------DocumentUpdate: ",id)
+            throw new Error('Network response was not ok');
+        }
+
+        console.log("-----------UpdateDocument: ", response);
+        return response.json();
+    },
+
+    async deleteDocument(id: string) {
+
+        console.log("-----------DocumentApi: ", id);
+        const response = await fetch(`/api/document/${id}`, {
+            method: "DELETE"
+        });
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
 
-        console.log("-----------DocumentApi: ", response)
+        console.log("-----------DocumentApi: ", response);
         return response.json();
-    }
-,
-    async deleteDocument(id: string){
-        const response = await fetch(`/api/document/${id}`);
-
+    },
+    async updateMetaDonnee(id: string, updatedData: any) {
+        const response = await fetch(`/api/metadonnee/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(updatedData),
+        });
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error('Failed to update metadonnee');
         }
-
-        console.log("-----------DocumentApi: ", response)
         return response.json();
     }
+
+
 };
+

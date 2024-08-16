@@ -11,6 +11,7 @@ import { DocumentService } from '@/demo/service/Document.service';
 import { TypeDocument } from '@/types/types';
 
 export type FieldItem = {
+    id:number,
     cle: string,
     valeur: string
 }
@@ -27,7 +28,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         defaultValues: {
             nom: "",
             code: "",
-            fields: [{ cle: "text", valeur: "" }],
+            fields: [{ id:0, cle: "text", valeur: "" }],
         },
     });
 
@@ -35,7 +36,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
 
     const { fields, append, remove } = useFieldArray({
         control,
-        cle: "fields",
+        name: "fields",
     });
 
     const toast = React.useRef<Toast>(null);
@@ -61,7 +62,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         reset({
             nom: doc.nom,
             code: doc.code,
-            fields: doc.fields || [{ cle: "text", valeur: "" }],
+            fields: doc.fields || [{ id:0,cle: "text", valeur: "" }],
         });
     };
 
@@ -82,12 +83,16 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
             console.log("onError", error);
         }
     });
-
     const updateMutation = useMutation({
-        mutationFn: (doc: TypeDocument) => DocumentService.updateDocument(doc.id, doc),
+        mutationFn: (doc: TypeDocument) => {
+            if (!doc.code) {
+                throw new Error("Document code is required");
+            }
+            return DocumentService.updateDocument(doc.code, doc);
+        },
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
-            queryClient.invalidateQueries(["document"]);
+            queryClient.invalidateQueries({ queryKey: ["document"] });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du document a échoué', life: 3000 });
@@ -98,12 +103,12 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     const deleteMutation = useMutation({
         mutationFn: (id: string) => DocumentService.deleteDocument(id),
         onSuccess: () => {
+            queryClient.invalidateQueries({queryKey:["document"]});
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["document"]);
         },
         onError: (error) => {
-            toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du document a échoué', life: 3000 });
             console.log("onDeleteError", error);
+            toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du document a échoué', life: 3000 });
         }
     });
 
@@ -119,21 +124,21 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         deleteMutation.mutate(id);
     };
 
-    const onSubmit = (data: any) => {
-        if (isUpdateMode && selectedDocument) {
-            handleUpdateDocument({ ...selectedDocument, ...data });
-        } else {
-            handleCreateDocument(data);
-        }
-        setProductDialog(false);
-    };
+    // const onSubmit = (data: any) => {
+    //     if (isUpdateMode && selectedDocument) {
+    //         handleUpdateDocument({ ...selectedDocument, ...data });
+    //     } else {
+    //         handleCreateDocument(data);
+    //     }
+    //     setProductDialog(false);
+    // };
 
     return (
         <div className="grid">
             <div className="col-12">
                 <div className="card">
                     <Toast ref={toast} />
-                    <ToolbarComponent onNewClick={openNew} />
+                    {/* <ToolbarComponent onNewClick={openNew} /> */}
                     <DocumentTable
                         documents={document}
                         globalFilterValue=""
@@ -141,20 +146,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
                         onCreateDocument={handleCreateDocument}
                         onUpdateDocument={handleUpdateDocument}
                         onDeleteDocument={handleDeleteDocument}
-                        onRowEditClick={openUpdate}  // Passez la fonction pour l'édition
-                    />
-                    <ProductDialog
-                        visible={productDialog}
-                        onHide={hideDialog}
-                        onSave={handleSubmit(onSubmit)}
-                        fields={fields}
-                        addField={() => append({ cle: "text", valeur: "" })}
-                        removeField={remove}
-                        setFieldValue={(index, valeur) => setValue(`fields.${index}.valeur`, valeur)}
-                        setFieldType={(index, cle) => setValue(`fields.${index}.cle`, cle)}
-                        control={control}
-                        errors={errors}
-                        getValues={getValues}
+                        // onRowEditClick={openUpdate}  // Passez la fonction pour l'édition
                     />
                 </div>
             </div>

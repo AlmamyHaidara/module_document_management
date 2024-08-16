@@ -23,7 +23,7 @@ export interface CompteClient {
 }
 
 export interface TypeDocument {
-    id: number;
+    id: string;
     code?: string;
     nom_type: string;
     compteClientId: number;

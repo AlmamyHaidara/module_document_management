@@ -1,5 +1,4 @@
-import React, { useState, useRef } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import React, { useState, useRef, useEffect } from "react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from "primereact/button";
@@ -10,7 +9,12 @@ import { FileUpload } from "primereact/fileupload";
 import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { TypeDocument } from "@/types/types";
-import { v4 as uuidv4 } from 'uuid';
+import { DocumentService } from "@/demo/service/Document.service";
+import { MetaDonneService } from "@/demo/service/MetaDonne.service";
+import { generateID } from "../(main)/utils/function";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { Tooltip } from 'primereact/tooltip';
 
 interface DocumentTableProps {
     documents: TypeDocument[];
@@ -28,28 +32,30 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const [document, setDocument] = useState<TypeDocument | null>(null);
     const [selectedDocuments, setSelectedDocuments] = useState<TypeDocument[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
+    const [refresh, setRefresh] = useState(false);
+    const [fields, setFields] = useState([{ id: generateID(6), cle: "", valeur: "" }]);
+    const queryClient = useQueryClient();
+    const router = useRouter()
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-
-    const { control, handleSubmit, reset } = useForm({
-        defaultValues: {
-            fields: [{ cle: "", valeur: "" }],
-        }
-    });
-
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: "fields",
-    });
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setGlobalFilterValue(value);
     };
+    useEffect(()=>{
+        if (refresh) {
+            queryClient.invalidateQueries({ queryKey: ['document'] }, {
+                refetchActive: true,
+                refetchInactive: true,
+            });
+            router.push("/documents?pp=9");
+        }
+    }, [refresh, queryClient, router]);
 
     const openNew = () => {
-        setDocument(null);
-        reset({ fields: [{ cle: "", valeur: "" }] }); // Réinitialiser les champs dynamiques
+        setDocument({ id: generateID(6), nom_type: "", metadonnees: [] });
+        setFields([{ id: generateID(6), cle: "", valeur: "" }]);
         setSubmitted(false);
         setDocumentDialog(true);
     };
@@ -67,32 +73,76 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
         setDeleteDocumentsDialog(false);
     };
 
-    const saveDocument = (data: any) => {
-        setSubmitted(true);
+const onUpdateMeta = useMutation({
+    mutationFn:(data:any)=> MetaDonneService.updateMetaDonnee(data.cle,data.data),
+    onSuccess:()=>{
+        queryClient.invalidateQueries({queryKey:['document']})
 
-        if (!document?.code || !document?.nom_type) {
-            return;
-        }
+    }
+})
+    const saveDocument = () => {
+        try {
+            setSubmitted(true);
 
-        const updatedDocument = { ...document, fields: data.fields };
+        const existingFields = document?.metadonnees || [];
+        const fieldsToUpdate = fields.filter(field => existingFields.some(existingField => existingField.id === field.id));
+        const fieldsToDelete = existingFields.filter(existingField => !fields.some(field => field.id === existingField.id));
+        const fieldsToAdd = fields.filter(field => !existingFields.some(existingField => existingField.id === field.id));
 
-        if (document.id) {
-            // Mise à jour du document existant
+        console.log("-----------existingFields: ",existingFields);
+        console.log("-----------fieldsToUpdate: ",fieldsToUpdate);
+        console.log("-----------fieldsToDelete: ",fieldsToDelete);
+        console.log("-----------fieldsToAdd: ",fieldsToAdd);
+
+
+        const updatedDocument:any = {
+            ...document,
+            metadonnees: [...fieldsToUpdate, ...fieldsToAdd],
+        };
+
+        if (document?.code) {
+            fieldsToUpdate.forEach(field => {
+
+                DocumentService.updateDocument(document.id,document)
+                MetaDonneService.updateMetaDonnee(field.cle, { id:field.id,cle: field.cle, valeur: field.valeur })
+                // onUpdateMeta.mutate({cle:field.cle, data:{ id:field.id,cle: field.cle, valeur: field.valeur }})
+            });
+
+            fieldsToDelete.forEach((field:{id:any}) => {
+                console.log("ppppppppppppppppppppppppppppp");
+
+                MetaDonneService.deleteMetaDonnee(field.id)
+
+            });
+
+            // fieldsToAdd.forEach(field => {
+            //     MetaDonneService.addMetaDonnee(document?.id, field)
+
+            // });
+
             onUpdateDocument(updatedDocument);
-            toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Document Updated', life: 3000 });
+            toast.current?.show({ severity: 'success', summary: 'Document mis à jour', detail: 'Le document a été mis à jour avec succès', life: 3000 });
         } else {
-            // Créer un nouveau document
-            const newDocument = { ...updatedDocument, id: uuidv4() };
+            const newDocument:any = { ...updatedDocument, id: generateID(6) };
             onCreateDocument(newDocument);
-            toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Document Created', life: 3000 });
+            toast.current?.show({ severity: 'success', summary: 'Document créé', detail: 'Le document a été créé avec succès', life: 3000 });
         }
+
         setDocumentDialog(false);
         setDocument(null);
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la métadonnée:", error);
+                         toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour des métadonnées', life: 3000 });
+
+        }finally{
+            setRefresh(prev=>!prev)
+        }
+
     };
 
     const editDocument = (document: TypeDocument) => {
         setDocument({ ...document });
-        reset({ fields: document.fields || [{ cle: "", valeur: "" }] });
+        setFields(document.metadonnees || [{ id: generateID(6), cle: "", valeur: "" }]);
         setDocumentDialog(true);
     };
 
@@ -101,10 +151,17 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
         setDeleteDocumentDialog(true);
     };
 
+    const handleRemove = (index: number) => {
+        const fieldToRemove = fields[index];
+        setFields(fields.filter((_, i) => i !== index));
+    };
+
     const deleteDocument = () => {
         if (document?.id) {
             onDeleteDocument(document.id);
-            toast?.current?.show({ severity: 'success', summary: 'Successful', detail: 'Document Deleted', life: 3000 });
+            toast?.current?.show({ severity: 'success', summary: 'Document supprimé', detail: 'Le document a été supprimé avec succès', life: 3000 });
+        } else {
+            toast?.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Document non trouvé', life: 3000 });
         }
         setDeleteDocumentDialog(false);
         setDocument(null);
@@ -115,10 +172,10 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     };
 
     const deleteSelectedDocuments = () => {
-        selectedDocuments?.forEach((doc: TypeDocument) => onDeleteDocument(doc.id));
+        selectedDocuments?.forEach(doc => onDeleteDocument(doc.id));
         setDeleteDocumentsDialog(false);
         setSelectedDocuments(null);
-        toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Documents Deleted', life: 3000 });
+        toast.current?.show({ severity: 'success', summary: 'Documents supprimés', detail: 'Les documents sélectionnés ont été supprimés avec succès', life: 3000 });
     };
 
     const actionBodyTemplate = (rowData: TypeDocument) => {
@@ -133,8 +190,8 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const leftToolbarTemplate = () => {
         return (
             <>
-                <Button label="New" icon="pi pi-plus" severity="success" className="mr-2" onClick={openNew} />
-                <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedDocuments || !selectedDocuments.length} />
+                <Button label="Nouveau" icon="pi pi-plus" severity="success" className="mr-2" onClick={openNew} />
+                <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedDocuments || !selectedDocuments.length} />
             </>
         );
     };
@@ -142,30 +199,30 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const rightToolbarTemplate = () => {
         return (
             <>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
-                <Button label="Export" icon="pi pi-upload" severity="help" onClick={() => dt.current?.exportCSV()} />
+                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Importer" className="mr-2 inline-block" />
+                <Button label="Exporter" icon="pi pi-upload" severity="help" onClick={() => dt.current?.exportCSV()} />
             </>
         );
     };
 
     const documentDialogFooter = (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={handleSubmit(saveDocument)} />
+            <Button label="Annuler" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Enregistrer" icon="pi pi-check" text onClick={saveDocument} />
         </>
     );
 
     const deleteDocumentDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteDocumentDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteDocument} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeleteDocumentDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={deleteDocument} />
         </>
     );
 
     const deleteDocumentsDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteDocumentsDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteSelectedDocuments} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeleteDocumentsDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={deleteSelectedDocuments} />
         </>
     );
 
@@ -173,7 +230,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
+                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" />
             </span>
         </div>
     );
@@ -186,21 +243,15 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
                     <DataTable ref={dt} value={documents} responsiveLayout="scroll" dataKey="id" header={header}>
                         <Column field="id" header="ID" sortable />
-                        <Column field="code" header="Code" sortable />
                         <Column field="nom_type" header="Nom" sortable />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
                     </DataTable>
 
-                    <Dialog visible={documentDialog} style={{ width: '450px' }} header="Document Details" modal className="p-fluid" footer={documentDialogFooter} onHide={hideDialog}>
-                        <div className="field">
-                            <label htmlFor="code">Code</label>
-                            <InputText id="code" value={document?.code || ''} onChange={(e) => setDocument({ ...document, code: e.target.value })} required autoFocus className={classNames({ 'p-invalid': submitted && !document?.code })} />
-                            {submitted && !document?.code && <small className="p-invalid">Code is required.</small>}
-                        </div>
+                    <Dialog visible={documentDialog} style={{ width: '450px' }} header="Détails du document" modal className="p-fluid" footer={documentDialogFooter} onHide={hideDialog}>
                         <div className="field">
                             <label htmlFor="nom_type">Nom</label>
                             <InputText id="nom_type" value={document?.nom_type || ''} onChange={(e) => setDocument({ ...document, nom_type: e.target.value })} required className={classNames({ 'p-invalid': submitted && !document?.nom_type })} />
-                            {submitted && !document?.nom_type && <small className="p-invalid">Nom is required.</small>}
+                            {submitted && !document?.nom_type && <small className="p-invalid">Le nom est requis.</small>}
                         </div>
 
                         <h5>Champs dynamiques</h5>
@@ -208,43 +259,62 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
                             <div className="field" key={field.id}>
                                 <div className="p-fluid grid">
                                     <div className="field col-5">
-                                        <Controller
-                                            name={`fields.${index}.cle`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <InputText {...field} placeholder="Nom du champ" />
-                                            )}
-                                        />
+                                        <InputText value={field.cle} onChange={(e) => {
+                                            const newFields = [...fields];
+                                            newFields[index].cle = e.target.value;
+                                            setFields(newFields);
+                                        }} placeholder="Nom du champ" />
                                     </div>
                                     <div className="field col-5">
-                                        <Controller
-                                            name={`fields.${index}.valeur`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <InputText {...field} placeholder="Valeur" />
-                                            )}
-                                        />
+                                        <InputText value={field.valeur} onChange={(e) => {
+                                            const newFields = [...fields];
+                                            newFields[index].valeur = e.target.value;
+                                            setFields(newFields);
+                                        }} placeholder="Valeur" />
                                     </div>
                                     <div className="field col-2">
-                                        <Button icon="pi pi-minus" className="p-button-danger" onClick={() => remove(index)} />
+                                        <Button icon="pi pi-minus" className="p-button-danger" onClick={() => handleRemove(index)} />
                                     </div>
                                 </div>
                             </div>
                         ))}
-                        <Button icon="pi pi-plus" label="Ajouter un champ" className="p-button-success p-mt-2" onClick={() => append({ cle: "", valeur: "" })} />
+                        <div className="field" >
+                                <div className="p-fluid grid">
+                                    <div className="field col-5">
+                                      {/*   <InputText value={field.cle} onChange={(e) => {
+                                            const newFields = [...fields];
+                                            newFields[index].cle = e.target.value;
+                                            setFields(newFields);
+                                        }} placeholder="Nom du champ" />*/}
+                                    </div>
+                                    <div className="field col-5">
+                                        {/* <InputText value={field.valeur} onChange={(e) => {
+                                            const newFields = [...fields];
+                                            newFields[index].valeur = e.target.value;
+                                            setFields(newFields);
+                                        }} placeholder="Valeur" /> */}
+                                    </div>
+                                    <div className="field col-2">
+                                    <Button icon="pi pi-plus" onClick={() => setFields([...fields, { id: generateID(6), cle: "", valeur: "" }])} tooltip="Ajouter des nouveaux champs" tooltipOptions={{ position: 'bottom', mouseTrack: true, mouseTrackTop: 15 }} />
+
+                                    <Tooltip target=".logo" mouseTrack mouseTrackLeft={10} />
+                                    </div>
+                                </div>
+                            </div>
+
                     </Dialog>
 
-                    <Dialog visible={deleteDocumentDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteDocumentDialogFooter} onHide={hideDeleteDocumentDialog}>
+                    <Dialog visible={deleteDocumentDialog} style={{ width: '450px' }} header="Confirmer" modal footer={deleteDocumentDialogFooter} onHide={hideDeleteDocumentDialog}>
                         <div className="confirmation-content">
                             <i className="pi pi-exclamation-triangle mr-3" />
-                            {document && <span>Are you sure you want to delete <b>{document.nom_type}</b>?</span>}
+                            {document && <span>Êtes-vous sûr de vouloir supprimer <b>{document.nom_type}</b>?</span>}
                         </div>
                     </Dialog>
 
-                    <Dialog visible={deleteDocumentsDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteDocumentsDialogFooter} onHide={hideDeleteDocumentsDialog}>
+                    <Dialog visible={deleteDocumentsDialog} style={{ width: '450px' }} header="Confirmer" modal footer={deleteDocumentsDialogFooter} onHide={hideDeleteDocumentsDialog}>
                         <div className="confirmation-content">
                             <i className="pi pi-exclamation-triangle mr-3" />
-                            {selectedDocuments && <span>Are you sure you want to delete the selected documents?</span>}
+                            {selectedDocuments && <span>Êtes-vous sûr de vouloir supprimer les documents sélectionnés?</span>}
                         </div>
                     </Dialog>
                 </div>

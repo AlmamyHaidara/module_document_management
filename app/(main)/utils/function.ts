@@ -4,7 +4,6 @@ import { InputNumberValueChangeEvent } from "primereact/inputnumber";
 import { RadioButtonChangeEvent } from "primereact/radiobutton";
 import { Rating } from "primereact/rating";
 
-
 export const onCategoryChange = (e: RadioButtonChangeEvent,product:Demo.Product) => {
     let _product = { ...product };
     _product['category'] = e.value;
@@ -53,3 +52,16 @@ export  const formatCurrency = (value: number) => {
         currency: 'USD'
     });
 };
+
+
+export const generateID =(length: number): string =>{
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters[randomIndex];
+    }
+    return result;
+}
+
+
