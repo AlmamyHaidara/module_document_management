@@ -26,9 +26,10 @@ export interface TypeDocument {
     id: string;
     code?: string;
     nom_type: string;
-    compteClientId: number;
-    compteClient: CompteClient;
-    dossiers: Dossier[];
+    compteClientId: string;
+    compteClient: CompteClient?;
+    dossiers: Dossier[]?;
+    metadonnees:any[]?;
 }
 
 export interface Dossier {

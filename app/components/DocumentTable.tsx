@@ -29,7 +29,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const [documentDialog, setDocumentDialog] = useState(false);
     const [deleteDocumentDialog, setDeleteDocumentDialog] = useState(false);
     const [deleteDocumentsDialog, setDeleteDocumentsDialog] = useState(false);
-    const [document, setDocument] = useState<TypeDocument | null>(null);
+    const [document, setDocument] = useState<TypeDocument | any>(null);
     const [selectedDocuments, setSelectedDocuments] = useState<TypeDocument[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const [refresh, setRefresh] = useState(false);
@@ -43,16 +43,12 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
         const value = e.target.value;
         setGlobalFilterValue(value);
     };
-    useEffect(()=>{
-        if (refresh) {
-            queryClient.invalidateQueries({ queryKey: ['document'] }, {
-                refetchActive: true,
-                refetchInactive: true,
-            });
-            router.push("/documents?pp=9");
-        }
-    }, [refresh, queryClient, router]);
+    // useEffect(()=>{
+    //     if (refresh) {
+    //         queryClient.invalidateQueries({ queryKey: ['document'], refetchType: 'all' });
 
+    //     }
+    // }, [refresh, queryClient, router]);
     const openNew = () => {
         setDocument({ id: generateID(6), nom_type: "", metadonnees: [] });
         setFields([{ id: generateID(6), cle: "", valeur: "" }]);
@@ -85,9 +81,9 @@ const onUpdateMeta = useMutation({
             setSubmitted(true);
 
         const existingFields = document?.metadonnees || [];
-        const fieldsToUpdate = fields.filter(field => existingFields.some(existingField => existingField.id === field.id));
-        const fieldsToDelete = existingFields.filter(existingField => !fields.some(field => field.id === existingField.id));
-        const fieldsToAdd = fields.filter(field => !existingFields.some(existingField => existingField.id === field.id));
+        const fieldsToUpdate = fields.filter(field => existingFields.some((existingField:any) => existingField.id === field.id));
+        const fieldsToDelete = existingFields.filter((existingField:any) => !fields.some(field => field.id === existingField.id));
+        const fieldsToAdd = fields.filter(field => !existingFields.some((existingField:any) => existingField.id === field.id));
 
         console.log("-----------existingFields: ",existingFields);
         console.log("-----------fieldsToUpdate: ",fieldsToUpdate);
@@ -191,7 +187,7 @@ const onUpdateMeta = useMutation({
         return (
             <>
                 <Button label="Nouveau" icon="pi pi-plus" severity="success" className="mr-2" onClick={openNew} />
-                <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedDocuments || !selectedDocuments.length} />
+                {/* <Button label="Supprimer" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedDocuments || !selectedDocuments.length} /> */}
             </>
         );
     };
