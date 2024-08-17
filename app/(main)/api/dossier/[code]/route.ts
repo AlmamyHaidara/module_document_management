@@ -9,11 +9,11 @@ export async function GET(req: Request, { params }: { params: { code: string } }
 
             code: params.code
         },
-        include: {
-            MetaDonnees: true,
-            Piece:true,
-            typeDocument:true
-        }
+        // include: {
+        //     MetaDonnees: true,
+        //     Piece:true,
+        //     typeDocument:true
+        // }
     })) as unknown as DocMetaPiece[] & TypeDocument[];
 
     return Response.json(dossier);

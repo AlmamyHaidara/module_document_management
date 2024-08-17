@@ -23,7 +23,7 @@ export interface CompteClient {
 }
 
 export interface TypeDocument {
-    id: string;
+    id: number;
     code?: string;
     nom_type: string;
     compteClientId: string;
@@ -31,6 +31,30 @@ export interface TypeDocument {
     dossiers: Dossier[]?;
     metadonnees:any[]?;
 }
+
+export interface DocumentTypeInfo {
+
+        metadonnees: {
+            id: number;
+            cle: string;
+            valeur: string;
+            typesDocID: string | null;
+            created_at: Date;
+            updated_at: Date;
+        }[],
+        id: number;
+        code: string;
+        nom_type: string;
+        created_at: Date;
+        updated_at: Date;
+
+    }
+    export interface TypeDoc{
+        id:number,
+        code:string,
+        nom_type:string
+    }
+
 
 export interface Dossier {
     id: number;
@@ -43,12 +67,14 @@ export interface Dossier {
 }
 
 export interface MetaDonnee {
-    id: number;
-    dossierId: number;
+        id: number;
     cle: string;
-    valeur?: string;
-    dossier: Dossier;
+    valeur: string;
+    typesDocID: number;
+    created_at: Date;
+    updated_at: Date;
 }
+
 
 export interface Piece {
     id: number;

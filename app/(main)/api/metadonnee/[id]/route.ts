@@ -11,7 +11,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     try {
         const tt = await prisma.metaDonnees.deleteMany({
-            where: { id: id },
+            where: { id: Number(id) },
         });
 
         console.log("''''''''''''''''''',",tt);
@@ -40,7 +40,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }
 
         const updatedMetaDonnee = await prisma.metaDonnees.update({
-            where: { id: metaDonnee.id },
+            where: { id: Number(metaDonnee.id) },
             data: {
                 cle: data.cle,
                 valeur: data.valeur,

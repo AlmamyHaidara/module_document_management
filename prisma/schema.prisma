@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Clients {
-  id         String        @id
+  id         Int        @id @default(autoincrement())
   nom        String     @db.VarChar(100)
   prenom     String     @db.VarChar(100)
   adresse    String     @db.VarChar(255)
@@ -32,8 +32,8 @@ model CompteClients {
   date_ouverture    DateTime
   agence            String         @db.VarChar(100)
   code_gestionnaire String         @db.VarChar(20)
-  client_id         String
-  type_document_id  String
+  client_id         Int
+  type_document_id  Int
   client            Clients        @relation(fields: [client_id], references: [id], onDelete: Cascade, name: "ClientComptes")
   type_document     TypesDocuments @relation(fields: [type_document_id], references: [id], onDelete: Cascade, name: "DocumentComptes")
 
@@ -44,8 +44,8 @@ model CompteClients {
 }
 
 model TypesDocuments {
-  id       String    @id @default(uuid())
-  code     String @unique @default(uuid()) @db.VarChar(50)
+  id       Int    @id @default(autoincrement())
+  code     String @unique @db.VarChar(50)
   nom_type String @db.VarChar(100)
 
   metadonnees MetaDonnees[] @relation("TypesDocumentsMetaDonnees")
@@ -61,15 +61,26 @@ model TypesDocuments {
   @@index([code, nom_type])
 }
 
+model DossierInfo{
+  id Int @id @default(autoincrement())
+  cle String
+  value String
+  dossiers Dossiers[] @relation("DossierInfos")
+
+
+}
 model Dossiers {
   id               Int    @id @default(autoincrement())
-  code             String @unique @default(uuid()) @db.VarChar(50)
+  code             String @unique  @db.VarChar(50)
+  nom              String
   description      String @db.VarChar(255)
-  type_document_id String
+  type_document_id Int
   piece_id         Int
+  dossier_info_id Int
 
   typeDocument TypesDocuments @relation(fields: [type_document_id], references: [id], onDelete: Cascade, name: "TypeDocumentDossiers")
   piece        Piece          @relation(fields: [piece_id], references: [id], onDelete: Cascade, name: "PieceDossiers")
+  dossierInfos DossierInfo  @relation(fields: [dossier_info_id], references: [id],name: "DossierInfos")
 
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
@@ -77,12 +88,27 @@ model Dossiers {
 
   @@index([type_document_id, piece_id])
 }
+model Piece {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique @db.VarChar(50)
+  nom           String?   @db.VarChar(100)
+  path          String   @db.VarChar(254)
+  date_creation DateTime? @default(now())
+
+  dossiers Dossiers[] @relation("PieceDossiers")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([code])
+  @@index([date_creation])
+}
 
 model MetaDonnees {
-  id     String    @id @default(uuid())
+  id     Int    @id @default(autoincrement())
   cle    String @db.VarChar(50)
   valeur String @db.Text
-  typesDocID String?
+  typesDocID Int?
 
   typeDocument TypesDocuments? @relation(fields: [typesDocID], references: [id], onDelete: Cascade, name: "TypesDocumentsMetaDonnees")
 
@@ -93,20 +119,7 @@ model MetaDonnees {
 }
 
 
-model Piece {
-  id            Int      @id @default(autoincrement())
-  code          String   @unique @db.VarChar(50)
-  nom           String   @db.VarChar(100)
-  date_creation DateTime
 
-  dossiers Dossiers[] @relation("PieceDossiers")
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([code])
-  @@index([date_creation])
-}
 
 enum NatureEnum {
   Physique

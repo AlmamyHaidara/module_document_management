@@ -8,6 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { TreeTable } from 'primereact/treetable';
 import React from 'react';
 import { DossierService } from '../service/Dossier.service';
+import NavStep from './NavStep';
 
 type PropsType ={
     visible: boolean;

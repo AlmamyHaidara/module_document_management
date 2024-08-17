@@ -17,7 +17,7 @@ function DossierComponent() {
     const [matricule, setMatricule] = useState<string>("");
     const { findAllDossier } = DossierService;
 
-    const { isPending, isError, data, error } = useQuery({ queryKey: ['`dossiers'], queryFn: findAllDossier });
+    const { isPending, isError, data, error } = useQuery({ queryKey: ['dossiers'], queryFn: findAllDossier });
 
     if (isPending) {
         return (
@@ -38,7 +38,7 @@ function DossierComponent() {
 
     return (
         <>
-            <DossierExpendTable dossier={data} findDossier={findDossier} />
+            <DossierExpendTable dossier={data} findDossierByCode={findDossier} />
             {
                 visible &&
             <DialogDossier visible={visible} setVisible={setVisible} code={matricule}  />

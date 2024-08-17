@@ -1,6 +1,7 @@
-import { Client, CompteClient, Dossier, Piece, MetaDonnee, DocMetaPiece } from '@/types/types';
+import {  DocMetaPiece } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { generateID } from '../../utils/function';
 
 const prisma = new PrismaClient();
 export async function GET() {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
                 data: {
                     cle: field.cle,
                     valeur: field.valeur,
+
                 },
             });
             return meta.id;
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
         // Créer le nouveau document et le connecter aux métadonnées créées
         const newDossier = await prisma.typesDocuments.create({
             data: {
-                code: data.code,
+                code: generateID(6),
                 nom_type: data.nom_type,
                 metadonnees: {
                     connect: metadonneIds.map(id => ({ id })),

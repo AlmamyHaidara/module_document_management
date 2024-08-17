@@ -124,15 +124,6 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         deleteMutation.mutate(id);
     };
 
-    // const onSubmit = (data: any) => {
-    //     if (isUpdateMode && selectedDocument) {
-    //         handleUpdateDocument({ ...selectedDocument, ...data });
-    //     } else {
-    //         handleCreateDocument(data);
-    //     }
-    //     setProductDialog(false);
-    // };
-
     return (
         <div className="grid">
             <div className="col-12">

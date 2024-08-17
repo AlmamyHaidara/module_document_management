@@ -41,7 +41,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { code: str
     try {
 
         await prisma.typesDocuments.deleteMany({
-            where: { id: code },
+            where: { id: Number(code) },
         });
         revalidatePath("/documents",'layout')
         return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
@@ -64,10 +64,12 @@ export async function PUT(req: NextRequest) {
 
         await Promise.all( metadonnees.map(async (field: any) => {
 
+            console.log("MetadonneeesId: ",field.id )
                  await prisma.metaDonnees.upsert({
                     where: { id: field.id },
                     update:{
                         cle: field.cle, valeur: field.valeur,
+
                         typeDocument:{
                             update:{
                                 nom_type:data.nom_type
@@ -77,9 +79,10 @@ export async function PUT(req: NextRequest) {
                     create:{
                         cle: field.cle,
                         valeur: field.valeur,
+
                         typeDocument:{
                           connect:{
-                            id:id
+                            id:Number(id)
                           }
                         }
                     }

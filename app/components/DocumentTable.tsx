@@ -15,6 +15,8 @@ import { generateID } from "../(main)/utils/function";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
+import DropDownComponent from "./DopDownComponent";
+import { Dropdown } from "primereact/dropdown";
 
 interface DocumentTableProps {
     documents: TypeDocument[];
@@ -22,7 +24,7 @@ interface DocumentTableProps {
     setGlobalFilterValue: (value: string) => void;
     onUpdateDocument: (document: TypeDocument) => void;
     onCreateDocument: (document: TypeDocument) => void;
-    onDeleteDocument: (id: string) => void;
+    onDeleteDocument: (id: number) => void;
 }
 
 const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onUpdateDocument, onCreateDocument, onDeleteDocument }: DocumentTableProps) => {
@@ -33,25 +35,24 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const [selectedDocuments, setSelectedDocuments] = useState<TypeDocument[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const [refresh, setRefresh] = useState(false);
-    const [fields, setFields] = useState([{ id: generateID(6), cle: "", valeur: "" }]);
+    const [fields, setFields] = useState([{ id: 0, cle: "", valeur: "" }]);
     const queryClient = useQueryClient();
     const router = useRouter()
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const typeDoc:{name:string}[]= ([{name:"text"},{name:"number"},{name:"email"},{name:"tel"},{name:"date"},{name:"file"}]);
+    const [docType, setDocType] = useState<{name:string}>({name:""});
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setGlobalFilterValue(value);
     };
-    // useEffect(()=>{
-    //     if (refresh) {
-    //         queryClient.invalidateQueries({ queryKey: ['document'], refetchType: 'all' });
-
-    //     }
-    // }, [refresh, queryClient, router]);
+    useEffect(()=>{
+       console.log("-----------docType: ",docType)
+    }, [docType]);
     const openNew = () => {
-        setDocument({ id: generateID(6), nom_type: "", metadonnees: [] });
-        setFields([{ id: generateID(6), cle: "", valeur: "" }]);
+        setDocument({ id: 0, nom_type: "", metadonnees: [] });
+        setFields([{ id: 0, cle: "", valeur: "" }]);
         setSubmitted(false);
         setDocumentDialog(true);
     };
@@ -79,7 +80,7 @@ const onUpdateMeta = useMutation({
     const saveDocument = () => {
         try {
             setSubmitted(true);
-
+            console.log("------------document",document)
         const existingFields = document?.metadonnees || [];
         const fieldsToUpdate = fields.filter(field => existingFields.some((existingField:any) => existingField.id === field.id));
         const fieldsToDelete = existingFields.filter((existingField:any) => !fields.some(field => field.id === existingField.id));
@@ -94,6 +95,7 @@ const onUpdateMeta = useMutation({
         const updatedDocument:any = {
             ...document,
             metadonnees: [...fieldsToUpdate, ...fieldsToAdd],
+
         };
 
         if (document?.code) {
@@ -119,7 +121,7 @@ const onUpdateMeta = useMutation({
             onUpdateDocument(updatedDocument);
             toast.current?.show({ severity: 'success', summary: 'Document mis à jour', detail: 'Le document a été mis à jour avec succès', life: 3000 });
         } else {
-            const newDocument:any = { ...updatedDocument, id: generateID(6) };
+            const newDocument:any = { ...updatedDocument, id: 0 };
             onCreateDocument(newDocument);
             toast.current?.show({ severity: 'success', summary: 'Document créé', detail: 'Le document a été créé avec succès', life: 3000 });
         }
@@ -138,7 +140,7 @@ const onUpdateMeta = useMutation({
 
     const editDocument = (document: TypeDocument) => {
         setDocument({ ...document });
-        setFields(document.metadonnees || [{ id: generateID(6), cle: "", valeur: "" }]);
+        setFields(document.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
         setDocumentDialog(true);
     };
 
@@ -168,7 +170,7 @@ const onUpdateMeta = useMutation({
     };
 
     const deleteSelectedDocuments = () => {
-        selectedDocuments?.forEach(doc => onDeleteDocument(doc.id));
+        selectedDocuments?.forEach((doc:{id:number}) => onDeleteDocument(doc.id))
         setDeleteDocumentsDialog(false);
         setSelectedDocuments(null);
         toast.current?.show({ severity: 'success', summary: 'Documents supprimés', detail: 'Les documents sélectionnés ont été supprimés avec succès', life: 3000 });
@@ -230,7 +232,17 @@ const onUpdateMeta = useMutation({
             </span>
         </div>
     );
+    const formatDate = (date:Date) => {
+        return `Le ${new Intl.DateTimeFormat('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit',
+        }).format(new Date(date))}`
+    };
+    const countMedonne=(metaDatas:any) =>{
+        console.log(metaDatas.metadonnees.length);
 
+    }
     return (
         <div className="grid crud-demo">
             <div className="col-12">
@@ -239,7 +251,10 @@ const onUpdateMeta = useMutation({
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
                     <DataTable ref={dt} value={documents} responsiveLayout="scroll" dataKey="id" header={header}>
                         <Column field="id" header="ID" sortable />
-                        <Column field="nom_type" header="Nom" sortable />
+                        <Column field="code" header="Code" sortable />
+                        <Column field="nom_type" header="Nom" sortable  />
+                        <Column field="metadonnee" header="Nombre de champ" sortable body={(metaDatas) => metaDatas.metadonnees.length}  />
+                        <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
                     </DataTable>
 
@@ -262,11 +277,27 @@ const onUpdateMeta = useMutation({
                                         }} placeholder="Nom du champ" />
                                     </div>
                                     <div className="field col-5">
-                                        <InputText value={field.valeur} onChange={(e) => {
+                                        {/* <InputText value={field.valeur} onChange={(e) => {
                                             const newFields = [...fields];
                                             newFields[index].valeur = e.target.value;
                                             setFields(newFields);
-                                        }} placeholder="Valeur" />
+                                        }} placeholder="Valeur" /> */}
+  <Dropdown
+    value={{name:field.valeur}}
+    options={typeDoc}
+    onChange={(e) => {
+        const newFields = [...fields];
+        newFields[index].valeur = e.target.value.name;
+        console.log("pp",newFields[index]);
+
+        setFields(newFields);
+    }}
+    optionLabel="name"
+    placeholder="Sélectionnez un type de document"
+/>
+                                        {/* <DropDownComponent options={typeDoc} setTypeDocument={setDocType}  typeDocument={docType} /> */}
+                                        {/* {submitted && !docType.id && <small className="p-invalid">Le type de document est requis.</small>} */}
+
                                     </div>
                                     <div className="field col-2">
                                         <Button icon="pi pi-minus" className="p-button-danger" onClick={() => handleRemove(index)} />
@@ -291,7 +322,7 @@ const onUpdateMeta = useMutation({
                                         }} placeholder="Valeur" /> */}
                                     </div>
                                     <div className="field col-2">
-                                    <Button icon="pi pi-plus" onClick={() => setFields([...fields, { id: generateID(6), cle: "", valeur: "" }])} tooltip="Ajouter des nouveaux champs" tooltipOptions={{ position: 'bottom', mouseTrack: true, mouseTrackTop: 15 }} />
+                                    <Button icon="pi pi-plus" onClick={() => setFields([...fields, { id:0 , cle: "", valeur: "" }])} tooltip="Ajouter des nouveaux champs" tooltipOptions={{ position: 'bottom', mouseTrack: true, mouseTrackTop: 15 }} />
 
                                     <Tooltip target=".logo" mouseTrack mouseTrackLeft={10} />
                                     </div>
