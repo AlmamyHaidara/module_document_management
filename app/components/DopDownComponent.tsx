@@ -13,6 +13,7 @@ interface PropsType{
     setTypeDocument:React.Dispatch<React.SetStateAction<any>>;
      typeDocument:any
 }
+const val = "nom_type" | "name"
 
 export default function DropDownComponent({options,setTypeDocument, typeDocument}:PropsType) {
 
@@ -38,7 +39,7 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
 
     return (
         <div className="flex w-full">
-            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={ "nom_type" || "name"} placeholder="Selectionne un type de document"
+            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={ val} placeholder="Selectionne un type de document"
                 filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className="w-full" />
         </div>
     )

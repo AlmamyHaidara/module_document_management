@@ -101,7 +101,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => DocumentService.deleteDocument(id),
+        mutationFn: (id: number) => DocumentService.deleteDocument(id),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:["document"]});
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
@@ -120,7 +120,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         updateMutation.mutate(updatedDocument);
     };
 
-    const handleDeleteDocument = (id: string) => {
+    const handleDeleteDocument = (id: number) => {
         deleteMutation.mutate(id);
     };
 

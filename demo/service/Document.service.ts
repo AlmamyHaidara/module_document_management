@@ -36,7 +36,7 @@ export const DocumentService = {
         return response.json();
     },
 
-    async updateDocument(id: string, doc: any) {
+    async updateDocument(id: number, doc: any) {
         console.log("eddws",id,doc);
 
          // Remplacez DocumentType par any si DocumentType n'est pas défini
@@ -57,7 +57,7 @@ export const DocumentService = {
         return response.json();
     },
 
-    async deleteDocument(id: string) {
+    async deleteDocument(id: number) {
 
         console.log("-----------DocumentApi: ", id);
         const response = await fetch(`/api/document/${id}`, {

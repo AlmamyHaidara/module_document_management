@@ -6,16 +6,16 @@ import { revalidatePath } from 'next/cache';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, { params }: { params: { code: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const code = params.code;
+        const id = params.id;
 
-        if (!code) {
+        if (!id) {
             return NextResponse.json({ error: 'Code du document requis' }, { status: 400 });
         }
 
         const document = await prisma.typesDocuments.findUnique({
-            where: { code: code },
+            where: { id: id },
             include: {
                 metadonnees: true,  // Inclure les métadonnées associées
             },
@@ -35,15 +35,14 @@ export async function GET(req: NextRequest, { params }: { params: { code: string
 }
 
 
-export async function DELETE(req: NextRequest, { params }: { params: { code: string } }) {
-    const code = params.code;
+export async function DELETE(req: NextRequest, { params }: { params: { id: number } }) {
+    const id = params.id;
 
     try {
 
-        await prisma.typesDocuments.deleteMany({
-            where: { code: code },
+        await prisma.clients.deleteMany({
+            where: { id: Number(id) },
         });
-        revalidatePath("/documents",'layout')
         return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
 
     } catch (error) {
@@ -56,40 +55,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { code: str
 export async function PUT(req: NextRequest) {
     try {
         const data = await req.json();
-        console.log("ddddd",data);
+        console.log("ddddd", data);
+        const { id, ...Clients } = data;
+        const client = await prisma.clients.update({  // Changed 'client' to 'clients'
+            where: {
+                id: id
+            },
+            data: Clients
+        });
 
-        const { id, metadonnees } = data;
-
-        console.log("Metadonneees: ",  id, metadonnees )
-
-        await Promise.all( metadonnees.map(async (field: any) => {
-
-            console.log("MetadonneeesId: ",field.id )
-                 await prisma.metaDonnees.upsert({
-                    where: { id: field.id },
-                    update:{
-                        cle: field.cle, valeur: field.valeur,
-
-                        typeDocument:{
-                            update:{
-                                nom_type:data.nom_type
-                            }
-                        }
-                    },
-                    create:{
-                        cle: field.cle,
-                        valeur: field.valeur,
-
-                        typeDocument:{
-                          connect:{
-                            id:Number(id)
-                          }
-                        }
-                    }
-                })
-
-        }))
-        revalidatePath("/documents",'layout')
         return NextResponse.json("Document mise a jour avec succes", { status: 200 });
 
     } catch (error) {
@@ -98,3 +72,4 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ error: 'Erreur lors de la mise à jour du document' }, { status: 500 });
     }
 }
+

@@ -1,22 +1,47 @@
 import { Client, CompteClient } from "@/types/types"
 import { PrismaClient } from "@prisma/client"
+import { NextRequest, NextResponse } from "next/server";
 
 
 const prisma = new PrismaClient()
-export async function GET() {
-  // const res = await fetch('https://freetestapi.com/api/v1/products', {
-  //   next: { revalidate: 60 }, // Revalidate every 60 seconds
-  // })
-  const clients:Client[] & CompteClient[] =await prisma.clients.findMany({
-    include: {
-      CompteClients: true
-    }
-  }) as unknown as Client[] & CompteClient[]
-
-  console.log(clients[0]);
 
 
-  // const data = clients
+export async function POST(req: NextRequest) {
+  try {
+      const data: any = await req.json();
 
-  return Response.json(clients)
+     const client = await prisma.clients.create({
+      data:data
+     })
+
+      return new Response(JSON.stringify({ data: client }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 201,
+      });
+
+  } catch (error) {
+      console.error('Erreur lors de la création du dossier:', error);
+
+      return new Response(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 500,
+      });
+  }
 }
+
+export async function GET() {
+  try {
+
+    const clients = await prisma.clients.findMany()
+
+
+      return NextResponse.json(clients, { status: 200 });
+
+  } catch (error) {
+      console.error('Erreur lors de la récupération du document:', error);
+
+      return NextResponse.json({ error: 'Erreur lors de la récupération du document' }, { status: 500 });
+  }
+}
+
+

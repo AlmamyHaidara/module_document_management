@@ -1,11 +1,12 @@
 export interface Client {
-    id: number;
+    id?: number;
     nom: string;
     prenom: string;
-    adresse?: string;
-    telephone?: string;
-    profession?: string;
-    nature: Nature;
+    email:string;
+    adresse: string;
+    telephone: string;
+    profession: string;
+    nature?: Nature;
     CompteClients: CompteClient[];
 }
 

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import RowExpandTable from '../uikit/table/ClientExpandTable';
+import ClientExpendTable from '../uikit/table/ClientExpandTable';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClientService } from '@/demo/service/Client.service';
 import { CompteService } from '@/demo/service/Compte.service';
@@ -14,9 +14,9 @@ function ClientsComponent() {
     const [matricule, setMatricule] = useState<string>("");
     const { createClient } = ClientService;
 
-    const { isPending, isError, data, error } = useQuery({ queryKey: ['`client'], queryFn: createClient });
+    const { isLoading, isError, data, error } = useQuery({ queryKey: ['client'], queryFn: ClientService.findClient });
 
-    if (isPending) {
+    if (isLoading) {
         return (
             <div className="w-full h-full flex align-items-center justify-content-center">
                 <span>Loading...</span>
@@ -28,14 +28,14 @@ function ClientsComponent() {
         return <span>Error: {error.message}</span>;
     }
 
-    const findClientCompte = async (matricule: string) => {
+    const findClientById = async (matricule: string) => {
         setMatricule(matricule);
         setVisible(true);
     };
 
     return (
         <>
-            <RowExpandTable clients={data} findClientCompte={findClientCompte} />
+            <ClientExpendTable client={data} findCLientByCode={findClientById} />
             {
                 visible &&
             <DialogueCompte visible={visible} setVisible={setVisible} matricule={matricule}  />
