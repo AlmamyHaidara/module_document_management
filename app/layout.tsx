@@ -6,10 +6,14 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import '../styles/layout/layout.scss';
 import '../styles/demo/Demos.scss';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import './global.css';
 
 interface RootLayoutProps {
     children: React.ReactNode;
 }
+const queryClient = new QueryClient()
 
 export default function RootLayout({ children }: RootLayoutProps) {
     return (
@@ -19,7 +23,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </head>
             <body>
                 <PrimeReactProvider>
+                <QueryClientProvider client={queryClient}>
+
                     <LayoutProvider>{children}</LayoutProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
+
+                    </QueryClientProvider>
                 </PrimeReactProvider>
             </body>
         </html>
