@@ -52,7 +52,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
        console.log("-----------nature: ",nature)
     }, [nature]);
     const openNew = () => {
-     setClient({  nom: "", prenom:"", email:"",telephone:"",profession:"",adresse:'' });
+     setClient({  nom: "",code:generateID(8), prenom:"", email:"",telephone:"",profession:"",adresse:'' });
         // setFields([{ id: 0, cle: "", valeur: "" }]);
         setSubmitted(false);
         setClientDialog(true);
@@ -131,7 +131,7 @@ const onUpdateMeta = useMutation({
     };
 
     const deleteSelectedDocuments = () => {
-        selectedClient?.forEach((doc:{id:number}) => onDeleteClient(doc.id))
+        selectedClient?.forEach((doc:any) => onDeleteClient(doc.id))
         setDeleteDocumentsDialog(false);
         setSelectedClient(null);
         toast.current?.show({ severity: 'success', summary: 'Documents supprimés', detail: 'Les clients sélectionnés ont été supprimés avec succès', life: 3000 });
@@ -212,6 +212,7 @@ const onUpdateMeta = useMutation({
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
                     <DataTable ref={dt} value={clients} responsiveLayout="scroll" dataKey="id" header={header}>
                          <Column field="id" header="ID" sortable />
+                        <Column field="code" header="Code" sortable />
                         <Column field="nom" header="Nom" sortable />
                         <Column field="prenom" header="Prenom" sortable  />
                         <Column field="email" header="Email" sortable  />

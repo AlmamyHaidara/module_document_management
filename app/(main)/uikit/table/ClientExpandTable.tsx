@@ -7,7 +7,6 @@ import ToolbarComponent from '@/app/components/ToolbarComponent';
 import ProductDialog from '@/app/components/ProductDialog';
 import { documentSchema } from '@/types/zod/zod.sechma';
 import { InvalidateQueryFilters, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DocumentService } from '@/demo/service/Client.service';
 import { Client, TypeDocument } from '@/types/types';
 import ClientTable from '@/app/components/ClientTable';
 import { ClientService } from '@/demo/service/Client.service';

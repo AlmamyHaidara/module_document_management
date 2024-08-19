@@ -2,6 +2,7 @@ export interface Client {
     id?: number;
     nom: string;
     prenom: string;
+    code: String;
     email:string;
     adresse: string;
     telephone: string;
@@ -95,4 +96,18 @@ export interface DocMetaPiece{
     dossier:Dossier;
     metadonne:MetaDonnee[];
     piece:Piece[];
+}
+
+export interface CompteClients  {
+    matricule: string,
+    numero_compte: string,
+    code_gestionnaire: string,
+    type_compte: {id:number,name:string},
+    date_ouverture: number,
+    agence: string,
+    client_id: number,
+    client: {
+        id: number,
+        code: number
+    }
 }

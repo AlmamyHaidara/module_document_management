@@ -26,3 +26,47 @@ export const fetchTypeDocument = async () => {
     return data
 
 }
+
+export const fetchClientCode = async ()=>{
+    const data= await prisma.clients.findMany({
+        select:{
+            id:true,
+            code:true
+        }
+    })
+    console.log("--------------hfjdklk;l",data)
+    return data
+}
+
+export const createOption = async (option:{name:string})=>{
+    try{
+const newOption = await prisma.typeCompte.create({
+        data:option
+    })
+    return newOption;
+    }catch(errors){
+        console.log(errors)
+    }
+
+}
+
+export const fetchOption = async()=>{
+    try {
+        return await prisma.typeCompte.findMany()
+    } catch (error) {
+        console.error(error)
+        return []
+    }
+}
+
+export const deleteOption = async (id:number)=>{
+    try {
+        return await prisma.typeCompte.delete({
+            where:{
+                id:id
+            }
+        })
+    } catch (error) {
+        console.error(error)
+    }
+}
