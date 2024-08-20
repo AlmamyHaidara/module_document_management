@@ -15,7 +15,6 @@ import { generateID } from "../(main)/utils/function";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
-import DropDownComponent from "./DopDownComponent";
 import { Dropdown } from "primereact/dropdown";
 
 interface DocumentTableProps {
@@ -295,8 +294,6 @@ const onUpdateMeta = useMutation({
     optionLabel="name"
     placeholder="Sélectionnez un type de document"
 />
-                                        {/* <DropDownComponent options={typeDoc} setTypeDocument={setDocType}  typeDocument={docType} /> */}
-                                        {/* {submitted && !docType.id && <small className="p-invalid">Le type de document est requis.</small>} */}
 
                                     </div>
                                     <div className="field col-2">

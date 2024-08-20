@@ -15,7 +15,6 @@ import { generateID, generateUniqueNumber } from "../(main)/utils/function";
 import { InvalidateQueryFilters, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
-import DropDownComponent from "./DopDownComponent";
 import { Dropdown } from "primereact/dropdown";
 import { useQuery } from '@tanstack/react-query';
 import { createOption, deleteOption, fetchClientCode, fetchOption } from '@/app/api/action';
@@ -338,7 +337,7 @@ const CompteTable = ({ comptes, globalFilterValue, setGlobalFilterValue, onUpdat
                         <Column field="numero_compte" header="Numero Compte" sortable />
                         <Column field="code_gestionnaire" header="Code Gestionnaire" sortable />
                         <Column field="agence" header="Agence" sortable />
-                        <Column field="type_compte" header="Telephone" sortable body={(cpt) => cpt.type_compte.name} />
+                        <Column field="type_compte" header="Telephone" sortable body={(cpt) => cpt.type_compte?.name} />
 
                         <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)} />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
@@ -382,7 +381,7 @@ const CompteTable = ({ comptes, globalFilterValue, setGlobalFilterValue, onUpdat
                                     <label htmlFor="type_compte">Type de compte</label>
                                     <Dropdown
                                         name="type_compte"
-                                        value={type_comptes.find(tc => tc.name === compte?.type_compte.name) || { name: compte?.type_compte.name }}
+                                        value={type_comptes.find(tc => tc.name === compte?.type_compte?.name) || { name: compte?.type_compte?.name }}
                                         options={[...type_comptes, { name: "addNew" }]} // Ajoute l'option spéciale "addNew"
                                         onChange={(e) => setCompte({ ...compte, type_compte: e.value })}
                                         optionLabel="name"

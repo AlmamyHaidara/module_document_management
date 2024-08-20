@@ -88,11 +88,13 @@ const ClientExpendTable = ({ client, findCLientByCode }: PropsType) => {
         }
     });
     const updateMutation = useMutation({
+
         mutationFn: (clt: Client) => {
-            if (!clt.id) {
+            console.log("ppppppppppp",clt)
+            if (!clt.client.id) {
                 throw new Error("Client code is required");
             }
-            return ClientService.updateClient(clt.id, clt);
+            return ClientService.updateClient(clt.client.id, clt);
         },
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Client Updated', detail: 'Le client a été mis à jour avec succès', life: 3000 });

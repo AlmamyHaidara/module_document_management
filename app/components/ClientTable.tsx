@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { DataTable } from 'primereact/datatable';
+import { DataTable, DataTableExpandedRows, DataTableRowEvent, DataTableValueArray } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
@@ -8,31 +8,39 @@ import { Dialog } from "primereact/dialog";
 import { FileUpload } from "primereact/fileupload";
 import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
-import { Client } from "@/types/types";
+import { Client,CompteClients } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
 import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
-import DropDownComponent from "./DopDownComponent";
 import { Dropdown } from "primereact/dropdown";
+import { Fieldset } from "primereact/fieldset";
 import { NatureEnum } from "@prisma/client";
+import { InvalidateQueryFilters, useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
+import { createOption, deleteOption, fetchClientCode, fetchOption } from '@/app/api/action';
+
 
 interface ClientTableProps {
     clients: Client[];
     globalFilterValue: string;
     setGlobalFilterValue: (value: string) => void;
-    onUpdateClient: (client: Client) => void;
-    onCreateClient: (client: Client) => void;
+    onUpdateClient: (client: any) => void;
+    onCreateClient: (client: any) => void;
     onDeleteClient: (id: number) => void;
 }
 
 const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdateClient, onCreateClient, onDeleteClient }: ClientTableProps) => {
+    const queryCompte = useQueryClient();
+
     const [clientDialog, setClientDialog] = useState(false);
     const [deleteClientDialog, setDeleteDocumentDialog] = useState(false);
     const [deleteClientsDialog, setDeleteDocumentsDialog] = useState(false);
     const [client, setClient] = useState<Client | any >(null);
+    const { isSuccess, data: typeComptes } = useQuery({ queryKey: ['typeCompte'], queryFn: async () => fetchOption() });
+    const [type_comptes, setTypeComptes] = useState<{ id: number, name: string }[]>(typeComptes || []);
+
+    const [compte, setCompte] = useState<CompteClients | any >(null);
     const [selectedClient, setSelectedClient] = useState<Client[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const [refresh, setRefresh] = useState(false);
@@ -43,6 +51,21 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     const dt = useRef<DataTable<any>>(null);
     const natures:{name:string}[]= ([{name:"Physique"},{name:"Moral"}]);
     const [nature, setNature] = useState<{name:string}>({name:""});
+    const [value, setValue] = useState<{ id: number }>({ id: 0 });
+    const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
+    const [newTypeCompte, setNewTypeCompte] = useState<string>("");
+    const [addingNew, setAddingNew] = useState<boolean>(false);
+
+
+
+    useEffect(() => {
+        console.log("---------------------", isSuccess);
+
+        if (isSuccess) {
+            setTypeComptes(typeComptes)
+        }
+    }, [isSuccess])
+
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -51,8 +74,11 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     useEffect(()=>{
        console.log("-----------nature: ",nature)
     }, [nature]);
+
+
     const openNew = () => {
      setClient({  nom: "",code:generateID(8), prenom:"", email:"",telephone:"",profession:"",adresse:'' });
+     setCompte({matricule:"",numero_compte:"", code_gestionnaire:"", agence:"",type_compte:""})
         // setFields([{ id: 0, cle: "", valeur: "" }]);
         setSubmitted(false);
         setClientDialog(true);
@@ -81,14 +107,13 @@ const onUpdateMeta = useMutation({
     const saveDocument = () => {
         try {
             setSubmitted(true);
-            console.log("------------client",client)
+            console.log("------------client",{client:{...client}, compte:{...compte}})
             if(client && client?.id){
-                console.log("-----------ClientModifier: ",client)
-                onUpdateClient(client)
+                console.log("-----------ClientModifier: ",{client:{...client}, compte:{...compte}})
+                onUpdateClient({client:{...client}, compte:{...compte}})
             }else{
-                delete client.id
 
-                onCreateClient(client)
+                onCreateClient({client:{...client}, compte:{...compte}})
             }
         setClientDialog(false);
         setClient(null);
@@ -99,8 +124,60 @@ const onUpdateMeta = useMutation({
         }
     };
 
+    const addNewTypeCompte = async () => {
+        if (newTypeCompte.trim() !== "") {
+            createMutation.mutate({ name: newTypeCompte })
+            //    console.log("-----------pppppp: ",creation);
+
+            setTypeComptes([...type_comptes, { id: value.id, name: newTypeCompte }]);
+            setCompte({ ...compte, type_compte: newTypeCompte }); // Sélectionner automatiquement le nouveau type de compte
+            setNewTypeCompte(""); // Réinitialiser le champ de saisie
+            setAddingNew(false); // Fermer la saisie après ajout
+
+        }
+    };
+
+    const removeTypeCompte = (option: { id: number, name: string }) => {
+        const newOptions = [...type_comptes].filter((opt) => opt.id != option.id)
+        deleteMutation.mutate(option.id)
+        console.log(option)
+        console.log(newOptions)
+        setTypeComptes(newOptions)
+
+    }
+
+    const createMutation = useMutation({
+        mutationFn: (opt: Omit<{ name: string }, "id">) => createOption(opt),
+        onSuccess: async (opt) => {
+            await queryCompte.invalidateQueries(["typeCompte"] as InvalidateQueryFilters);
+            if (opt && opt.id !== undefined) {
+                setValue({ id: opt.id });
+            }
+        },
+        onError: (error) => {
+            toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du compte a échoué', life: 3000 });
+            console.log("onError", error);
+        }
+
+    });
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => deleteOption(id),
+        onSuccess: () => {
+            queryCompte.invalidateQueries({ queryKey: ["typeCompte"] });
+        },
+        onError: (error) => {
+            console.log("onDeleteError", error);
+            toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du compte a échoué', life: 3000 });
+        }
+    });
+
     const editDocument = (client: Client) => {
         setClient({ ...client });
+        setCompte(client?.comptes ? client.comptes[0] : null); // Set the first compte or null if none exist
+        console.log("ewsdcx ", compte);
+        // setTypeComptes(client.)
+        console.log("ppppppppppppppppppppppp",client.comptes[0]);
+
         // setFields(client.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
         setClientDialog(true);
     };
@@ -193,6 +270,35 @@ const onUpdateMeta = useMutation({
             </span>
         </div>
     );
+
+    const optionTemplate = (option: any) => {
+        if (option.name === "addNew") {
+            return (
+                <div className="flex align-items-center ">
+                    <Button
+                        label="Ajouter un nouveau type"
+                        icon="pi pi-plus"
+                        className="w-full"
+                        outlined
+                        onClick={() => setAddingNew(true)}
+                    />
+                </div>
+            );
+        } else {
+            return (
+                <div className="   flex align-items-center justify-between">
+                    <div className="!bg-black w-full ">
+                        {option.name}
+                    </div>
+                    <div>
+                        <Button icon="pi pi-times" className=" w-14 border-0 text-red-500" outlined onClick={(e) => removeTypeCompte(option)} />
+                    </div>
+                </div>
+            );
+        }
+    };
+
+
     const formatDate = (date:Date) => {
         return `Le ${new Intl.DateTimeFormat('fr-FR', {
             year: 'numeric',
@@ -204,18 +310,69 @@ const onUpdateMeta = useMutation({
         console.log(metaDatas.metadonnees.length);
 
     }
+
+    const collapseAll = () => {
+        setExpandedRows(undefined);
+    };
+
+    const rowExpansionTemplate = (data: any) => {
+        return (
+            <div className="p-3">
+                <h5>Les comptes du clients {data.nom}</h5>
+                <DataTable value={data.comptes}>
+                    <Column field="id" header="Id" sortable></Column>
+                     <Column field="matricule" header="Matricule" sortable></Column>
+                    <Column field="numero_compte" header="numéro du compte" sortable></Column>
+                    <Column field="code_gestionnaire" header="Code de gestionnaire" sortable></Column>
+                    <Column field="agence" header="agence"  sortable></Column>
+                    <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />
+
+                    {/*<Column field="status" header="Status" body={statusOrderBodyTemplate} sortable></Column>
+                    <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column> */}
+                </DataTable>
+            </div>
+        );
+    };
+    const onRowExpand = (event: DataTableRowEvent) => {
+        toast.current?.show({ severity: 'info', summary: 'Product Expanded', detail: event.data.nom, life: 3000 });
+    };
+
+    const onRowCollapse = (event: DataTableRowEvent) => {
+        toast.current?.show({ severity: 'success', summary: 'Product Collapsed', detail: event.data.nom, life: 3000 });
+    };
+
+    const expandAll = () => {
+        let _expandedRows: DataTableExpandedRows = {};
+
+        clients.comptes.forEach((p) => (_expandedRows[`${p.id}`] = true));
+
+        setExpandedRows(_expandedRows);
+    };
+    const allowExpansion = (rowData: any) => {
+        return rowData.comptes!.length > 0;
+    };
+
+
+
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
                 <div className="card">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
-                    <DataTable ref={dt} value={clients} responsiveLayout="scroll" dataKey="id" header={header}>
+                    {/* <DataTable ref={dt} value={clients} responsiveLayout="scroll" dataKey="id" header={header}> */}
+
+                         <DataTable ref={dt} value={clients} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
+                    onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
+                    dataKey="id" header={header} tableStyle={{ minWidth: '60rem' }}>
+                <Column expander={allowExpansion} style={{ width: '5rem' }} />
+
+
                          <Column field="id" header="ID" sortable />
                         <Column field="code" header="Code" sortable />
                         <Column field="nom" header="Nom" sortable />
                         <Column field="prenom" header="Prenom" sortable  />
-                        <Column field="email" header="Email" sortable  />
                         <Column field="telephone" header="Telephone" sortable  />
                         <Column field="adresse" header="Adresse" sortable  />
                         <Column field="profession" header="Profession" sortable  />
@@ -224,57 +381,110 @@ const onUpdateMeta = useMutation({
                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
                     </DataTable>
 
-                    <Dialog visible={clientDialog} style={{ width: '450px' }} header="Détails du client" modal className="p-fluid" footer={documentDialogFooter} onHide={hideDialog}>
-                        <div className="field">
+                    <Dialog visible={clientDialog} style={{ width: '80%' }} header="Détails du client" modal className="p-fluid" footer={documentDialogFooter} onHide={hideDialog}>
+                        <div className="field flex ">
+                         <Fieldset legend="Information du client">
 
-                            <div className="p-fluid grid">
-                                    <div className="field col">
-                                        <label htmlFor="nom_type">Nom</label>
-                                        <InputText id="nom" value={client?.nom || ''} onChange={(e) => setClient({ ...client, nom: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.nom })} />
-                                        {submitted && !client?.nom && <small className="p-invalid">Le nom est requis.</small>}
-                                    </div>
-                                    <div className="field col">
-                                    <label htmlFor="prenom">Prenom</label>
-                                        <InputText id="prenom" value={client?.prenom || ''} onChange={(e) => setClient({ ...client, prenom: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.prenom })} />
-                                        {submitted && !client?.prenom && <small className="p-invalid">Le prenom est requis.</small>}
-                                    </div>
-                            </div>
-
-                            <div className="p-fluid grid">
-                                    <div className="field col">
-                                        <label htmlFor="email">Email</label>
-                                        <InputText id="email" value={client?.email || ''} onChange={(e) => setClient({ ...client, email: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.email })} />
-                                        {submitted && !client?.email && <small className="p-invalid">Le email est requis.</small>}
-                                    </div>
-                                    <div className="field col">
-                                    <label htmlFor="prenom">Telephone</label>
-                                        <InputText id="telephone" value={client?.telephone || ''} onChange={(e) => setClient({ ...client, telephone: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.telephone })} />
-                                        {submitted && !client?.telephone && <small className="p-invalid">Le telephone est requis.</small>}
-                                    </div>
-                            </div>
-                            <div className="p-fluid grid">
-                                    <div className="field col-6">
-                                        <label htmlFor="profession">Profession</label>
-                                        <InputText id="profession" value={client?.profession || ''} onChange={(e) => setClient({ ...client, profession: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.profession })} />
-                                        {submitted && !client?.profession && <small className="p-invalid">Le profession est requis.</small>}
-                                    </div>
-                                    <div className="field col-6">
-                                        <label htmlFor="nature">Nature</label>
-                                        <Dropdown name="nature" value={{name: client?.nature}} options={natures} onChange={(e) => {  setClient({ ...client,nature:e.target.value.name}) }} optionLabel="name" placeholder="Sélectionnez une nature" />
-                                        {/* {submitted && !nature.nature && <small className="p-invalid">La nature est requis.</small>} */}
-                                    </div>
-                            </div>
-                               <div className="p-fluid grid">
-                                    <div className="field  w-full">
+                                <div className="p-fluid grid">
+                                <div className="field col-6">
+                                            <label htmlFor="nature">Nature</label>
+                                            <Dropdown name="nature" value={{name: client?.nature}} options={natures} onChange={(e) => {  setClient({ ...client,nature:e.target.value.name}) }} optionLabel="name" placeholder="Sélectionnez une nature" />
+                                        </div>
+                                        <div className="field col">
                                         <label htmlFor="adresse">Address</label>
                                         <InputText id="adresse" type="text" value={client?.adresse || ''} onChange={(e) => setClient({ ...client, adresse: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.adresse })} />
-                                        {/* {submitted && !client?.adresse && <small className="p-invalid">Le adresse est requis.</small>} */}
                                     </div>
-                                    {/* <div className="field col-6">
-                                        <label htmlFor="nature">Nature</label>
-                                        <Dropdown name="nature" value={{name: client?.nature}} options={natures} onChange={(e) => {  setClient({ ...client,nature:e.target.value.name}) }} optionLabel="name" placeholder="Sélectionnez une nature" />
-                                    </div> */}
+                                </div>
+
+                                <div className="p-fluid grid">
+
+                                        <div className="field col">
+                                            <label htmlFor="nom_type">Nom</label>
+                                            <InputText id="nom" value={client?.nom || ''} onChange={(e) => setClient({ ...client, nom: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.nom })} />
+                                            {submitted && !client?.nom && <small className="p-invalid">Le nom est requis.</small>}
+                                        </div>
+                                        <div className="field col">
+                                            <label htmlFor="prenom">{
+                                        client?.nature=="Physique"?"Prenom":"Cygle"
+                                    }</label>
+                                            <InputText id="prenom" value={client?.prenom || ''} onChange={(e) => setClient({ ...client, prenom: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.prenom })} />
+                                            {submitted && !client?.prenom && <small className="p-invalid">Le prenom est requis.</small>}
+                                        </div>
+
+                                </div>
+                                <div className="p-fluid grid">
+                                        <div className="field col">
+                                        <label htmlFor="prenom">Telephone</label>
+                                            <InputText id="telephone" value={client?.telephone || ''} onChange={(e) => setClient({ ...client, telephone: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.telephone })} />
+                                            {submitted && !client?.telephone && <small className="p-invalid">Le telephone est requis.</small>}
+                                        </div>
+                                        <div className="field col-6">
+                                            <label htmlFor="profession">Profession</label>
+                                            <InputText id="profession" value={client?.profession || ''} onChange={(e) => setClient({ ...client, profession: e.target.value })} required className={classNames({ 'p-invalid': submitted && !client?.profession })} />
+                                            {submitted && !client?.profession && <small className="p-invalid">Le profession est requis.</small>}
+                                        </div>
+
+
+                                </div>
+                               <div className="p-fluid grid">
+                                </div>
+                            </ Fieldset>
+
+                            <Fieldset legend="Les information du compte">
+                            <div className="p-fluid grid">
+                                <div className="field col">
+                                    <label htmlFor="matricule">Matricule</label>
+                                    <InputText id="matricule" value={compte?.matricule || ''} onChange={(e) => setCompte({ ...compte, matricule: e.target.value })} required  className={classNames({ 'p-invalid': submitted && !compte?.matricule })} />
+                                    {submitted && !compte?.matricule && <small className="p-invalid">Le matricule est requis.</small>}
+                                </div>
+                                <div className="field col">
+                                    <label htmlFor="num_compte">Numero de compte</label>
+                                    <InputText id="num_compte"value={compte?.numero_compte || ''} onChange={(e) => setCompte({ ...compte, numero_compte: e.target.value })} required className={classNames({ 'p-invalid': submitted && !compte?.numero_compte })} />
+                                    {submitted && !compte?.numero_compte && <small className="p-invalid">Le agence est requis.</small>}
+                                </div>
+
+                                 <div className="field col">
+                                    <label htmlFor="code_gestionnaire">Code de gestionnaire</label>
+                                    <InputText id="code_gestionnaire"value={compte?.code_gestionnaire || ''} onChange={(e) => setCompte({ ...compte, code_gestionnaire: e.target.value })} required className={classNames({ 'p-invalid': submitted && !compte?.code_gestionnaire })} />
+                                    {submitted && !compte?.code_gestionnaire && <small className="p-invalid">Le agence est requis.</small>}
+                                </div>
                             </div>
+
+                            <div className="p-fluid grid">
+
+                            <div className="field col">
+                                    <label htmlFor="agence">Agence</label>
+                                    <InputText id="agence" value={compte?.agence || ''} onChange={(e) => setCompte({ ...compte, agence: e.target.value })} required className={classNames({ 'p-invalid': submitted && !compte?.agence })} />
+                                    {submitted && !compte?.agence && <small className="p-invalid">Le agence est requis.</small>}
+                                </div>
+                                <div className="field col">
+                                    <label htmlFor="type_compte">Type de compte</label>
+                                    <Dropdown
+                                        name="type_compte"
+                                        value={type_comptes.find(tc => tc.name === compte?.type_compte?.name) || { name: compte?.type_compte?.name }}
+                                        options={[...type_comptes, { name: "addNew" }]} // Ajoute l'option spéciale "addNew"
+                                        onChange={(e) => setCompte({ ...compte, type_compte: e.value })}
+                                        optionLabel="name"
+                                        placeholder="Sélectionnez une nature"
+                                        itemTemplate={optionTemplate}
+                                        className="w-full "
+                                    />
+                                    {/* {submitted && !compte?.type_compte && <small className="p-invalid">Le type de compte est requis.</small>} */}
+                                    {addingNew && (
+                                        <div className="flex mt-3">
+                                            <InputText
+                                                value={newTypeCompte}
+                                                onChange={(e) => setNewTypeCompte(e.target.value)}
+                                                placeholder="Ajouter un nouveau type"
+                                                className="mr-2"
+                                            />
+                                            <Button icon="pi pi-plus" className=" w-3" onClick={addNewTypeCompte} />
+                                        </div>
+                                    )}
+
+                                </div>
+                            </div>
+                            </Fieldset>
 
                         </div>
 

@@ -1,4 +1,5 @@
 export interface Client {
+    [x: string]: any;
     id?: number;
     nom: string;
     prenom: string;
@@ -8,7 +9,7 @@ export interface Client {
     telephone: string;
     profession: string;
     nature?: Nature;
-    CompteClients: CompteClient[];
+    comptes: CompteClient[];
 }
 
 export interface CompteClient {
@@ -57,10 +58,17 @@ export interface DocumentTypeInfo {
         nom_type:string
     }
 
+    export interface CompteMatricule{
+        id:number,
+        code:string,
+        nom_type:string
+    }
+
 
 export interface Dossier {
     id: number;
     code: string;
+    nom?:string
     description?: string;
     typeDocumentId: number;
     typeDocument: TypeDocument;
@@ -111,3 +119,4 @@ export interface CompteClients  {
         code: number
     }
 }
+

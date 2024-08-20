@@ -27,6 +27,17 @@ export const fetchTypeDocument = async () => {
 
 }
 
+export const fetchClientCompte = async () => {
+   const data =  await prisma.compteClients.findMany({
+        include: {
+            client: true
+        }
+    });
+    console.log("ewds",data);
+    return data
+
+}
+
 export const fetchClientCode = async ()=>{
     const data= await prisma.clients.findMany({
         select:{

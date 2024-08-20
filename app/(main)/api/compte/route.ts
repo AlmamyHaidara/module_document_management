@@ -8,7 +8,7 @@ export async function GET() {
     include: {
             client: true,
             type_compte:true,
-            type_document:true
+            // type_document:true
         }
     }))
 
