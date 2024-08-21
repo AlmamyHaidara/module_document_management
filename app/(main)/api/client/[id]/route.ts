@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         }
 
         const document = await prisma.typesDocuments.findUnique({
-            where: { id: id },
+            where: { id: Number(id) },
             include: {
                 metadonnees: true,  // Inclure les métadonnées associées
             },
@@ -57,12 +57,12 @@ export async function PUT(req: NextRequest) {
         const data = await req.json();
         console.log("ddddd", data);
         const { id, ...Clients } = data;
-        const client = await prisma.clients.update({  // Changed 'client' to 'clients'
-            where: {
-                id: id
-            },
-            data: Clients
-        });
+        // const client = await prisma.clients.update({  // Changed 'client' to 'clients'
+        //     where: {
+        //         id: id
+        //     },
+        //     data: Clients
+        // });
 
         return NextResponse.json("Document mise a jour avec succes", { status: 200 });
 

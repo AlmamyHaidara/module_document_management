@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { createContext, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Toast } from 'primereact/toast';
@@ -10,9 +10,9 @@ import ProductDialog from '@/app/components/ProductDialog';
 import { documentSchema } from '@/types/zod/zod.sechma';
 import { InvalidateQueryFilters, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DocumentService } from '@/demo/service/Document.service';
-import { DocumentTypeInfo, Dossier, TypeDoc, TypeDocument, MetaDonnee } from '@/types/types';
+import { DocumentTypeInfo, Dossier, TypeDoc, TypeDocument, MetaDonnee, CompteMatricule } from '@/types/types';
 import DossierTable from '@/app/components/DossierTable';
-import { fetchTypeDocument } from '@/app/api/action';
+import { fetchTypeDocument,fetchClientCompte } from '@/app/api/action';
 import { metadata } from '../../layout';
 import { DossierService } from '@/demo/service/Dossier.service';
 
@@ -22,6 +22,7 @@ export type FieldItem = {
     valeur: string
 }
 
+export const DossierContext = createContext({})
 interface PropsType {
     dossier: Dossier[];
     findDossierByCode: (code: string) => Promise<void>;
@@ -50,6 +51,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     const [isUpdateMode, setIsUpdateMode] = React.useState(false);
     const [selectedDossier, setSelectedDossier] = React.useState<Dossier | null>(null);
     const [typeDoc, setTypeDoc] = React.useState<TypeDoc[]>([]);
+    const [compteMatricule, setCompteMatricule] = React.useState<CompteMatricule[]>([]);
     const [meta, setMeta] = React.useState<MetaDonnee[]>([]);
 
     const openNew = () => {
@@ -96,7 +98,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             if (!doc.code) {
                 throw new Error("Document code is required");
             }
-            return DocumentService.updateDocument(doc.code, doc);
+            return DocumentService.updateDocument(doc.id, doc);
         },
         onSuccess: () => {
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
@@ -109,7 +111,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => DocumentService.deleteDocument(id),
+        mutationFn: (id: number) => DocumentService.deleteDocument(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["document"] });
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
@@ -124,13 +126,17 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         createMutation.mutate(newDocument);
     };
 
-    const handleDeleteDossier = (id: string) => {
+    const handleDeleteDossier = (id: number) => {
         deleteMutation.mutate(id);
     };
 
     const { isPending, isSuccess, isError, data, error } = useQuery({
         queryKey: ['typeDocument'],
         queryFn: async () => await fetchTypeDocument()
+    });
+        const { isSuccess:isSuccessFetch, data:compteClients } = useQuery({
+        queryKey: ['compteClient'],
+        queryFn: async () => await fetchClientCompte()
     });
 
     useEffect(() => {
@@ -141,12 +147,31 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
                 nom_type: res.nom_type,
             }));
 
-            const metadata: MetaDonnee[] = data.flatMap((res: DocumentTypeInfo) => res.metadonnees);
+            const metadata: MetaDonnee[] = data.flatMap((res: any) => res.metadonnees);
             setMeta(metadata);
             console.log(metadata);
             setTypeDoc(typeDocu);
         }
     }, [isSuccess, data]);
+    useEffect(() => {
+        if (isSuccessFetch && compteClients) {
+
+            console.log("------------SuccesscompteClients",compteClients);
+
+            const clientCompte: CompteMatricule[] = compteClients.map((res: any) => ({
+                id: res.id,
+                code: res.matricule,
+                nom_type: res.matricule,
+            }));
+
+            console.log("------------SuccessClientCompte",clientCompte);
+            setCompteMatricule(clientCompte)
+            // const metadata: MetaDonnee[] = compteClients.flatMap((res: any) => res.metadonnees);
+            // setMeta(metadata);
+            // console.log(metadata);
+            // setTypeDoc(typeDocu);
+        }
+    }, [isSuccessFetch, compteClients]);
 
     if (isPending) {
         return (
@@ -160,7 +185,10 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         return <span>Error: {error.message}</span>;
     }
 
+    const dossierContext={setMeta:setMeta,meta:meta,typeDoc:typeDoc,compteMatricule:compteMatricule}
+
     return (
+        <DossierContext.Provider value={{dossierContext}}>
         <div className="grid">
             <div className="col-12">
                 <div className="card">
@@ -171,14 +199,16 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
                         setGlobalFilterValue={() => { }}
                         onCreateDossier={handleCreateDossier}
                         onUpdateDossier={openUpdate}
-                        typeDoc={typeDoc}
                         onDeleteDossier={handleDeleteDossier}
-                        meta={meta}
-                        setMeta={setMeta}
+                        // typeDoc={typeDoc}
+                        // meta={meta}
+                        // setMeta={setMeta}
+
                     />
                 </div>
             </div>
         </div>
+        </DossierContext.Provider>
     );
 };
 

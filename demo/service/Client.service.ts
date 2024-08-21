@@ -1,3 +1,4 @@
+
 import { Client } from "@/types/types";
 
 export const ClientService = {
@@ -14,7 +15,7 @@ export const ClientService = {
             throw new Error('Network response was not ok');
           }
           return response.json();
-    },
+   },
 
     async findClientCompte() {
         // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
@@ -43,7 +44,7 @@ export const ClientService = {
 
       console.log("-----------UpdateDocument: ", response);
       return response.json();
-  },
+    },
 
     async deleteClient(id: number) {
 
@@ -58,14 +59,28 @@ export const ClientService = {
 
       console.log("-----------DocumentApi: ", response);
       return response.json();
-  },
+    },
 
     async findClient() {
         // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
-        const response =  await fetch('/api/client')
+        const response =  await fetch('/api/client/')
         if (!response.ok) {
             throw new Error('Network response was not ok');
-          }
+        }
+        console.log("ppppppfffffffffffff",response);
+
           return response.json();
     }
+
 };
+
+export async function findClient() {
+    // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
+    const response =  await fetch('/api/client/')
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    console.log("ppppppfffffffffffff",response);
+
+      return response.json();
+}

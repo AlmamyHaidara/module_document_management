@@ -1,0 +1,124 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Clients {
+  id Int [pk, increment]
+  code String [unique, not null]
+  nom String [not null]
+  prenom String [not null]
+  adresse String [not null]
+  telephone String [not null]
+  profession String [not null]
+  nature NatureEnum [not null]
+  comptes CompteClients [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+}
+
+Table TypeCompte {
+  id Int [pk, increment]
+  name String [unique, not null]
+  comptes CompteClients [not null]
+}
+
+Table CompteClients {
+  id Int [pk, increment]
+  matricule String [unique, not null]
+  numero_compte String [unique, not null]
+  agence String [not null]
+  code_gestionnaire String [not null]
+  type_compte_id Int
+  client_id Int [not null]
+  type_compte TypeCompte
+  client Clients [not null]
+  type_documents TypesDocuments [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+}
+
+Table DossiersToTypesDocuments {
+  dossiersId Int [not null]
+  typesdocumentsId Int [not null]
+  type_document TypesDocuments [not null]
+  dossier Dossiers [not null]
+
+  indexes {
+    (dossiersId, typesdocumentsId) [pk]
+  }
+}
+
+Table TypesDocuments {
+  id Int [pk, increment]
+  code String [unique, not null]
+  nom_type String [not null]
+  compte_id Int
+  metadonnees MetaDonnees [not null]
+  compteClient CompteClients
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  dossiers_typesDocuments DossiersToTypesDocuments [not null]
+}
+
+Table DossierInfo {
+  id Int [pk, increment]
+  cle String [not null]
+  value String [not null]
+  dossierId Int [not null]
+  dossier Dossiers [not null]
+}
+
+Table Dossiers {
+  id Int [pk, increment]
+  code String [unique, not null]
+  nom String [not null]
+  description String [not null]
+  piece Piece [not null]
+  dossierInfos DossierInfo [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  dossiers_typesDocuments DossiersToTypesDocuments [not null]
+}
+
+Table Piece {
+  id Int [pk, increment]
+  code String [unique, not null]
+  nom String
+  path String [not null]
+  date_creation DateTime [default: `now()`, not null]
+  dossierId Int
+  dossier Dossiers
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+}
+
+Table MetaDonnees {
+  id Int [pk, increment]
+  cle String [not null]
+  valeur String [not null]
+  typesDocID Int
+  typeDocument TypesDocuments
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+}
+
+Enum NatureEnum {
+  Physique
+  Morale
+}
+
+Ref: CompteClients.type_compte_id > TypeCompte.id [delete: Cascade]
+
+Ref: CompteClients.client_id > Clients.id [delete: Cascade]
+
+Ref: DossiersToTypesDocuments.typesdocumentsId > TypesDocuments.id [delete: Cascade]
+
+Ref: DossiersToTypesDocuments.dossiersId > Dossiers.id [delete: Cascade]
+
+Ref: TypesDocuments.compte_id > CompteClients.id [delete: Cascade]
+
+Ref: DossierInfo.dossierId > Dossiers.id
+
+Ref: Piece.dossierId > Dossiers.id
+
+Ref: MetaDonnees.typesDocID > TypesDocuments.id [delete: Cascade]

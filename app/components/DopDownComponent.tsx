@@ -11,11 +11,11 @@ interface Country {
 interface PropsType{
     options:any[];
     setTypeDocument:React.Dispatch<React.SetStateAction<any>>;
-     typeDocument:any
+     typeDocument:any;
+     placeholder:string
 }
-const val = "nom_type" | "name"
 
-export default function DropDownComponent({options,setTypeDocument, typeDocument}:PropsType) {
+export default function DropDownComponent({options,setTypeDocument, typeDocument, placeholder}:PropsType) {
 
     const selectedCountryTemplate = (option: any, props:any) => {
         if (option) {
@@ -39,7 +39,7 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
 
     return (
         <div className="flex w-full">
-            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={ val} placeholder="Selectionne un type de document"
+            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={ "nom_type"} placeholder={placeholder}
                 filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className="w-full" />
         </div>
     )
