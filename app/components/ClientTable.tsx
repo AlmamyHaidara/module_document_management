@@ -19,6 +19,7 @@ import { Fieldset } from "primereact/fieldset";
 import { NatureEnum } from "@prisma/client";
 import { InvalidateQueryFilters, useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
 import { createOption, deleteOption, fetchClientCode, fetchOption } from '@/app/api/action';
+import { Divider } from 'primereact/divider';
 
 
 interface ClientTableProps {
@@ -36,6 +37,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     const [clientDialog, setClientDialog] = useState(false);
     const [deleteClientDialog, setDeleteDocumentDialog] = useState(false);
     const [deleteClientsDialog, setDeleteDocumentsDialog] = useState(false);
+    const [viewClientsDialog, setViewClientsDialog] = useState(false);
     const [client, setClient] = useState<Client | any >(null);
     const { isSuccess, data: typeComptes } = useQuery({ queryKey: ['typeCompte'], queryFn: async () => fetchOption() });
     const [type_comptes, setTypeComptes] = useState<{ id: number, name: string }[]>(typeComptes || []);
@@ -95,6 +97,10 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
 
     const hideDeleteDocumentsDialog = () => {
         setDeleteDocumentsDialog(false);
+    };
+
+    const hideDeleteViewClientDialog = () => {
+        setViewClientsDialog(false);
     };
 
 const onUpdateMeta = useMutation({
@@ -214,9 +220,21 @@ const onUpdateMeta = useMutation({
         toast.current?.show({ severity: 'success', summary: 'Documents supprimés', detail: 'Les clients sélectionnés ont été supprimés avec succès', life: 3000 });
     };
 
+    const viewClientInfo = async (rowData)=>{
+
+        setClient({ ...rowData });
+        setCompte(rowData?.comptes ? rowData.comptes[0] : null); // Set the first compte or null if none exist
+        console.log("ewsdcx ", compte);
+        // setTypeComptes(client.)
+        console.log("ppppppppppppppppppppppp",rowData);
+
+        setViewClientsDialog(true)
+    }
+
     const actionBodyTemplate = (rowData: Client) => {
         return (
             <>
+                <Button icon="pi pi-eye" rounded severity="primary" className="mr-2" onClick={() => viewClientInfo(rowData)} />
                 <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editDocument(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteDocument(rowData)} />
             </>
@@ -341,13 +359,13 @@ const onUpdateMeta = useMutation({
         toast.current?.show({ severity: 'success', summary: 'Product Collapsed', detail: event.data.nom, life: 3000 });
     };
 
-    const expandAll = () => {
-        let _expandedRows: DataTableExpandedRows = {};
+    // const expandAll = () => {
+    //     let _expandedRows: DataTableExpandedRows = {};
 
-        clients.comptes.forEach((p) => (_expandedRows[`${p.id}`] = true));
+    //     clients?.comptes.forEach((p) => (_expandedRows[`${p.id}`] = true));
 
-        setExpandedRows(_expandedRows);
-    };
+    //     setExpandedRows(_expandedRows);
+    // };
     const allowExpansion = (rowData: any) => {
         return rowData.comptes!.length > 0;
     };
@@ -505,6 +523,29 @@ const onUpdateMeta = useMutation({
                             <i className="pi pi-exclamation-triangle mr-3" />
                             {selectedClient && <span>Êtes-vous sûr de vouloir supprimer les clients sélectionnés?</span>}
                         </div>
+                    </Dialog>
+
+                    <Dialog visible={viewClientsDialog} style={{ width: '70%' }} header={`Les information sur le client ${client?.nom} ${client?.prenom}`}modal /*footer={deleteDocumentsDialogFooter}*/  onHide={hideDeleteViewClientDialog}>
+                        <div className="confirmation-content align-left">
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl font-medium">Code client:</span> {client?.code}</p></div>
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl text-left font-medium">Nom:</span> {client?.nom}</p></div>
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl text-left font-medium">{client?.nature=="Physique"?"Prenom: ":"Cygle: "}</span> {client?.nom}</p></div>
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl text-left font-medium">Telephone : </span> {client?.telephone}</p></div>
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl text-left font-medium">Profession : </span> {client?.profession}</p></div>
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl text-left font-medium">Adresse : </span> {client?.adresse}</p></div>
+                            <div className="flex  text-center"><p className="text-xl"><span className="text-2xl text-left font-medium">Nature: </span> {client?.nature}</p></div>
+                        </div>
+                        <Divider />
+                        <p className="text-2xl font-semibold ">Comptes </p>
+                        <DataTable ref={dt} value={client?.comptes} responsiveLayout="scroll" dataKey="id" header={header}>
+
+                        <Column field="id" header="Id" sortable></Column>
+                     <Column field="matricule" header="Matricule" sortable></Column>
+                    <Column field="numero_compte" header="numéro du compte" sortable></Column>
+                    <Column field="code_gestionnaire" header="Code de gestionnaire" sortable></Column>
+                    <Column field="agence" header="agence"  sortable></Column>
+                    <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />
+</DataTable>
                     </Dialog>
                 </div>
             </div>
