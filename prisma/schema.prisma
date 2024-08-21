@@ -43,7 +43,7 @@ model CompteClients {
   code_gestionnaire String       @db.VarChar(20)
   type_compte_id  Int?
   client_id       Int
-  type_compte     TypeCompte?     @relation(fields: [type_compte_id], references: [id], onDelete: Cascade)
+  type_compte     TypeCompte?     @relation(fields: [type_compte_id], references: [id])
   client          Clients         @relation(fields: [client_id], references: [id], onDelete: Cascade)
   type_documents  TypesDocuments[]
   created_at      DateTime        @default(now())
@@ -56,8 +56,8 @@ model DossiersToTypesDocuments {
   dossiersId      Int
   typesdocumentsId Int
 
-  type_document TypesDocuments @relation(fields:[typesdocumentsId], references:[id], onDelete:Cascade)
-  dossier Dossiers @relation(fields:[dossiersId], references:[id], onDelete:Cascade)
+  type_document TypesDocuments @relation(fields:[typesdocumentsId], references:[id])
+  dossier Dossiers @relation(fields:[dossiersId], references:[id])
 
   @@id([dossiersId, typesdocumentsId])
   @@index([dossiersId])
@@ -69,7 +69,7 @@ model TypesDocuments {
   nom_type    String          @db.VarChar(100)
   compte_id   Int?
   metadonnees MetaDonnees[]
-  compteClient CompteClients?  @relation(fields: [compte_id], references: [id], onDelete: Cascade)
+  compteClient CompteClients?  @relation(fields: [compte_id], references: [id])
 
   created_at  DateTime         @default(now())
   updated_at  DateTime         @updatedAt
@@ -129,7 +129,7 @@ model MetaDonnees {
   cle          String          @db.VarChar(50)
   valeur       String          @db.Text
   typesDocID   Int?
-  typeDocument TypesDocuments?  @relation(fields: [typesDocID], references: [id], onDelete: Cascade)
+  typeDocument TypesDocuments?  @relation(fields: [typesDocID], references: [id])
   created_at   DateTime        @default(now())
   updated_at   DateTime        @updatedAt
 

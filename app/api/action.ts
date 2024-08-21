@@ -81,3 +81,21 @@ export const deleteOption = async (id:number)=>{
         console.error(error)
     }
 }
+
+export const fetchTypeDocuments = async ()=>{
+    try{
+        const typesDoc =  await prisma.typesDocuments.findMany({
+            select:{
+                id:true,
+                code:true,
+                nom_type:true,
+            }
+        });
+
+        console.log("pppppppppppkkkkkkkkkkk: ",typesDoc)
+        return typesDoc
+    }catch(error){
+        console.error(error)
+
+    }
+}

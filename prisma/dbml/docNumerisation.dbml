@@ -107,18 +107,18 @@ Enum NatureEnum {
   Morale
 }
 
-Ref: CompteClients.type_compte_id > TypeCompte.id [delete: Cascade]
+Ref: CompteClients.type_compte_id > TypeCompte.id
 
 Ref: CompteClients.client_id > Clients.id [delete: Cascade]
 
-Ref: DossiersToTypesDocuments.typesdocumentsId > TypesDocuments.id [delete: Cascade]
+Ref: DossiersToTypesDocuments.typesdocumentsId > TypesDocuments.id
 
-Ref: DossiersToTypesDocuments.dossiersId > Dossiers.id [delete: Cascade]
+Ref: DossiersToTypesDocuments.dossiersId > Dossiers.id
 
-Ref: TypesDocuments.compte_id > CompteClients.id [delete: Cascade]
+Ref: TypesDocuments.compte_id > CompteClients.id
 
 Ref: DossierInfo.dossierId > Dossiers.id
 
 Ref: Piece.dossierId > Dossiers.id
 
-Ref: MetaDonnees.typesDocID > TypesDocuments.id [delete: Cascade]
+Ref: MetaDonnees.typesDocID > TypesDocuments.id
