@@ -1,21 +1,21 @@
 "use server"
 import { PrismaClient } from '@prisma/client';
-import { InvalidateQueryFilters, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+// import { InvalidateQueryFilters, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 
 const prisma = new PrismaClient()
-export const findTypeDocument= async()=>{
-    // const queryClient = useQueryClient();
+// export const findTypeDocument= async()=>{
+//     // const queryClient = useQueryClient();
 
-    const {  isError, data, error } = useQuery({ queryKey: ['typeDocument'], queryFn:  fetchTypeDocument });
-    if(isError){
-        console.log(error);
+//     const {  isError, data, error } = useQuery({ queryKey: ['typeDocument'], queryFn:  fetchTypeDocument });
+//     if(isError){
+//         console.log(error);
 
-        return null
-    }
+//         return null
+//     }
 
-    return data
-}
+//     return data
+// }
 export const fetchTypeDocument = async () => {
    const data =  await prisma.typesDocuments.findMany({
         include: {
@@ -79,5 +79,23 @@ export const deleteOption = async (id:number)=>{
         })
     } catch (error) {
         console.error(error)
+    }
+}
+
+export const fetchTypeDocuments = async ()=>{
+    try{
+        const typesDoc =  await prisma.typesDocuments.findMany({
+            select:{
+                id:true,
+                code:true,
+                nom_type:true,
+            }
+        });
+
+        console.log("pppppppppppkkkkkkkkkkk: ",typesDoc)
+        return typesDoc
+    }catch(error){
+        console.error(error)
+
     }
 }

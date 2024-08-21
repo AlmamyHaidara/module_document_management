@@ -220,7 +220,7 @@ const onUpdateMeta = useMutation({
         toast.current?.show({ severity: 'success', summary: 'Documents supprimés', detail: 'Les clients sélectionnés ont été supprimés avec succès', life: 3000 });
     };
 
-    const viewClientInfo = async (rowData)=>{
+    const viewClientInfo = async (rowData:any)=>{
 
         setClient({ ...rowData });
         setCompte(rowData?.comptes ? rowData.comptes[0] : null); // Set the first compte or null if none exist
@@ -234,7 +234,7 @@ const onUpdateMeta = useMutation({
     const actionBodyTemplate = (rowData: Client) => {
         return (
             <>
-                <Button icon="pi pi-eye" rounded severity="primary" className="mr-2" onClick={() => viewClientInfo(rowData)} />
+                <Button icon="pi pi-eye" rounded severity="info" className="mr-2" onClick={() => viewClientInfo(rowData)} />
                 <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editDocument(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteDocument(rowData)} />
             </>

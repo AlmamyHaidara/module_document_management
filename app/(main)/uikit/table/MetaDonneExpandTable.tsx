@@ -7,9 +7,9 @@ import ToolbarComponent from '@/app/components/ToolbarComponent';
 import ProductDialog from '@/app/components/ProductDialog';
 import { documentSchema } from '@/types/zod/zod.sechma';
 import { InvalidateQueryFilters, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DocumentService } from '@/demo/service/Document.service';
 import { TypeDocument } from '@/types/types';
-
+import MetadonneTable from '@/app/components/MetadonneTable';
+import { MetaDonneServices } from '@/demo/service/Metadonne.service';
 export type FieldItem = {
     id:number,
     cle: string,
@@ -22,7 +22,7 @@ interface PropsType {
 }
 
 
-const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
+const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     const { control, handleSubmit, setValue, formState: { errors }, reset, getValues } = useForm({
         resolver: zodResolver(documentSchema),
         defaultValues: {
@@ -72,10 +72,10 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<string, "id">) => DocumentService.createDocument(doc),
+        mutationFn: (doc: Omit<TypeDocument, "id">) => MetaDonneServices.createDocument(doc),
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["document"] as InvalidateQueryFilters);
+            queryClient.invalidateQueries(["metadonne"] as InvalidateQueryFilters);
             setProductDialog(false);
         },
         onError: (error) => {
@@ -84,16 +84,15 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         }
     });
     const updateMutation = useMutation({
-        mutationFn: (doc: TypeDocument) => {
+        mutationFn: (doc: any) => {
             if (!doc.code) {
                 throw new Error("Document code is required");
             }
-            return DocumentService.updateDocument(doc.id, doc);
+            return MetaDonneServices.updateDocument(doc?.code, doc);
         },
         onSuccess: (doc) => {
-
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
-            queryClient.invalidateQueries({ queryKey: ["document"] });
+            queryClient.invalidateQueries({ queryKey: ["metadonne"] });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du document a échoué', life: 3000 });
@@ -102,18 +101,18 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => DocumentService.deleteDocument(id),
+        mutationFn: (id: number) => MetaDonneServices.deleteDocument(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey:["document"]});
-            // toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
+            queryClient.invalidateQueries({queryKey:["metadonne"]});
+            toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
         },
         onError: (error) => {
             console.log("onDeleteError", error);
-            // toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du document a échoué', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du document a échoué', life: 3000 });
         }
     });
 
-    const handleCreateDocument = (newDocument: any) => {
+    const handleCreateDocument = (newDocument: TypeDocument) => {
         createMutation.mutate(newDocument);
     };
 
@@ -131,7 +130,8 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
                 <div className="card">
                     <Toast ref={toast} />
                     {/* <ToolbarComponent onNewClick={openNew} /> */}
-                    <DocumentTable
+                    {/*globalFilterValue, setGlobalFilterValue, onUpdateCompte, onCreateCompte, onDeleteCompte */}
+                    <MetadonneTable
                         documents={document}
                         globalFilterValue=""
                         setGlobalFilterValue={() => { }}
@@ -146,4 +146,4 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     );
 };
 
-export default DocumentExpendTable;
+export default MetaDonnetExpendTable;

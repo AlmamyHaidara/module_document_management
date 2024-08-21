@@ -31,14 +31,28 @@ export async function POST(req: NextRequest) {
         const data: any = await req.json();
         console.log('Données reçues:', data);
 
+        // Créer les métadonnées et collecter leurs IDs
+        const metadonneIds = await Promise.all(data.metadonnees.map(async (field: any) => {
+            const meta = await prisma.metaDonnees.create({
+                data: {
+                    cle: field.cle,
+                    valeur: field.valeur,
 
+                },
+            });
+            return meta.id;
+        }));
+
+        // Créer le nouveau document et le connecter aux métadonnées créées
         const newDossier = await prisma.typesDocuments.create({
             data: {
                 code: generateID(6),
-                nom_type: data,
+                nom_type: data.nom_type,
+                metadonnees: {
+                    connect: metadonneIds.map(id => ({ id })),
+                },
             },
         });
-
 
         console.log('Nouveau dossier créé:', newDossier);
 
