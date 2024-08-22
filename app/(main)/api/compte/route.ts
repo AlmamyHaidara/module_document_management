@@ -1,8 +1,8 @@
+import prisma from '@/prisma/prismaClient';
 import { Client, CompteClient, CompteClients } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
 import { NextRequest } from 'next/server';
 
-const prisma = new PrismaClient();
 export async function GET() {
     const clients = (await prisma.compteClients.findMany({
     include: {

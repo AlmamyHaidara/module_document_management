@@ -1,9 +1,9 @@
 "use server"
+import prisma from '@/prisma/prismaClient';
 import { PrismaClient } from '@prisma/client';
 // import { InvalidateQueryFilters, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 
-const prisma = new PrismaClient()
 // export const findTypeDocument= async()=>{
 //     // const queryClient = useQueryClient();
 

@@ -10,12 +10,12 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { TypeDocument } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
 import { Dropdown } from "primereact/dropdown";
+import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 
 interface DocumentTableProps {
     documents: TypeDocument[];
@@ -70,7 +70,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     };
 
 const onUpdateMeta = useMutation({
-    mutationFn:(data:any)=> MetaDonneService.updateMetaDonnee(data.cle,data.data),
+    mutationFn:(data:any)=> MetaDonneServices.updateMetaDonnee(data.cle,data.data),
     onSuccess:()=>{
         queryClient.invalidateQueries({queryKey:['document']})
 

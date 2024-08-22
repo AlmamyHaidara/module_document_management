@@ -10,7 +10,6 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { Client,CompteClients } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
@@ -20,6 +19,7 @@ import { NatureEnum } from "@prisma/client";
 import { InvalidateQueryFilters, useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
 import { createOption, deleteOption, fetchClientCode, fetchOption } from '@/app/api/action';
 import { Divider } from 'primereact/divider';
+import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 
 
 interface ClientTableProps {
@@ -104,7 +104,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     };
 
 const onUpdateMeta = useMutation({
-    mutationFn:(data:any)=> MetaDonneService.updateMetaDonnee(data.cle,data.data),
+    mutationFn:(data:any)=> MetaDonneServices.updateMetaDonnee(data.cle,data.data),
     onSuccess:()=>{
         queryClient.invalidateQueries({queryKey:['client']})
 
@@ -395,7 +395,7 @@ const onUpdateMeta = useMutation({
                         <Column field="adresse" header="Adresse" sortable  />
                         <Column field="profession" header="Profession" sortable  />
                         <Column field="nature" header="Nature" sortable  />
-                        <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />
+                        {/* <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  /> */}
                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
                     </DataTable>
 

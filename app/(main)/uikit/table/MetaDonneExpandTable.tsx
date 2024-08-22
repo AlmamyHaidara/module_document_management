@@ -72,7 +72,7 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<TypeDocument, "id">) => MetaDonneServices.createDocument(doc),
+        mutationFn: (doc: Omit<TypeDocument, "id">) => MetaDonneServices.addMetaDonnee(doc.docId, doc.field),
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
             queryClient.invalidateQueries(["metadonne"] as InvalidateQueryFilters);
@@ -85,10 +85,12 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     });
     const updateMutation = useMutation({
         mutationFn: (doc: any) => {
-            if (!doc.code) {
+
+            console.log("-----------doc",doc)
+            if (!doc.id) {
                 throw new Error("Document code is required");
             }
-            return MetaDonneServices.updateDocument(doc?.code, doc);
+            return  MetaDonneServices.updateMetaDonnee(doc?.id, doc);
         },
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
@@ -112,7 +114,7 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         }
     });
 
-    const handleCreateDocument = (newDocument: TypeDocument) => {
+    const handleCreateDocument = (newDocument: any) => {
         createMutation.mutate(newDocument);
     };
 

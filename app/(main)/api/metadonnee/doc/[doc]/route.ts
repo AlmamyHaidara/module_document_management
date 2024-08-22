@@ -3,8 +3,8 @@ import { create } from 'domain';
 import { NextRequest, NextResponse } from 'next/server';
 import { metadata } from '../../../../layout';
 import { revalidatePath } from 'next/cache';
+import prisma from '@/prisma/prismaClient';
 
-const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest, { params }: { params: { code: string } }) {
     try {
@@ -64,31 +64,29 @@ export async function PUT(req: NextRequest) {
 
         await Promise.all( metadonnees.map(async (field: any) => {
 
-            console.log("MetadonneeesId: ",field.id )
-                 await prisma.metaDonnees.upsert({
+            console.log("MetadonneeesId: ",field )
+                const tt = await prisma.metaDonnees.update({
                     where: { id: field.id },
-                    update:{
+                    data:{
                         cle: field.cle, valeur: field.valeur,
-
-                        typeDocument:{
-                            update:{
-                                nom_type:data.nom_type
-                            }
-                        }
+                        typesDocID:data.nom_type.id,
+                        // typeDocument:{
+                            // connect:{
+                            //     id:field.typeDocument.id
+                            // }
+                        // }
+                        // typeDocument:{
+                        //     update:{
+                        //         nom_type:data.nom_type
+                        //     }
+                        // }
                     },
-                    create:{
-                        cle: field.cle,
-                        valeur: field.valeur,
 
-                        typeDocument:{
-                          connect:{
-                            id:Number(id)
-                          }
-                        }
-                    }
                 })
 
+                console.log("--------AfterUpdate",tt);
         }))
+
         // revalidatePath("/documents",'layout')
         return NextResponse.json("Document mise a jour avec succes", { status: 200 });
 

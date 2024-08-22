@@ -1,7 +1,7 @@
+import prisma from '@/prisma/prismaClient';
 import { Client, CompteClient, DocMetaPiece, TypeDocument } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
 export async function GET(req: Request, { params }: { params: { code: string } }) {
     console.log('compte/api', req);
     const dossier: DocMetaPiece[] & TypeDocument[] = (await prisma.dossiers.findFirst({

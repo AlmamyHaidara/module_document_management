@@ -1,13 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import prisma from '@/prisma/prismaClient';
 
-const prisma = new PrismaClient();
 
 export async function GET() {
     try{
     // const dossiers: any[] = (await prisma.typesDocuments.findMany({
-    const dossiers: any[] = (await prisma.metaDonnees.findMany({})) as unknown as any[];
+    const dossiers: any[] = (await prisma.metaDonnees.findMany({
+        include:{
+            // metadonnees:true
+            typeDocument:true,
+        }
+    })) as unknown as any[];
 // {
 //         include:{
 //             metadonnees:true
@@ -40,7 +45,12 @@ export async function POST(req: NextRequest) {
             data: {
                 cle: data.cle,
                 valeur: data.valeur,
-                typesDocID: data.documentId,
+                // typesDocID: data.documentId,
+                typeDocument:{
+                    connect:{
+                        id:data.documentId
+                    }
+                }
             },
         });
 
