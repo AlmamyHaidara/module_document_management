@@ -65,11 +65,15 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     };
 
     const openUpdate = (doc: Dossier) => {
+        console.log("-----------doc")
+        console.info(doc)
+
+        updateMutation.mutate(doc)
         setProductDialog(true);
         setIsUpdateMode(true);
         setSelectedDossier(doc);
         reset({
-            nom: doc.description,
+            nom: doc.nom,
             code: doc.code,
             // metaDonnees: doc.metaDonnees,
         });
@@ -94,15 +98,15 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     });
 
     const updateMutation = useMutation({
-        mutationFn: (doc: TypeDocument) => {
-            if (!doc.code) {
+        mutationFn: (doc: any) => {
+            if (!doc.id) {
                 throw new Error("Document code is required");
             }
-            return DocumentService.updateDocument(doc.id, doc);
+            return DossierService.updateDossier(doc.id, doc);
         },
         onSuccess: () => {
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
-            queryClient.invalidateQueries({ queryKey: ["document"] });
+            queryClient.invalidateQueries({ queryKey: ["dossiers"] });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du document a échoué', life: 3000 });
@@ -111,7 +115,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => DocumentService.deleteDocument(id),
+        mutationFn: (id: number) => DossierService.deleteDossier(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["document"] });
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });

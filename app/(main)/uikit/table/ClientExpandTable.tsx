@@ -45,9 +45,7 @@ const ClientExpendTable = ({ client, findCLientByCode }: PropsType) => {
     const [isUpdateMode, setIsUpdateMode] = React.useState(false);
     const [selectedDocument, setSelectedDocument] = React.useState<TypeDocument | null>(null);
 
-    useEffect(()=>{
-        console.log("-----------------------Client:",client)
-    },[])
+
     const openNew = () => {
         setProductDialog(true);
         setIsUpdateMode(false);

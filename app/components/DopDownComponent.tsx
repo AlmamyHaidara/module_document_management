@@ -30,6 +30,8 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
     };
 
     const countryOptionTemplate = (option: any) => {
+        console.log("potion--------------------p", option);
+
         return (
             <div className="flex align-items-center">
                 <div>{option.nom_type || option.name}</div>

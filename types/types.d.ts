@@ -101,6 +101,7 @@ export enum Nature {
 }
 
 export interface DocMetaPiece{
+    dossiers_typesDocuments: any;
     dossier:Dossier;
     metadonne:MetaDonnee[];
     piece:Piece[];

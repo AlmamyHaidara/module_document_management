@@ -64,15 +64,15 @@ Table DossierInfo {
   id Int [pk, increment]
   cle String [not null]
   value String [not null]
-  dossierId Int [not null]
-  dossier Dossiers [not null]
+  dossierId Int
+  dossier Dossiers
 }
 
 Table Dossiers {
   id Int [pk, increment]
   code String [unique, not null]
   nom String [not null]
-  description String [not null]
+  description String
   piece Piece [not null]
   dossierInfos DossierInfo [not null]
   created_at DateTime [default: `now()`, not null]
@@ -85,9 +85,9 @@ Table Piece {
   code String [unique, not null]
   nom String
   path String [not null]
-  date_creation DateTime [default: `now()`, not null]
   dossierId Int
   dossier Dossiers
+  date_creation DateTime [default: `now()`, not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
 }
@@ -96,6 +96,7 @@ Table MetaDonnees {
   id Int [pk, increment]
   cle String [not null]
   valeur String [not null]
+  content String
   typesDocID Int
   typeDocument TypesDocuments
   created_at DateTime [default: `now()`, not null]
@@ -119,6 +120,6 @@ Ref: TypesDocuments.compte_id > CompteClients.id
 
 Ref: DossierInfo.dossierId > Dossiers.id
 
-Ref: Piece.dossierId > Dossiers.id
+Ref: Piece.dossierId > Dossiers.id [delete: Cascade]
 
 Ref: MetaDonnees.typesDocID > TypesDocuments.id

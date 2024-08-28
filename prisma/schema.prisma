@@ -57,7 +57,7 @@ model DossiersToTypesDocuments {
   typesdocumentsId Int
 
   type_document TypesDocuments @relation(fields:[typesdocumentsId], references:[id])
-  dossier Dossiers @relation(fields:[dossiersId], references:[id])
+  dossier Dossiers @relation(fields:[dossiersId], references:[id], onDelete: Cascade)
 
   @@id([dossiersId, typesdocumentsId])
   @@index([dossiersId])
@@ -83,16 +83,16 @@ model DossierInfo {
   id         Int             @id @default(autoincrement())
   cle        String          @db.VarChar(100)
   value      String          @db.VarChar(255)
-  dossierId Int
+  dossierId Int?
 
-  dossier  Dossiers  @relation(fields: [dossierId], references: [id])
+  dossier  Dossiers?  @relation(fields: [dossierId], references: [id])
 }
 
 model Dossiers {
   id             Int             @id @default(autoincrement())
   code           String          @unique @db.VarChar(50)
   nom            String          @db.VarChar(100)
-  description    String          @db.VarChar(255)
+  description    String?          @db.VarChar(255)
   // piece_id       Int
   // dossier_info_id Int
   piece        Piece[]
@@ -112,10 +112,10 @@ model Piece {
   code          String          @unique @db.VarChar(50)
   nom           String?         @db.VarChar(100)
   path          String          @db.VarChar(255)
-  date_creation DateTime        @default(now())
   dossierId Int?
+  dossier  Dossiers? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  date_creation DateTime        @default(now())
 
-  dossier  Dossiers? @relation(fields: [dossierId], references: [id])
 
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
@@ -127,7 +127,8 @@ model Piece {
 model MetaDonnees {
   id           Int             @id @default(autoincrement())
   cle          String          @db.VarChar(50)
-  valeur       String          @db.Text
+  valeur       String          @db.VarChar(200)
+  content      String?          @db.Text
   typesDocID   Int?
   typeDocument TypesDocuments?  @relation(fields: [typesDocID], references: [id])
   created_at   DateTime        @default(now())

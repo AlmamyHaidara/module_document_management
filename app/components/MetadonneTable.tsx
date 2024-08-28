@@ -144,7 +144,7 @@ const saveDocument = async () => {
 
 
     const editDocument = (document: TypeDocument) => {
-        console.log("*//////////////////document",document)
+        console.log("***************document",document)
         setTypee(document.nom_type)
         setDocument({ ...document });
         setFields(document.metadonnees || [{ id: 0, cle: "", valeur: "" }]);

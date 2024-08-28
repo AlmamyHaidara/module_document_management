@@ -39,19 +39,25 @@ export const DossierService = {
         return response.json();
     },
 
-    async updateDossier(id: any, document: any) {
+    async updateDossier(id: any, dossier: any) {
         // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
-        const response = await fetch(`/api/dossier/`);
+        const response = await fetch(`/api/dossier/${id}`,{
+            method:"PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dossier)
+        });
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         return response.json();
     },
-    async deleteDocument(id: string) {
+    async deleteDossier(id: number) {
 
         console.log("-----------DocumentApi: ", id);
-        const response = await fetch(`/api/document/${id}`, {
+        const response = await fetch(`/api/dossier/${id}`, {
             method: "DELETE"
         });
 
