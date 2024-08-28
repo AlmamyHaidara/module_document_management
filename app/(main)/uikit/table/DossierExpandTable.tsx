@@ -117,7 +117,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     const deleteMutation = useMutation({
         mutationFn: (id: number) => DossierService.deleteDossier(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["document"] });
+            queryClient.invalidateQueries({ queryKey: ["dossiers"] });
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
         },
         onError: (error) => {

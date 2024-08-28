@@ -114,7 +114,7 @@ Ref: CompteClients.client_id > Clients.id [delete: Cascade]
 
 Ref: DossiersToTypesDocuments.typesdocumentsId > TypesDocuments.id
 
-Ref: DossiersToTypesDocuments.dossiersId > Dossiers.id
+Ref: DossiersToTypesDocuments.dossiersId > Dossiers.id [delete: Cascade]
 
 Ref: TypesDocuments.compte_id > CompteClients.id
 
