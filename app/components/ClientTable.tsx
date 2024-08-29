@@ -105,7 +105,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     };
 
 const onUpdateMeta = useMutation({
-    mutationFn:(data:any)=> MetaDonneService.updateMetaDonnee(data.cle,data.data),
+    mutationFn:(data:any)=> MetaDonneServices.updateMetaDonnee(data.cle,data.data),
     onSuccess:()=>{
         queryClient.invalidateQueries({queryKey:['client']})
 
@@ -281,11 +281,35 @@ const onUpdateMeta = useMutation({
         </>
     );
 
+    const [filteredDocuments, setFilteredDocuments] = useState(clients);
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
+        console.log('Search Value:', clients);
+
+        const filtered = clients.filter((client:any) =>
+            client.code.toLowerCase().includes(filterValue) ||
+            client.nom.toLowerCase().includes(filterValue) ||
+            client.prenom.toLowerCase().includes(filterValue) ||
+            client.telephone.toLowerCase().includes(filterValue) ||
+            client.adresse.toLowerCase().includes(filterValue) ||
+            client.profession.toLowerCase().includes(filterValue) ||
+            client.nature.toLowerCase().includes(filterValue)||
+            client.created_at.toLowerCase().includes(filterValue)
+        );
+
+        setFilteredDocuments(filtered);
+    //    'nom', 'prenom','telephone','addresse','profession','nature', 'created_at'
+
+    };
+
     const header = (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" />
+                {/* <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" /> */}
+                <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
+
             </span>
         </div>
     );
@@ -338,7 +362,10 @@ const onUpdateMeta = useMutation({
         return (
             <div className="p-3">
                 <h5>Les comptes du clients {data.nom}</h5>
-                <DataTable value={data.comptes}>
+                <DataTable
+                    value={data.comptes}
+
+                >
                     <Column field="id" header="Id" sortable></Column>
                      <Column field="matricule" header="Matricule" sortable></Column>
                     <Column field="numero_compte" header="numéro du compte" sortable></Column>
@@ -382,9 +409,29 @@ const onUpdateMeta = useMutation({
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
                     {/* <DataTable ref={dt} value={clients} responsiveLayout="scroll" dataKey="id" header={header}> */}
 
-                         <DataTable ref={dt} value={clients} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
-                    onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
-                    dataKey="id" header={header} tableStyle={{ minWidth: '60rem' }}>
+                         <DataTable
+                            ref={dt}
+                            value={filteredDocuments}
+                            expandedRows={expandedRows}
+                            onRowToggle={(e) => setExpandedRows(e.data)}
+                            onRowExpand={onRowExpand}
+                            onRowCollapse={onRowCollapse}
+                            rowExpansionTemplate={rowExpansionTemplate}
+                            dataKey="id"
+                            header={header}
+                            tableStyle={{ minWidth: '60rem' }}
+                            className="datatable-responsive"
+                            paginator
+                            rows={10}
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                            rowsPerPageOptions={[5, 10, 25]}
+                            // globalFilter={globalFilter}
+                            globalFilterFields={['nom', 'prenom','telephone','addresse','profession','nature', 'created_at']}
+                            filterDisplay="row"
+                            emptyMessage="No products found."
+
+                        >
                 <Column expander={allowExpansion} style={{ width: '5rem' }} />
 
 

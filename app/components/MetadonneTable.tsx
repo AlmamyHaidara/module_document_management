@@ -10,7 +10,7 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { TypeDocument } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
+// import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
 import { useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -21,14 +21,12 @@ import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 
 interface DocumentTableProps {
     documents: TypeDocument[];
-    globalFilterValue: string;
-    setGlobalFilterValue: (value: string) => void;
     onUpdateDocument: (document: TypeDocument) => void;
     onCreateDocument: (document: TypeDocument) => void;
     onDeleteDocument: (id: number) => void;
 }
 
-const MetadonneTable = ({ documents, globalFilterValue, setGlobalFilterValue, onUpdateDocument, onCreateDocument, onDeleteDocument }: DocumentTableProps) => {
+const MetadonneTable = ({ documents,  onUpdateDocument, onCreateDocument, onDeleteDocument }: DocumentTableProps) => {
     const [documentDialog, setDocumentDialog] = useState(false);
     const [deleteDocumentDialog, setDeleteDocumentDialog] = useState(false);
     const [deleteDocumentsDialog, setDeleteDocumentsDialog] = useState(false);
@@ -45,16 +43,15 @@ const MetadonneTable = ({ documents, globalFilterValue, setGlobalFilterValue, on
     const typeDoc:{name:string}[]= ([{name:"text"},{name:"number"},{name:"email"},{name:"tel"},{name:"date"},{name:"file"}]);
     const [docType, setDocType] = useState<{name:string}>({name:""});
     const [typee, setTypee] = useState<any >({});
+    const [globalFilter, setGlobalFilter] = useState('');
+    
 
-    const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setGlobalFilterValue(value);
-    };
-    const { isSuccess, data:typeDocum } = useQuery({ queryKey: ['typeDocumentValue'], queryFn: async ()=> await fetchTypeDocuments() });
+
+    const { isSuccess, data:typeDocum }:{isSuccess:boolean,data:any} = useQuery({ queryKey: ['typeDocumentValue'], queryFn: async ()=> await fetchTypeDocuments() });
 
 
     useEffect(()=>{
-        setTypeDocuments(typeDocum && typeDocum)
+        setTypeDocuments(typeDocum)
         console.log("-----------TypeDocuments: ",typeDocuments)
     },[isSuccess])
 
@@ -80,9 +77,10 @@ const MetadonneTable = ({ documents, globalFilterValue, setGlobalFilterValue, on
     };
 
 const onUpdateMeta = useMutation({
-    mutationFn:(data:any)=> MetaDonneService.updateMetaDonnee(data.cle,data.data),
+    mutationFn:(data:any)=> MetaDonneServices.updateMetaDonnee(data.cle,data.data),
     onSuccess:()=>{
         queryClient.invalidateQueries({queryKey:['document']})
+        queryClient.invalidateQueries({queryKey:['metadonne']})
 
     }
 })
@@ -121,12 +119,12 @@ const saveDocument = async () => {
 
         // Supprimez les champs qui ne sont plus présents
         for (const field of fieldsToDelete) {
-            await MetaDonneService.deleteMetaDonnee(field.id);
+            await MetaDonneServices.deleteMetaDonnee(field.id);
         }
 
         // Ajoutez les nouveaux champs
         for (const field of fieldsToAdd) {
-            await MetaDonneService.addMetaDonnee(document.nom_type.id, field);
+            await MetaDonneServices.addMetaDonnee(document.nom_type.id, field);
         }
 
         toast.current?.show({ severity: 'success', summary: 'Document mis à jour', detail: 'Le document a été mis à jour avec succès', life: 3000 });
@@ -138,6 +136,8 @@ const saveDocument = async () => {
         console.error("Erreur lors de la mise à jour de la métadonnée:", error);
         toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour des métadonnées', life: 3000 });
     } finally {
+        queryClient.invalidateQueries({queryKey:['metadonne']})
+
         setRefresh(prev => !prev);
     }
 };
@@ -231,12 +231,27 @@ const saveDocument = async () => {
             <Button label="Oui" icon="pi pi-check" text onClick={deleteSelectedDocuments} />
         </>
     );
+    const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
+        console.log('Search Value:', filterValue);
+    
+        const filtered = documents.filter((document:any) =>
+            document.cle.toLowerCase().includes(filterValue) ||
+            document.valeur.toLowerCase().includes(filterValue) ||
+            formatDate(document.created_at).toLowerCase().includes(filterValue)
+        );
+    
+        setFilteredDocuments(filtered);
+    };
     const header = (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" />
+                
+                <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
+
             </span>
         </div>
     );
@@ -257,15 +272,34 @@ const saveDocument = async () => {
             );
 
     };
+
+    
     return (
         <div className="grid crud-demo">
             <div className="col-12">
                 <div className="card">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
-                    <DataTable ref={dt} value={documents} responsiveLayout="scroll" dataKey="id" header={header}>
+                    <DataTable
+                        // key={globalFilter}
+                        ref={dt}
+                        value={filteredDocuments}
+                        responsiveLayout="scroll"
+                        dataKey="id"
+                        header={header}
+                        className="datatable-responsive"
+                        paginator
+                        rows={10}
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                        rowsPerPageOptions={[5, 10, 25]}
+                        // globalFilter={globalFilter}
+                        globalFilterFields={['cle', 'valeur', 'created_at']} 
+                        filterDisplay="row"
+                        emptyMessage="No products found."
+                    >
                         <Column field="id" header="ID" sortable />
-                        <Column field="code" header="Code" sortable />
+                        {/* <Column field="code" header="Code" sortable /> */}
                         <Column field="cle" header="Nom de champs" sortable  />
                         <Column field="valeur" header="Type de champs" sortable  />
                         <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />

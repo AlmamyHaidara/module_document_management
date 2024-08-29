@@ -38,12 +38,23 @@ export async function GET(req: NextRequest, { params }: { params: { code: string
 export async function DELETE(req: NextRequest, { params }: { params: { code: string } }) {
     const code = params.code;
     try {
+        await prisma.$transaction(async(prisma)=>{
+            // await prisma.typesDocuments.deleteMany({
+            //     where: { id: Number(code) },
 
-        await prisma.typesDocuments.deleteMany({
-            where: { id: Number(code) },
-        });
-        revalidatePath("/documents",'layout')
-        return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
+            // });
+            await prisma.typesDocuments.delete({
+                where: { id: Number(code) },
+                include:{
+                    metadonnees:true,
+                    dossiers_typesDocuments:true
+                }
+
+            })
+            revalidatePath("/documents",'layout')
+            return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
+
+        })
 
     } catch (error) {
         console.error('Erreur lors de la suppression du document:', error);

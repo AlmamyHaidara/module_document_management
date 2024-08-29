@@ -227,6 +227,27 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
             day: '2-digit',
         }).format(new Date(date))}`;
     };
+    const [filteredDossiers, setFilteredDocuments] = useState(dossiers);
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
+        console.log('Search Value:', dossiers);
+    
+        const filtered = dossiers.filter((dossier:any) =>
+            dossier.code.toLowerCase().includes(filterValue));
+    
+        setFilteredDocuments(filtered);
+    };
+    const header = (
+        <div className="flex justify-content-between">
+                            <span className="p-input-icon-left">
+                                <i className="pi pi-search" />
+                                {/* <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" /> */}
+                                <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
+
+                            </span>
+                        </div>
+    );
 
     return (
         <div className="grid crud-demo">
@@ -234,14 +255,23 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                 <div className="card">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
-                    <DataTable ref={dt} value={dossiers} responsiveLayout="scroll" dataKey="id" header={
-                        <div className="flex justify-content-between">
-                            <span className="p-input-icon-left">
-                                <i className="pi pi-search" />
-                                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" />
-                            </span>
-                        </div>
-                    }>
+                    <DataTable 
+                        ref={dt} 
+                        value={filteredDossiers} 
+                        responsiveLayout="scroll" 
+                        dataKey="id" 
+                        header={header}
+                        className="datatable-responsive"
+                        paginator
+                        rows={10}
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                        rowsPerPageOptions={[5, 10, 25]}
+                        // globalFilter={globalFilter}
+                        globalFilterFields={['code']} 
+                        filterDisplay="row"
+                        emptyMessage="No products found."
+                    >
                         <Column field="id" header="ID" sortable />
                         <Column field="code" header="Code" sortable />
                         <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)} />

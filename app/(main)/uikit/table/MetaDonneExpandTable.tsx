@@ -101,7 +101,7 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => MetaDonneServices.deleteDocument(id),
+        mutationFn: (id: number) => MetaDonneServices.deleteMetaDonnee(id),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:["metadonne"]});
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
@@ -133,8 +133,6 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
                     {/*globalFilterValue, setGlobalFilterValue, onUpdateCompte, onCreateCompte, onDeleteCompte */}
                     <MetadonneTable
                         documents={document}
-                        globalFilterValue=""
-                        setGlobalFilterValue={() => { }}
                         onCreateDocument={handleCreateDocument}
                         onUpdateDocument={handleUpdateDocument}
                         onDeleteDocument={handleDeleteDocument}
