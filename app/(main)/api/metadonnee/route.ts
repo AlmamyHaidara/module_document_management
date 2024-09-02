@@ -7,13 +7,18 @@ const prisma = new PrismaClient();
 export async function GET() {
     try{
     // const dossiers: any[] = (await prisma.typesDocuments.findMany({
-    const dossiers: any[] = (await prisma.metaDonnees.findMany({})) as unknown as any[];
-// {
-//         include:{
-//             metadonnees:true
-//         }
+    const dossiers: any[] = (await prisma.metaDonnees.findMany({
+        include:{
+            typeDocument:true
+        }
+    })) as unknown as any[];
 
-//     }
+    //     include:{
+    //         metadonnees:true,
+
+    //     }
+
+    // })) as unknown as any[];
     console.log("--------------------serverDossier: ",dossiers)
     return new Response(JSON.stringify(dossiers), {
         headers: { 'Content-Type': 'application/json' },
@@ -34,23 +39,25 @@ export async function POST(req: NextRequest) {
         const data = await req.json();
 
         console.log("Received data:", data);
-
+        await prisma.$transaction(async (prisma) =>{
+            
+            const newMetaDonnee = await prisma.metaDonnees.create({
+                data: {
+                    cle: data.cle,
+                    valeur: data.valeur,
+                    typesDocID: data.documentId,
+                },
+            });
+    
+            // Revalidation du cache pour la page /documents
+            revalidatePath('/documents');
+    
+            return NextResponse.json({
+                message: 'Métadonnée ajoutée avec succès',
+                data: newMetaDonnee,
+            }, { status: 201 });
+        })
         // Ajout d'une nouvelle métadonnée
-        const newMetaDonnee = await prisma.metaDonnees.create({
-            data: {
-                cle: data.cle,
-                valeur: data.valeur,
-                typesDocID: data.documentId,
-            },
-        });
-
-        // Revalidation du cache pour la page /documents
-        revalidatePath('/documents');
-
-        return NextResponse.json({
-            message: 'Métadonnée ajoutée avec succès',
-            data: newMetaDonnee,
-        }, { status: 201 });
 
     } catch (error:any) {
         console.error('Erreur lors de l\'ajout de la métadonnée:', error);

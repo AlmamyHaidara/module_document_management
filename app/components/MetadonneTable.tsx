@@ -44,7 +44,7 @@ const MetadonneTable = ({ documents,  onUpdateDocument, onCreateDocument, onDele
     const [docType, setDocType] = useState<{name:string}>({name:""});
     const [typee, setTypee] = useState<any >({});
     const [globalFilter, setGlobalFilter] = useState('');
-    
+
 
 
     const { isSuccess, data:typeDocum }:{isSuccess:boolean,data:any} = useQuery({ queryKey: ['typeDocumentValue'], queryFn: async ()=> await fetchTypeDocuments() });
@@ -94,33 +94,33 @@ const saveDocument = async () => {
             return;
         }
 
-        const existingFields = document?.metadonnees || [];
-        const fieldsToUpdate = fields.filter(field => existingFields.some((existingField:any) => existingField.id === field.id));
+        const existingFields = document?.metadonnees || [document] || [];
+        // const fieldsToUpdate = fields.filter(field => existingFields.some((existingField:any) => existingField.id === field.id));
         const fieldsToAdd = fields
         .filter(field => !existingFields.some((existingField:any) => existingField.id === field.id))
         .map(field => ({ ...field, documentId: document.nom_type.id })); // Ajoute documentId à chaque élément
     const fieldsToDelete = existingFields.filter((existingField:any) => !fields.some(field => field.id === existingField.id));
 
         console.log("-----------existingFields: ", existingFields);
-        console.log("-----------fieldsToUpdate: ", fieldsToUpdate);
-        console.log("-----------fieldsToDelete: ", fieldsToDelete);
+        // console.log("-----------fieldsToUpdate: ", fieldsToUpdate);
+        // console.log("-----------fieldsToDelete: ", fieldsToDelete);
         console.log("-----------fieldsToAdd: ", fieldsToAdd);
 
-        const updatedDocument = {
-            ...document,
-            metadonnees: [...fieldsToUpdate, ...fieldsToAdd],
-        };
+        // const updatedDocument = {
+        //     ...document,
+        //     metadonnees: [...fieldsToUpdate, ...fieldsToAdd],
+        // };
 
         // Mettez à jour les champs existants
-        for (const field of fieldsToUpdate) {
-            await MetaDonneServices.updateDocument(document.id, updatedDocument);
-            onUpdateMeta.mutate({ cle: field.cle, data: { id: field.id, cle: field.cle, valeur: field.valeur } });
-        }
+        // for (const field of fieldsToUpdate) {
+        //     await MetaDonneServices.updateDocument(document.id, updatedDocument);
+        //     onUpdateMeta.mutate({ cle: field.cle, data: { id: field.id, cle: field.cle, valeur: field.valeur } });
+        // }
 
         // Supprimez les champs qui ne sont plus présents
-        for (const field of fieldsToDelete) {
-            await MetaDonneServices.deleteMetaDonnee(field.id);
-        }
+        // for (const field of fieldsToDelete) {
+        //     await MetaDonneServices.deleteMetaDonnee(field.id);
+        // }
 
         // Ajoutez les nouveaux champs
         for (const field of fieldsToAdd) {
@@ -144,10 +144,15 @@ const saveDocument = async () => {
 
 
     const editDocument = (document: TypeDocument) => {
-        console.log("***************document",document)
-        setTypee(document.nom_type)
+        console.log("***************document",document.typeDocument)
+        console.log("***************document",typee)
+        setTypee(
+            {nom_type:{id:document.typeDocument?.id,
+                code:document?.typeDocument?.code,
+            nom_type:document.typeDocument?.nom_type,
+        }})
         setDocument({ ...document });
-        setFields(document.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
+        setFields([document] || [{ id: 0, cle: "", valeur: "" }] );
         setDocumentDialog(true);
     };
 
@@ -233,23 +238,27 @@ const saveDocument = async () => {
     );
     const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
+    useEffect(() => {
+        console.log("Data is changed :)");
+        setFilteredDocuments(documents)
+    }, [documents]);
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
-        console.log('Search Value:', filterValue);
-    
+        console.log('Search Value:', documents);
+
         const filtered = documents.filter((document:any) =>
             document.cle.toLowerCase().includes(filterValue) ||
             document.valeur.toLowerCase().includes(filterValue) ||
             formatDate(document.created_at).toLowerCase().includes(filterValue)
         );
-    
+
         setFilteredDocuments(filtered);
     };
     const header = (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                
+
                 <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
 
             </span>
@@ -273,7 +282,7 @@ const saveDocument = async () => {
 
     };
 
-    
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
@@ -294,7 +303,7 @@ const saveDocument = async () => {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
                         rowsPerPageOptions={[5, 10, 25]}
                         // globalFilter={globalFilter}
-                        globalFilterFields={['cle', 'valeur', 'created_at']} 
+                        globalFilterFields={['cle', 'valeur', 'created_at']}
                         filterDisplay="row"
                         emptyMessage="No products found."
                     >
@@ -310,6 +319,7 @@ const saveDocument = async () => {
                         <div className="field">
                             <label htmlFor="nom_type">Type de document</label>
                             {/* <InputText id="nom_type" value={document?.nom_type || ''} onChange={(e) => setDocument({ ...document, nom_type: e.target.value })} required className={classNames({ 'p-invalid': submitted && !document?.nom_type })} /> */}
+
 
                                     <Dropdown
                                         name="nom_type"

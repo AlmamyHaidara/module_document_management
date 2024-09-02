@@ -26,6 +26,7 @@ export interface CompteClient {
 }
 
 export interface TypeDocument {
+    typeDocument(arg0: string, typeDocument: any): unknown;
     id: number;
     code?: string;
     nom_type: string;

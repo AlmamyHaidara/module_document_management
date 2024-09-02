@@ -10,12 +10,12 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { TypeDocument } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
 import { Dropdown } from "primereact/dropdown";
+import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 
 interface DocumentTableProps {
     documents: TypeDocument[];
@@ -41,6 +41,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const dt = useRef<DataTable<any>>(null);
     const typeDoc:{name:string}[]= ([{name:"text"},{name:"number"},{name:"email"},{name:"tel"},{name:"date"},{name:"file"}]);
     const [docType, setDocType] = useState<{name:string}>({name:""});
+    const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -84,9 +85,10 @@ const onUpdateMeta = useMutation({
             console.log("------------document",document)
 
         if (document?.code) {
-                    onUpdateDocument(document)
+            onUpdateDocument(document)
         } else {
             onCreateDocument(document.nom_type);
+            console.log("lllllllllllllllllllllllllllllll: ",documents)
             // toast.current?.show({ severity: 'success', summary: 'Document créé', detail: 'Le document a été créé avec succès', life: 3000 });
         }
 
@@ -187,25 +189,29 @@ const onUpdateMeta = useMutation({
             <Button label="Oui" icon="pi pi-check" text onClick={deleteSelectedDocuments} />
         </>
     );
-    const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
+
+    useEffect(() => {
+        console.log("Data is changed :)");
+        setFilteredDocuments(documents)
+    }, [documents]);
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
         console.log('Search Value:', filterValue);
-    
+
         const filtered = documents.filter((document:any) =>
             document.code.toLowerCase().includes(filterValue) ||
             document.nom_type.toLowerCase().includes(filterValue) ||
             document.created_at.includes(filterValue)
         );
-    
+
         setFilteredDocuments(filtered);
     };
     const header = (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                
+
                 <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
 
             </span>
@@ -229,12 +235,12 @@ const onUpdateMeta = useMutation({
                 <div className="card">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
-                    <DataTable 
-                    
-                        ref={dt} 
-                        value={filteredDocuments} 
-                        responsiveLayout="scroll" 
-                        dataKey="id" 
+                    <DataTable
+
+                        ref={dt}
+                        value={filteredDocuments}
+                        responsiveLayout="scroll"
+                        dataKey="id"
                         header={header}
                         className="datatable-responsive"
                         paginator
@@ -243,10 +249,10 @@ const onUpdateMeta = useMutation({
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
                         rowsPerPageOptions={[5, 10, 25]}
                         // globalFilter={globalFilter}
-                        globalFilterFields={['code', 'nom_type', 'created_at']} 
+                        globalFilterFields={['code', 'nom_type', 'created_at']}
                         filterDisplay="row"
                         emptyMessage="No products found."
-                    
+
                     >
                         <Column field="id" header="ID" sortable />
                         <Column field="code" header="Code" sortable />

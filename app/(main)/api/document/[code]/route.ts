@@ -51,11 +51,11 @@ export async function DELETE(req: NextRequest, { params }: { params: { code: str
                 }
 
             })
-            revalidatePath("/documents",'layout')
-            return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
-
+            // revalidatePath("/documents",'layout')
+            
         })
-
+        
+        return  Response.json({ message: 'Document supprimé avec succès' }, { status: 200 });
     } catch (error) {
         console.error('Erreur lors de la suppression du document:', error);
 

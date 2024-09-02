@@ -10,8 +10,6 @@ import { FileUpload } from "primereact/fileupload";
 import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { Client,CompteClients } from "@/types/types";
-import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
@@ -21,6 +19,7 @@ import { NatureEnum } from "@prisma/client";
 import { InvalidateQueryFilters, useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
 import { createOption, deleteOption, fetchClientCode, fetchOption } from '@/app/api/action';
 import { Divider } from 'primereact/divider';
+import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 
 
 interface ClientTableProps {
@@ -52,7 +51,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     const router = useRouter()
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const natures:{name:string}[]= ([{name:"Physique"},{name:"Moral"}]);
+    const natures:{name:string}[]= ([{name:"Physique"},{name:"Morale"}]);
     const [nature, setNature] = useState<{name:string}>({name:""});
     const [value, setValue] = useState<{ id: number }>({ id: 0 });
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
@@ -116,7 +115,7 @@ const onUpdateMeta = useMutation({
             setSubmitted(true);
             console.log("------------client",{client:{...client}, compte:{...compte}})
             if(client && client?.id){
-                console.log("-----------ClientModifier: ",{client:{...client}, compte:{...compte}})
+                console.log("-----------ClientModifier1: ",{client:{...client}, compte:{...compte}})
                 onUpdateClient({client:{...client}, compte:{...compte}})
             }else{
 
@@ -180,10 +179,9 @@ const onUpdateMeta = useMutation({
 
     const editDocument = (client: Client) => {
         setClient({ ...client });
-        setCompte(client?.comptes ? client.comptes[0] : null); // Set the first compte or null if none exist
-        console.log("ewsdcx ", compte);
+        setCompte(client?.comptes ? client.comptes[0]: null); // Set the first compte or null if none exist
         // setTypeComptes(client.)
-        console.log("ppppppppppppppppppppppp",client.comptes[0]);
+        console.log("ppppppppppppppppppppppp",clients);
 
         // setFields(client.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
         setClientDialog(true);
@@ -282,6 +280,11 @@ const onUpdateMeta = useMutation({
     );
 
     const [filteredDocuments, setFilteredDocuments] = useState(clients);
+
+    useEffect(() => {
+        console.log("Data is changed :)");
+        setFilteredDocuments(clients)
+    }, [clients]);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse

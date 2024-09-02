@@ -27,7 +27,11 @@ console.log("-******************** DATA: ",data)
             matricule: compte.matricule,
             numero_compte: compte.numero_compte,
             code_gestionnaire: compte.code_gestionnaire, // Added missing property
-
+            type_compte:{
+                connect:{
+                    id:compte.type_compte.id
+                }
+            }
           },
 
         }
@@ -55,7 +59,12 @@ export async function GET() {
 
     const clients = await prisma.clients.findMany({
       include:{
-        comptes:true,
+        comptes:{
+            include:{
+                type_compte:true
+            }
+        },
+
 
       }
     })
