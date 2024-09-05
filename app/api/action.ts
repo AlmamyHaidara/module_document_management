@@ -61,6 +61,40 @@ const newOption = await prisma.typeCompte.create({
 
 }
 
+export const createPiece = async (option:{nom:string,code:string})=>{
+    try{
+const newPiece = await prisma.piece.create({
+        data:option
+    })
+    return newPiece;
+    }catch(errors){
+        console.log(errors)
+    }
+
+}
+
+export const connectPieceToTypeDocument = async (pieceId:number, docId:number)=>{
+    console.log("Is update :) ", pieceId,docId)
+    try{
+const newPiece = await prisma.piece.update({
+    where:{
+        id:pieceId
+    },
+        data:{
+            typesDocuments:{
+                connect:{
+                    id: docId
+                }
+            }
+        }
+    })
+    return newPiece;
+    }catch(errors){
+        console.log(errors)
+    }
+
+}
+
 export const fetchOption = async()=>{
     try {
         return await prisma.typeCompte.findMany()
@@ -70,9 +104,36 @@ export const fetchOption = async()=>{
     }
 }
 
+export const fetchPiece = async()=>{
+    try {
+        return await prisma.piece.findMany({
+            select:{
+                id:true,
+                code:true,
+                nom:true
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return []
+    }
+}
+
 export const deleteOption = async (id:number)=>{
     try {
         return await prisma.typeCompte.delete({
+            where:{
+                id:id
+            }
+        })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export const deletePiece = async (id:number)=>{
+    try {
+        return await prisma.piece.delete({
             where:{
                 id:id
             }

@@ -8,7 +8,8 @@ export async function GET() {
     try{
     const dossiers: DocMetaPiece[] = (await prisma.typesDocuments.findMany({
         include: {
-            metadonnees:true
+            metadonnees:true,
+
         }
     })) as unknown as DocMetaPiece[];
 

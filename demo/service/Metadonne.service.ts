@@ -17,7 +17,7 @@ export const MetaDonneServices = {
     },
     async addMetaDonnee(documentId: string, newField: any) {
 
-        console.log("[[[[[[[[[[[", documentId, newField);
+        console.log("[[[[[[[[[[[", documentId, newField,{ documentId, ...newField });
         const response = await fetch(`/api/metadonnee`, {
             method: 'POST',
             body: JSON.stringify({ documentId, ...newField }),

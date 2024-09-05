@@ -37,26 +37,33 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     try {
         const data = await req.json();
-
-        console.log("Received data:", data);
+       let newMetaDonnee
+        console.log("Received data:5", data);
         await prisma.$transaction(async (prisma) =>{
-            
-            const newMetaDonnee = await prisma.metaDonnees.create({
+
+            newMetaDonnee = await prisma.metaDonnees.create({
                 data: {
                     cle: data.cle,
                     valeur: data.valeur,
-                    typesDocID: data.documentId,
+                    // typesDocID: data.documentId,
+                    typeDocument:{
+                        connect:{
+                            id: data.documentId,
+                            
+                        }
+                    }
+
                 },
             });
-    
+
             // Revalidation du cache pour la page /documents
-            revalidatePath('/documents');
-    
-            return NextResponse.json({
-                message: 'Métadonnée ajoutée avec succès',
-                data: newMetaDonnee,
-            }, { status: 201 });
         })
+        // revalidatePath('/documents');
+
+        return NextResponse.json({
+            message: 'Métadonnée ajoutée avec succès',
+            data: newMetaDonnee,
+        }, { status: 201 });
         // Ajout d'une nouvelle métadonnée
 
     } catch (error:any) {
