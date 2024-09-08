@@ -7,8 +7,10 @@ export async function GET() {
     const dossiers: DocMetaPiece[] = (await prisma.dossiers.findMany({
         include: {
             dossierInfos: true,
-            piece: true,
+
+            // piece: true,
             dossiers_typesDocuments: {
+
                 include: {
                     dossier: true,
                     type_document: {
@@ -16,9 +18,15 @@ export async function GET() {
                             id: true,
                             code: true,
                             nom_type: true,
-                            compteClient:true
-                        }
-                    }
+                            compteClient:true,
+                            piece:true
+
+                        },
+
+
+
+                    },
+
                 }
             }
             //   MetaDonnees: true,
@@ -79,12 +87,12 @@ export async function POST(req: NextRequest) {
                 data: {
                     code: data.code,
                     nom: data.nom,
-                    piece: {
-                        create: data.filePaths.map((filePath) => ({
-                            code: filePath.code,
-                            path: filePath.path
-                        })) as any
-                    },
+                    // piece: {
+                    //     create: data.filePaths.map((filePath) => ({
+                    //         code: filePath.code,
+                    //         path: filePath.path
+                    //     })) as any
+                    // },
                     dossierInfos: {
                         create: data.metadonnees.map((value, index) => ({
                             cle: value.cle,
@@ -94,7 +102,7 @@ export async function POST(req: NextRequest) {
                 },
                 include: {
                     // typeDocument: true,
-                    piece: true,
+                    // piece: true,
                     dossierInfos: true
                 }
             });

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import { TypeDoc } from "@/types/types";
@@ -17,10 +17,13 @@ interface PropsType{
 
 export default function DropDownComponent({options,setTypeDocument, typeDocument, placeholder}:PropsType) {
 
+
     const selectedCountryTemplate = (option: any, props:any) => {
+        console.log("oooooooooooooooooooo",option)
         if (option) {
             return (
                 <div className="flex align-items-center">
+
                     <div>{option.nom_type || option.name}</div>
                 </div>
             );
@@ -30,7 +33,7 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
     };
 
     const countryOptionTemplate = (option: any) => {
-        console.log("potion--------------------p", option);
+        // console.log("potion--------------------p", option);
 
         return (
             <div className="flex align-items-center">

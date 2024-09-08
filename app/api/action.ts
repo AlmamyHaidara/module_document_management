@@ -19,7 +19,8 @@ const prisma = new PrismaClient()
 export const fetchTypeDocument = async () => {
    const data =  await prisma.typesDocuments.findMany({
         include: {
-            metadonnees: true
+            metadonnees: true,
+            piece:true
         }
     });
     console.log("ewds",data);
@@ -30,7 +31,8 @@ export const fetchTypeDocument = async () => {
 export const fetchClientCompte = async () => {
    const data =  await prisma.compteClients.findMany({
         include: {
-            client: true
+            client: true,
+
         }
     });
     console.log("ewds",data);

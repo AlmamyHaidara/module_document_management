@@ -18,6 +18,8 @@ import UploadMultipleFile from "./MultipleFileUploadedComponent";
 import DropDownComponent from "./DopDownComponent";
 import { DossierContext } from "../(main)/uikit/table/DossierExpandTable";
 import { Image } from "primereact/image";
+import UploadFileComponent from "./UploadFileComponent";
+import { fi } from "@faker-js/faker";
 
 type PropsType={
     dossiers:any[],
@@ -30,32 +32,41 @@ type PropsType={
 }
 const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpdateDossier, onCreateDossier, onDeleteDossier }:PropsType) => {
     const { dossierContext }:any = useContext(DossierContext);
-    const { meta, typeDoc, compteMatricule } = dossierContext;
+    const { meta, typeDoc, compteMatricule,fileField } = dossierContext;
 
     const [documentDialog, setDossierDialog] = useState(false);
     const [dossier, setDossier] = useState<any | null>({});
     const [submitted, setSubmitted] = useState(false);
     const [nom, setNom] = useState("");
     const [description, setDescription] = useState("");
-    const [docType, setDocType] = useState({ id: 0, code: "", nom_type: "" });
+    const [docType, setDocType] = useState<{id:number,code:string,nom_type:string, piece?:any[]}>({ id: 0, code: "", nom_type: "" });
     const [compteClient, setCompteClient] = useState({ id: 0, code: "", nom_type: "" });
     const [docTypeMeta, setDocTypeMeta] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
     const [formValues, setFormValues] = useState<any[]>([]);
     const [filePaths, setFilePaths] = useState<any>([]);
     const [pieces, setPieces] = useState([]);
+    const [fileUploaded, setFileUploaded] = useState<any>([]);
     const [deleteDossierDialog, setDeleteDossierDialog] = useState(false);
     const [editAction, setEditAction] = useState(false)
     const toast = useRef<any>(null);
     const dt = useRef<any>(null);
 
     useEffect(() => {
-        console.log("o-------------------p",dossiers)
+        console.log("o-------------------p",typeDoc.piece)
         if (docType?.id) {
             const filteredMeta = meta.filter((item:any) => item.typesDocID === docType.id);
+
+
             setDocTypeMeta(filteredMeta);
         }
     }, [docType, meta]);
+    
+    useEffect(() => {
+        setFileUploaded( [...fileUploaded,...filePaths])
+        console.log("o-------------------p",fileUploaded)
+      
+    }, [filePaths]);
 
     const onGlobalFilterChange = (e:any) => {
         setGlobalFilterValue(e.target.value);
@@ -65,7 +76,7 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
         setDossier({ id: 0, nom: "", description: "" });
         setNom("");
         setDescription("");
-        setDocType({ id: 0, code: "", nom_type: "" });
+        setDocType({ id: 0, code: "", nom_type: "" ,piece:[]});
         setCompteClient({ id: 0, code: "", nom_type: "" });
         setSubmitted(false);
         setActiveStep(0);
@@ -87,8 +98,9 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
         console.log("-------------Nom",nom)
         console.log("-------------DocType",docType)
         console.log("-------------CompteClient",compteClient)
+        console.log("-------------CompteClient",fileUploaded)
 
-        if (nom && docType.id && compteClient.id && filePaths.length != 0) {
+        if (nom && docType.id && compteClient.id && fileUploaded.length != 0) {
             const newDossier = {
                 ...dossier,
                 nom,
@@ -96,21 +108,22 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                 code: generateID(6),
                 typeDocument: docType,
                 metadonnees: formValues,
-                filePaths: filePaths,
+                filePaths: fileUploaded,
                 compteClient: compteClient
             };
 
             console.log("--------------NewDossier: ", newDossier)
-            onUpdateDossier(newDossier);
-            // setDossierDialog(false);
-            // setDossier(null);
+            onCreateDossier(newDossier)
+            // onUpdateDossier(newDossier);
+            setDossierDialog(false);
+            setDossier(null);
         }else{
             console.log("ooooooooooooooooooooooooooooo")
             console.log("-------------FormValues",formValues)
         console.log("-------------Nom",nom)
         console.log("-------------DocType",docType)
         console.log("-------------CompteClient",compteClient)
-        console.log("-------------FilePaths",[...filePaths, ...pieces])
+        console.log("-------------FilePaths",[...fileUploaded, ...pieces])
         const editDossier = {
             ...dossier,
             nom,
@@ -118,7 +131,7 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
             code: generateID(6),
             typeDocument: docType,
             metadonnees: formValues,
-            filePaths: [...filePaths, ...pieces],
+            filePaths: [...fileUploaded, ...pieces],
             compteClient: compteClient
         };
 
@@ -131,38 +144,136 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     };
 
     const changeStep = () => {
+        
         if (activeStep < 2) {
             setActiveStep(activeStep + 1);
         } else {
             saveDossier();
         }
     };
-
+/**
+ * 
+ * @param document 
+ * {
+    "id": 7,
+    "code": "0MXOYS",
+    "nom": "n",
+    "description": null,
+    "created_at": "2024-09-08T00:10:43.669Z",
+    "updated_at": "2024-09-08T00:10:43.669Z",
+    "dossierInfos": [
+        {
+            "id": 14,
+            "cle": "wertyu",
+            "value": "854",
+            "dossierId": 7
+        },
+        {
+            "id": 15,
+            "cle": "vjhklewsdf",
+            "value": "wqsaz",
+            "dossierId": 7
+        }
+    ],
+    "dossiers_typesDocuments": [
+        {
+            "dossiersId": 7,
+            "typesdocumentsId": 4,
+            "dossier": {
+                "id": 7,
+                "code": "0MXOYS",
+                "nom": "n",
+                "description": null,
+                "created_at": "2024-09-08T00:10:43.669Z",
+                "updated_at": "2024-09-08T00:10:43.669Z"
+            },
+            "type_document": {
+                "id": 4,
+                "code": "FSHZD0",
+                "nom_type": "Dossier de credit",
+                "compteClient": {
+                    "id": 1,
+                    "matricule": "RCD5258998856",
+                    "numero_compte": "48444514855555655",
+                    "agence": "Hamdalaye",
+                    "code_gestionnaire": "4784",
+                    "type_compte_id": null,
+                    "client_id": 1,
+                    "created_at": "2024-08-22T22:17:32.082Z",
+                    "updated_at": "2024-08-22T22:17:32.082Z"
+                },
+                "piece": [
+                    {
+                        "id": 15,
+                        "code": "DOEZ",
+                        "nom": "hjkj",
+                        "path": null,
+                        "typeComptId": 4,
+                        "date_creation": "2024-09-05T15:47:00.738Z",
+                        "created_at": "2024-09-05T15:47:00.738Z",
+                        "updated_at": "2024-09-05T16:19:36.489Z"
+                    },
+                    {
+                        "id": 16,
+                        "code": "JCHF",
+                        "nom": "hjmk",
+                        "path": null,
+                        "typeComptId": 4,
+                        "date_creation": "2024-09-05T15:47:13.780Z",
+                        "created_at": "2024-09-05T15:47:13.780Z",
+                        "updated_at": "2024-09-05T16:30:21.415Z"
+                    }
+                ]
+            }
+        }
+    ]
+}
+ * 
+ */
     const editDossier = (document:any) => {
-        console.log("-------------1document: ",document)
+        console.log("-------------1document: ",document.dossiers_typesDocuments[0].type_document)
         setDossier(document);
-        setNom(document.nom);
+        setNom(document.dossiers_typesDocuments[0].type_document.nom_type);
         setDescription(document.description);
         const {id,code,nom_type,compteClient:cptClt}=document.dossiers_typesDocuments[0].type_document
-        setDocType({
-            id:id,
-            code:code,
-            nom_type:nom_type
-        });
-        // console.log("-------------1document: ",document.dossiers_typesDocuments[0].type_document)
-        setPieces(document.piece)
+        
+        
+        // console.log("-------------155document: ",document.dossiers_typesDocuments[0].type_document.piece)
+        
+        setPieces(document.dossiers_typesDocuments[0].type_document.piece)
+if(id){
+
+    setDocType({
+        id:id,
+        code:code,
+        nom_type:nom_type,
+        piece:[]
+    });
+    console.log("-------------65155document: ",docType)
+}
+        
         setCompteClient({
             id:cptClt.id,
             code:cptClt.matricule,
             nom_type:cptClt.matricule
         });
+        
         setFormValues(document.dossierInfos || []);
-        // console.log("-------------id,code,nom_type,compteClientCptClt: ",formValues)
+        console.log("-------------5155document: ",{
+            id:id,
+            code:code,
+            nom_type:nom_type,
+        })
+
         setActiveStep(0);
         setDossierDialog(true);
         setEditAction(true)
+
     };
 
+    useEffect(()=>{
+        console.log("lllllllllllllllllllll")
+    },[docType])
     const handleFieldChange = (id: number,cle: string, value: string) => {
         console.log(id,"pp",cle,"=>",value)
         setFormValues(prevValues => {
@@ -230,12 +341,11 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     const [filteredDossiers, setFilteredDocuments] = useState(dossiers);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
-        console.log('Search Value:', dossiers);
-    
+        const filterValue = e.target.value.toLowerCase();
+
         const filtered = dossiers.filter((dossier:any) =>
             dossier.code.toLowerCase().includes(filterValue));
-    
+
         setFilteredDocuments(filtered);
     };
     const header = (
@@ -255,11 +365,11 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                 <div className="card">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
-                    <DataTable 
-                        ref={dt} 
-                        value={filteredDossiers} 
-                        responsiveLayout="scroll" 
-                        dataKey="id" 
+                    <DataTable
+                        ref={dt}
+                        value={filteredDossiers}
+                        responsiveLayout="scroll"
+                        dataKey="id"
                         header={header}
                         className="datatable-responsive"
                         paginator
@@ -268,7 +378,7 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
                         rowsPerPageOptions={[5, 10, 25]}
                         // globalFilter={globalFilter}
-                        globalFilterFields={['code']} 
+                        globalFilterFields={['code']}
                         filterDisplay="row"
                         emptyMessage="No products found."
                     >
@@ -289,7 +399,7 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                                 </div>
                                 <div className="field">
                                     <label htmlFor="docType">Type document</label>
-                                    <DropDownComponent options={typeDoc} setTypeDocument={setDocType} typeDocument={docType} placeholder={"Selectionne un type de document"} />
+                                    <DropDownComponent options={typeDoc} setTypeDocument={setDocType} typeDocument={docType}  placeholder={"Selectionne un type de document"} />
                                     {submitted && !docType.id && <small className="p-invalid">Le type de document est requis.</small>}
                                 </div>
                                 <div className="field">
@@ -311,11 +421,16 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                             </>
                         ) : (
                             <>
-                                <label htmlFor="docType">Documents</label>
-                                <UploadMultipleFile setFilePaths={setFilePaths} />
+                             {docType?.piece && docType?.piece.map((item:any, index:number) => (
+                                 <UploadFileComponent piece={item} setFilePaths={setFilePaths} key={index} />
+
+                             ))}
 
 
-                                 {
+                                {/* <UploadMultipleFile setFilePaths={setFilePaths} /> */}
+
+
+                                 {/* {
                                 editAction && <div className="w-full h-200 flex justify-between align-center">
                                     {
                                         pieces.map((item:any,index)=>(
@@ -327,7 +442,7 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                                         ))
                                     }
                                 </div>
-                               }
+                               } */}
                                 {/* </div> */}
 
 
