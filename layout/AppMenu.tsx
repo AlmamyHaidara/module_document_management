@@ -16,9 +16,10 @@ const AppMenu = () => {
             items: [
                 { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' },
                 { label: 'Client', icon: 'pi pi-fw pi-id-card', to: '/clients' },
-                { label: 'Comptes clients', icon: 'pi pi-fw pi-id-card', to: '/comptes' },
-                { label: 'Dossier', icon: 'pi pi-fw pi-id-card', to: '/dossiers' },
-                { label: 'Document', icon: 'pi pi-fw pi-id-card', to: '/documents' }
+                { label: 'Type document', icon: 'pi pi-fw pi-id-card', to: '/documents' },
+                { label: 'Metadonne', icon: 'pi pi-fw pi-table', to: '/metadonne' },
+                { label: 'Dossier', icon: 'pi pi-fw pi-book', to: '/dossiers' },
+                // { label: 'Comptes clients', icon: 'pi pi-fw pi-id-card', to: '/comptes' },
             ]
         },
 

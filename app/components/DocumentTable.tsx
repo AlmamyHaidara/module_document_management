@@ -10,12 +10,12 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { TypeDocument } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID } from "../(main)/utils/function";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
 import { Dropdown } from "primereact/dropdown";
+import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 
 interface DocumentTableProps {
     documents: TypeDocument[];
@@ -41,6 +41,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const dt = useRef<DataTable<any>>(null);
     const typeDoc:{name:string}[]= ([{name:"text"},{name:"number"},{name:"email"},{name:"tel"},{name:"date"},{name:"file"}]);
     const [docType, setDocType] = useState<{name:string}>({name:""});
+    const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -50,7 +51,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
        console.log("-----------docType: ",docType)
     }, [docType]);
     const openNew = () => {
-        setDocument({ id: 0, nom_type: "", metadonnees: [] });
+        setDocument({ id: 0, nom_type: ""});
         setFields([{ id: 0, cle: "", valeur: "" }]);
         setSubmitted(false);
         setDocumentDialog(true);
@@ -70,7 +71,7 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     };
 
 const onUpdateMeta = useMutation({
-    mutationFn:(data:any)=> MetaDonneService.updateMetaDonnee(data.cle,data.data),
+    mutationFn:(data:any)=> MetaDonneServices.updateMetaDonnee(data.cle,data.data),
     onSuccess:()=>{
         queryClient.invalidateQueries({queryKey:['document']})
 
@@ -79,50 +80,16 @@ const onUpdateMeta = useMutation({
     const saveDocument = () => {
         try {
             setSubmitted(true);
+            delete document.metadonnees
+            delete document.compte_id
             console.log("------------document",document)
-        const existingFields = document?.metadonnees || [];
-        const fieldsToUpdate = fields.filter(field => existingFields.some((existingField:any) => existingField.id === field.id));
-        const fieldsToDelete = existingFields.filter((existingField:any) => !fields.some(field => field.id === existingField.id));
-        const fieldsToAdd = fields.filter(field => !existingFields.some((existingField:any) => existingField.id === field.id));
-
-        console.log("-----------existingFields: ",existingFields);
-        console.log("-----------fieldsToUpdate: ",fieldsToUpdate);
-        console.log("-----------fieldsToDelete: ",fieldsToDelete);
-        console.log("-----------fieldsToAdd: ",fieldsToAdd);
-
-
-        const updatedDocument:any = {
-            ...document,
-            metadonnees: [...fieldsToUpdate, ...fieldsToAdd],
-
-        };
 
         if (document?.code) {
-            fieldsToUpdate.forEach(field => {
-
-                DocumentService.updateDocument(document.id,document)
-                MetaDonneService.updateMetaDonnee(field.cle, { id:field.id,cle: field.cle, valeur: field.valeur })
-                // onUpdateMeta.mutate({cle:field.cle, data:{ id:field.id,cle: field.cle, valeur: field.valeur }})
-            });
-
-            fieldsToDelete.forEach((field:{id:any}) => {
-                console.log("ppppppppppppppppppppppppppppp");
-
-                MetaDonneService.deleteMetaDonnee(field.id)
-
-            });
-
-            // fieldsToAdd.forEach(field => {
-            //     MetaDonneService.addMetaDonnee(document?.id, field)
-
-            // });
-
-            onUpdateDocument(updatedDocument);
-            toast.current?.show({ severity: 'success', summary: 'Document mis à jour', detail: 'Le document a été mis à jour avec succès', life: 3000 });
+            onUpdateDocument(document)
         } else {
-            const newDocument:any = { ...updatedDocument, id: 0 };
-            onCreateDocument(newDocument);
-            toast.current?.show({ severity: 'success', summary: 'Document créé', detail: 'Le document a été créé avec succès', life: 3000 });
+            onCreateDocument(document.nom_type);
+            console.log("lllllllllllllllllllllllllllllll: ",documents)
+            // toast.current?.show({ severity: 'success', summary: 'Document créé', detail: 'Le document a été créé avec succès', life: 3000 });
         }
 
         setDocumentDialog(false);
@@ -139,7 +106,7 @@ const onUpdateMeta = useMutation({
 
     const editDocument = (document: TypeDocument) => {
         setDocument({ ...document });
-        setFields(document.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
+        // setFields(document.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
         setDocumentDialog(true);
     };
 
@@ -223,14 +190,34 @@ const onUpdateMeta = useMutation({
         </>
     );
 
+
+    useEffect(() => {
+        console.log("Data is changed :)");
+        setFilteredDocuments(documents)
+    }, [documents]);
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
+        console.log('Search Value:', filterValue);
+
+        const filtered = documents.filter((document:any) =>
+            document.code.toLowerCase().includes(filterValue) ||
+            document.nom_type.toLowerCase().includes(filterValue) ||
+            document.created_at.includes(filterValue)
+        );
+
+        setFilteredDocuments(filtered);
+    };
     const header = (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" />
+
+                <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
+
             </span>
         </div>
     );
+
     const formatDate = (date:Date) => {
         return `Le ${new Intl.DateTimeFormat('fr-FR', {
             year: 'numeric',
@@ -248,7 +235,25 @@ const onUpdateMeta = useMutation({
                 <div className="card">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
-                    <DataTable ref={dt} value={documents} responsiveLayout="scroll" dataKey="id" header={header}>
+                    <DataTable
+
+                        ref={dt}
+                        value={filteredDocuments}
+                        responsiveLayout="scroll"
+                        dataKey="id"
+                        header={header}
+                        className="datatable-responsive"
+                        paginator
+                        rows={10}
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                        rowsPerPageOptions={[5, 10, 25]}
+                        // globalFilter={globalFilter}
+                        globalFilterFields={['code', 'nom_type', 'created_at']}
+                        filterDisplay="row"
+                        emptyMessage="No products found."
+
+                    >
                         <Column field="id" header="ID" sortable />
                         <Column field="code" header="Code" sortable />
                         <Column field="nom_type" header="Nom" sortable  />
@@ -263,68 +268,6 @@ const onUpdateMeta = useMutation({
                             <InputText id="nom_type" value={document?.nom_type || ''} onChange={(e) => setDocument({ ...document, nom_type: e.target.value })} required className={classNames({ 'p-invalid': submitted && !document?.nom_type })} />
                             {submitted && !document?.nom_type && <small className="p-invalid">Le nom est requis.</small>}
                         </div>
-
-                        <h5>Champs dynamiques</h5>
-                        {fields.map((field, index) => (
-                            <div className="field" key={field.id}>
-                                <div className="p-fluid grid">
-                                    <div className="field col-5">
-                                        <InputText value={field.cle} onChange={(e) => {
-                                            const newFields = [...fields];
-                                            newFields[index].cle = e.target.value;
-                                            setFields(newFields);
-                                        }} placeholder="Nom du champ" />
-                                    </div>
-                                    <div className="field col-5">
-                                        {/* <InputText value={field.valeur} onChange={(e) => {
-                                            const newFields = [...fields];
-                                            newFields[index].valeur = e.target.value;
-                                            setFields(newFields);
-                                        }} placeholder="Valeur" /> */}
-  <Dropdown
-    value={{name:field.valeur}}
-    options={typeDoc}
-    onChange={(e) => {
-        const newFields = [...fields];
-        newFields[index].valeur = e.target.value.name;
-        console.log("pp",newFields[index]);
-
-        setFields(newFields);
-    }}
-    optionLabel="name"
-    placeholder="Sélectionnez un type de document"
-/>
-
-                                    </div>
-                                    <div className="field col-2">
-                                        <Button icon="pi pi-minus" className="p-button-danger" onClick={() => handleRemove(index)} />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                        <div className="field" >
-                                <div className="p-fluid grid">
-                                    <div className="field col-5">
-                                      {/*   <InputText value={field.cle} onChange={(e) => {
-                                            const newFields = [...fields];
-                                            newFields[index].cle = e.target.value;
-                                            setFields(newFields);
-                                        }} placeholder="Nom du champ" />*/}
-                                    </div>
-                                    <div className="field col-5">
-                                        {/* <InputText value={field.valeur} onChange={(e) => {
-                                            const newFields = [...fields];
-                                            newFields[index].valeur = e.target.value;
-                                            setFields(newFields);
-                                        }} placeholder="Valeur" /> */}
-                                    </div>
-                                    <div className="field col-2">
-                                    <Button icon="pi pi-plus" onClick={() => setFields([...fields, { id:0 , cle: "", valeur: "" }])} tooltip="Ajouter des nouveaux champs" tooltipOptions={{ position: 'bottom', mouseTrack: true, mouseTrackTop: 15 }} />
-
-                                    <Tooltip target=".logo" mouseTrack mouseTrackLeft={10} />
-                                    </div>
-                                </div>
-                            </div>
 
                     </Dialog>
 

@@ -18,6 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { code: string
             where: { code: code },
             include: {
                 metadonnees: true,  // Inclure les métadonnées associées
+
             },
         });
 

@@ -72,10 +72,10 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<TypeDocument, "id">) => DocumentService.createDocument(doc),
+        mutationFn: (doc: Omit<string, "id">) => DocumentService.createDocument(doc),
         onSuccess: (doc) => {
+            queryClient.invalidateQueries({queryKey:["document"]});
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["document"] as InvalidateQueryFilters);
             setProductDialog(false);
         },
         onError: (error) => {
@@ -88,9 +88,10 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
             if (!doc.code) {
                 throw new Error("Document code is required");
             }
-            return DocumentService.updateDocument(doc.code, doc);
+            return DocumentService.updateDocument(doc.id, doc);
         },
         onSuccess: (doc) => {
+
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
             queryClient.invalidateQueries({ queryKey: ["document"] });
         },
@@ -104,15 +105,15 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
         mutationFn: (id: number) => DocumentService.deleteDocument(id),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:["document"]});
-            toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
+            // toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
         },
         onError: (error) => {
             console.log("onDeleteError", error);
-            toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du document a échoué', life: 3000 });
+            // toast.current?.show({ severity: 'error', summary: 'Deletion Failed', detail: 'La suppression du document a échoué', life: 3000 });
         }
     });
 
-    const handleCreateDocument = (newDocument: TypeDocument) => {
+    const handleCreateDocument = (newDocument: any) => {
         createMutation.mutate(newDocument);
     };
 

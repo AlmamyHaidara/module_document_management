@@ -8,7 +8,7 @@ import { Tooltip } from 'primereact/tooltip';
 import { Tag } from 'primereact/tag';
 
 interface PropsType {
-    setFilePaths: React.Dispatch<React.SetStateAction<string[]>>
+    setFilePaths: React.Dispatch<React.SetStateAction<any[]>>
 }
 
 export default function UploadMultipleFile({setFilePaths}:PropsType) {
@@ -113,6 +113,8 @@ export default function UploadMultipleFile({setFilePaths}:PropsType) {
                 onUpload={onTemplateUpload} onSelect={onTemplateSelect} onError={onTemplateClear} onClear={onTemplateClear}
                 headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyTemplate}
                 chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} />
+
+                
         </div>
     )
 }

@@ -26,6 +26,7 @@ export interface CompteClient {
 }
 
 export interface TypeDocument {
+    typeDocument(arg0: string, typeDocument: any): unknown;
     id: number;
     code?: string;
     nom_type: string;
@@ -101,6 +102,7 @@ export enum Nature {
 }
 
 export interface DocMetaPiece{
+    dossiers_typesDocuments: any;
     dossier:Dossier;
     metadonne:MetaDonnee[];
     piece:Piece[];

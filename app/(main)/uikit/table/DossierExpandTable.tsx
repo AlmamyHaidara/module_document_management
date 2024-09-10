@@ -53,6 +53,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     const [typeDoc, setTypeDoc] = React.useState<TypeDoc[]>([]);
     const [compteMatricule, setCompteMatricule] = React.useState<CompteMatricule[]>([]);
     const [meta, setMeta] = React.useState<MetaDonnee[]>([]);
+    const [fileField, setFileField] = React.useState<any[]>([]);
 
     const openNew = () => {
         setProductDialog(true);
@@ -65,11 +66,15 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     };
 
     const openUpdate = (doc: Dossier) => {
+        console.log("-----------doc")
+        console.info(doc)
+
+        updateMutation.mutate(doc)
         setProductDialog(true);
         setIsUpdateMode(true);
         setSelectedDossier(doc);
         reset({
-            nom: doc.description,
+            nom: doc.nom,
             code: doc.code,
             // metaDonnees: doc.metaDonnees,
         });
@@ -84,7 +89,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         mutationFn: (doc: Omit<TypeDocument, "id">) => DossierService.createDossier(doc),
         onSuccess: () => {
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["document"] as InvalidateQueryFilters);
+            queryClient.invalidateQueries(["dossier"] as InvalidateQueryFilters);
             setProductDialog(false);
         },
         onError: (error) => {
@@ -94,15 +99,15 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     });
 
     const updateMutation = useMutation({
-        mutationFn: (doc: TypeDocument) => {
-            if (!doc.code) {
+        mutationFn: (doc: any) => {
+            if (!doc.id) {
                 throw new Error("Document code is required");
             }
-            return DocumentService.updateDocument(doc.id, doc);
+            return DossierService.updateDossier(doc.id, doc);
         },
         onSuccess: () => {
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
-            queryClient.invalidateQueries({ queryKey: ["document"] });
+            queryClient.invalidateQueries({ queryKey: ["dossier"] });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du document a échoué', life: 3000 });
@@ -111,9 +116,9 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => DocumentService.deleteDocument(id),
+        mutationFn: (id: number) => DossierService.deleteDossier(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["document"] });
+            queryClient.invalidateQueries({ queryKey: ["dossiers"] });
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
         },
         onError: (error) => {
@@ -141,16 +146,27 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
 
     useEffect(() => {
         if (isSuccess && data) {
+            // const typeDocu: TypeDoc[] = data.map((res: any) => ({
+            //     id: res.id,
+            //     code: res.code,
+            //     nom_type: res.nom_type,
+            // }));
+
             const typeDocu: TypeDoc[] = data.map((res: any) => ({
                 id: res.id,
                 code: res.code,
                 nom_type: res.nom_type,
+                piece:res.piece
             }));
 
+
             const metadata: MetaDonnee[] = data.flatMap((res: any) => res.metadonnees);
+            const FileField: any[] = data.flatMap((res: any) => res.piece);
             setMeta(metadata);
             console.log(metadata);
             setTypeDoc(typeDocu);
+            setFileField(FileField);
+
         }
     }, [isSuccess, data]);
     useEffect(() => {
@@ -185,7 +201,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         return <span>Error: {error.message}</span>;
     }
 
-    const dossierContext={setMeta:setMeta,meta:meta,typeDoc:typeDoc,compteMatricule:compteMatricule}
+    const dossierContext={setMeta:setMeta,meta:meta,fileField:fileField,typeDoc:typeDoc,compteMatricule:compteMatricule}
 
     return (
         <DossierContext.Provider value={{dossierContext}}>
