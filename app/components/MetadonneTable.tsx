@@ -146,7 +146,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
             console.log("-----------fieldsToDelete: ", fieldsToDelete);
             console.log('-----------fieldsToAdd: ', fieldsToAdd);
 
-        
+
 if(!isEditItem){
 
     for (const pc of selectedCountry) {
@@ -167,20 +167,20 @@ if(!isEditItem){
         console.log("============================:fldAdd",fldAdd);
         await MetaDonneServices.addMetaDonnee(document.typeDocument.id, fldAdd);
     }
-    
+
     for (const pc of selectedCountry) {
         console.log("============================:pc",pc);
-        await connectPieceToTypeDocument(pc.id,document.typeDocument.id)
+        await connectPieceToTypeDocument(pc?.id,document.typeDocument.id)
     }
-    
+
     for (const fldUpdate of fieldsToUpdate) {
         console.log("============================:fldUpdate",fldUpdate);
         await MetaDonneServices.updateDocument(fldUpdate.id, fldUpdate);
     }
-    
+
     for (const fldDelete of fieldsToDelete) {
         console.log("============================:fldDelete",fldDelete);
-        await MetaDonneServices.deleteMetaDonnee(fldDelete.id);
+        await MetaDonneServices.deleteMetaDonnee(fldDelete?.id);
 
     }
 
@@ -544,7 +544,7 @@ if(!isEditItem){
                                 </div>
                             </div>
                             <div>
-                                <h5>Champs dynamiques</h5>
+                                <h5>Le nom des différentes pièces jointes</h5>
                                 {/* {fields.map((field, index) => ( */}
                                     <div className="field" >
                                         <div className="p-fluid grid">

@@ -2,11 +2,16 @@ generator client {
     provider = "prisma-client-js"
 }
 
-datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-}
+// datasource db {
+//     provider = "mysql"
+//     url      = env("DATABASE_URL")
+// }
 
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
 generator dbml {
     provider   = "prisma-dbml-generator"
     output     = "./dbml"
@@ -70,11 +75,10 @@ model TypesDocuments {
     nom_type     String         @db.VarChar(100)
     compte_id    Int?
     metadonnees  MetaDonnees[]
-    piece        Piece[]
     compteClient CompteClients? @relation(fields: [compte_id], references: [id])
-
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+    pieceName    PieceName[]
+    created_at   DateTime       @default(now())
+    updated_at   DateTime       @updatedAt
 
     dossiers_typesDocuments DossiersToTypesDocuments[]
 
@@ -96,6 +100,7 @@ model Dossiers {
     nom         String  @db.VarChar(100)
     description String? @db.VarChar(255)
     // piece_id       Int
+    piece       Piece[]
     // dossier_info_id Int
 
     dossierInfos DossierInfo[]
@@ -110,14 +115,25 @@ model Dossiers {
     @@index([code, nom])
 }
 
+model PieceName {
+    id             Int             @id @default(autoincrement())
+    code           String  @unique @db.VarChar(50)
+    nom            String          @db.VarChar(100)
+    typeComptId    Int?
+    typesDocuments TypesDocuments? @relation(fields: [typeComptId], references: [id], onDelete: Cascade)
+    created_at     DateTime        @default(now())
+    updated_at     DateTime        @updatedAt
+}
+
 model Piece {
-    id            Int             @id @default(autoincrement())
-    code          String          @unique @db.VarChar(50)
-    nom           String?         @db.VarChar(100)
-    path          String?         @db.VarChar(255)
-    typeComptId   Int?
-    typesDocuments       TypesDocuments? @relation(fields: [typeComptId], references: [id], onDelete: Cascade)
-    date_creation DateTime        @default(now())
+    id            Int      @id @default(autoincrement())
+    code          String   @unique @db.VarChar(50)
+    nom           String?  @db.VarChar(100)
+    path          String?  @db.VarChar(255)
+    date_creation DateTime @default(now())
+
+    dossierId      Int?
+    typesDocuments Dossiers? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt

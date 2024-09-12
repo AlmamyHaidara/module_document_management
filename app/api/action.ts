@@ -20,7 +20,7 @@ export const fetchTypeDocument = async () => {
    const data =  await prisma.typesDocuments.findMany({
         include: {
             metadonnees: true,
-            piece:true
+            pieceName:true
         }
     });
     console.log("ewds",data);
@@ -65,7 +65,7 @@ const newOption = await prisma.typeCompte.create({
 
 export const createPiece = async (option:{nom:string,code:string})=>{
     try{
-const newPiece = await prisma.piece.create({
+const newPiece = await prisma.pieceName.create({
         data:option
     })
     return newPiece;
@@ -78,7 +78,7 @@ const newPiece = await prisma.piece.create({
 export const connectPieceToTypeDocument = async (pieceId:number, docId:number)=>{
     console.log("Is update :) ", pieceId,docId)
     try{
-const newPiece = await prisma.piece.update({
+const newPiece = await prisma.pieceName.update({
     where:{
         id:pieceId
     },
@@ -108,7 +108,7 @@ export const fetchOption = async()=>{
 
 export const fetchPiece = async()=>{
     try {
-        return await prisma.piece.findMany({
+        return await prisma.pieceName.findMany({
             select:{
                 id:true,
                 code:true,
@@ -135,7 +135,7 @@ export const deleteOption = async (id:number)=>{
 
 export const deletePiece = async (id:number)=>{
     try {
-        return await prisma.piece.delete({
+        return await prisma.pieceName.delete({
             where:{
                 id:id
             }

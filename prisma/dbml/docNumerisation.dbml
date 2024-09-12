@@ -54,8 +54,8 @@ Table TypesDocuments {
   nom_type String [not null]
   compte_id Int
   metadonnees MetaDonnees [not null]
-  piece Piece [not null]
   compteClient CompteClients
+  pieceName PieceName [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
   dossiers_typesDocuments DossiersToTypesDocuments [not null]
@@ -74,10 +74,21 @@ Table Dossiers {
   code String [unique, not null]
   nom String [not null]
   description String
+  piece Piece [not null]
   dossierInfos DossierInfo [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
   dossiers_typesDocuments DossiersToTypesDocuments [not null]
+}
+
+Table PieceName {
+  id Int [pk, increment]
+  code String [unique, not null]
+  nom String [not null]
+  typeComptId Int
+  typesDocuments TypesDocuments
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
 }
 
 Table Piece {
@@ -85,9 +96,9 @@ Table Piece {
   code String [unique, not null]
   nom String
   path String
-  typeComptId Int
-  typesDocuments TypesDocuments
   date_creation DateTime [default: `now()`, not null]
+  dossierId Int
+  typesDocuments Dossiers
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
 }
@@ -120,6 +131,8 @@ Ref: TypesDocuments.compte_id > CompteClients.id
 
 Ref: DossierInfo.dossierId > Dossiers.id
 
-Ref: Piece.typeComptId > TypesDocuments.id [delete: Cascade]
+Ref: PieceName.typeComptId > TypesDocuments.id [delete: Cascade]
+
+Ref: Piece.dossierId > Dossiers.id [delete: Cascade]
 
 Ref: MetaDonnees.typesDocID > TypesDocuments.id
