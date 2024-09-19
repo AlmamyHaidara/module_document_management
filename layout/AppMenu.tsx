@@ -19,6 +19,7 @@ const AppMenu = () => {
                 { label: 'Type document', icon: 'pi pi-fw pi-id-card', to: '/documents' },
                 { label: 'Metadonne', icon: 'pi pi-fw pi-table', to: '/metadonne' },
                 { label: 'Dossier', icon: 'pi pi-fw pi-book', to: '/dossiers' },
+                { label: 'Piece', icon: 'pi pi-fw pi-book', to: '/pieces' },
                 // { label: 'Comptes clients', icon: 'pi pi-fw pi-id-card', to: '/comptes' },
             ]
         },

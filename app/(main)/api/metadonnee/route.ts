@@ -9,7 +9,23 @@ export async function GET() {
     // const dossiers: any[] = (await prisma.typesDocuments.findMany({
     const dossiers: any[] = (await prisma.metaDonnees.findMany({
         include:{
-            typeDocument:true
+            typeDocument:{
+                select:{
+                    id:true,
+                    code:true,
+                    nom_type:true,
+                    metadonnees:true,
+                    pieceName:{
+                        select:{
+                            id:true,
+                            code:true,
+                            nom:true,
+
+                        }
+                    }
+                }
+            },
+
         }
     })) as unknown as any[];
 

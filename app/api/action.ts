@@ -23,7 +23,6 @@ export const fetchTypeDocument = async () => {
             pieceName:true
         }
     });
-    console.log("ewds",data);
     return data
 
 }
@@ -35,7 +34,6 @@ export const fetchClientCompte = async () => {
 
         }
     });
-    console.log("ewds",data);
     return data
 
 }
@@ -68,6 +66,8 @@ export const createPiece = async (option:{nom:string,code:string})=>{
 const newPiece = await prisma.pieceName.create({
         data:option
     })
+
+    console.log("ooooo",newPiece)
     return newPiece;
     }catch(errors){
         console.log(errors)
@@ -121,6 +121,41 @@ export const fetchPiece = async()=>{
     }
 }
 
+export const fetchDossier = async()=>{
+    try {
+        return await prisma.dossiers.findMany({
+            select:{
+                id:true,
+                code:true,
+                nom:true
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return []
+    }
+}
+
+export const attachPieceToDossier = async (pieceId:number, dossierId:number)=>{
+    try {
+       
+        return await prisma.piece.update({
+            where:{
+                id:pieceId
+            },
+            data:{
+                dossierId:dossierId
+            },
+
+        })
+        
+    } catch (error) {
+        console.error(error)
+        return {}
+    }
+}
+
+
 export const deleteOption = async (id:number)=>{
     try {
         return await prisma.typeCompte.delete({
@@ -134,6 +169,8 @@ export const deleteOption = async (id:number)=>{
 }
 
 export const deletePiece = async (id:number)=>{
+    console.log("pppppppppppppp,",id);
+    
     try {
         return await prisma.pieceName.delete({
             where:{
@@ -142,6 +179,23 @@ export const deletePiece = async (id:number)=>{
         })
     } catch (error) {
         console.error(error)
+        return false
+    }
+}
+
+
+export const deletedPiece = async (id:number)=>{
+    console.log("pppppppppppppp,",id);
+    
+    try {
+        return await prisma.piece.deleteMany({
+            where:{
+                id:id
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return false
     }
 }
 
@@ -152,6 +206,7 @@ export const fetchTypeDocuments = async ()=>{
                 id:true,
                 code:true,
                 nom_type:true,
+                pieceName:true
             }
         });
 

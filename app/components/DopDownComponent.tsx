@@ -19,7 +19,7 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
 
 
     const selectedCountryTemplate = (option: any, props:any) => {
-        console.log("oooooooooooooooooooo",option)
+        console.log(option)
         if (option) {
             return (
                 <div className="flex align-items-center">
@@ -44,7 +44,7 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
 
     return (
         <div className="flex w-full">
-            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={ "nom_type"} placeholder={placeholder}
+            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={"nom_type"} placeholder={placeholder}
                 filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className="w-full" />
         </div>
     )

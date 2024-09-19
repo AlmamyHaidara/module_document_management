@@ -88,7 +88,6 @@ const onUpdateMeta = useMutation({
             onUpdateDocument(document)
         } else {
             onCreateDocument(document.nom_type);
-            console.log("lllllllllllllllllllllllllllllll: ",documents)
             // toast.current?.show({ severity: 'success', summary: 'Document créé', detail: 'Le document a été créé avec succès', life: 3000 });
         }
 

@@ -3,19 +3,19 @@ import { InputText } from 'primereact/inputtext'
 import React from 'react'
 
 function UploadFileComponent({piece, setFilePaths}:{piece:any,setFilePaths:any}) {
-
+   
     const onTemplateUpload = (e: FileUploadUploadEvent) => {
-        let _totalSize = 0;
-
-        e.files.forEach((file) => {
-            _totalSize += file.size || 0;
-        });
-
         
+        console.log('Response from API:',piece);
         const response = JSON.parse(e.xhr.responseText);
-        // toast.current?.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
-        setFilePaths(response?.filePaths)
-        console.log('Response from API:', response.filePaths);
+        const newFilePaths:any =  []
+        response.filePaths.map((item:any)=> {
+            item.code = piece.code
+            newFilePaths.push(item)
+        })
+        setFilePaths(newFilePaths)
+        
+        console.log('Response from API:',newFilePaths);
 
     };
 
@@ -23,7 +23,7 @@ function UploadFileComponent({piece, setFilePaths}:{piece:any,setFilePaths:any})
   return (
     <div className='mt-5'>
         <p className="text-xl mb-2"  >{piece.nom && piece.nom}</p>
-        <FileUpload name="demo[]" url={'/api/upload'} multiple accept="*" maxFileSize={1000000} onUpload={onTemplateUpload} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+        <FileUpload name="demo[]"  url={'/api/upload'} multiple accept="*" maxFileSize={1000000} onUpload={onTemplateUpload} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
 
 
     </div>

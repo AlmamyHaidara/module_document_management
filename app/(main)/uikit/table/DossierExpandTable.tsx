@@ -66,7 +66,8 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     };
 
     const openUpdate = (doc: Dossier) => {
-        console.log("-----------doc")
+        // console.log("-----------doc")
+        
         console.info(doc)
 
         updateMutation.mutate(doc)
@@ -89,7 +90,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         mutationFn: (doc: Omit<TypeDocument, "id">) => DossierService.createDossier(doc),
         onSuccess: () => {
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["dossier"] as InvalidateQueryFilters);
+            queryClient.invalidateQueries(["dossiers"] as InvalidateQueryFilters);
             setProductDialog(false);
         },
         onError: (error) => {
@@ -107,7 +108,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         },
         onSuccess: () => {
             toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
-            queryClient.invalidateQueries({ queryKey: ["dossier"] });
+            queryClient.invalidateQueries({ queryKey: ["dossiers"] });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du document a échoué', life: 3000 });
@@ -151,19 +152,20 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             //     code: res.code,
             //     nom_type: res.nom_type,
             // }));
-
+            console.info(data);
+            
             const typeDocu: TypeDoc[] = data.map((res: any) => ({
                 id: res.id,
                 code: res.code,
                 nom_type: res.nom_type,
-                piece:res.piece
+                piece:res.pieceName
             }));
 
 
             const metadata: MetaDonnee[] = data.flatMap((res: any) => res.metadonnees);
             const FileField: any[] = data.flatMap((res: any) => res.piece);
             setMeta(metadata);
-            console.log(metadata);
+            // console.log(metadata);
             setTypeDoc(typeDocu);
             setFileField(FileField);
 
@@ -172,7 +174,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     useEffect(() => {
         if (isSuccessFetch && compteClients) {
 
-            console.log("------------SuccesscompteClients",compteClients);
+            // console.log("------------SuccesscompteClients",compteClients);
 
             const clientCompte: CompteMatricule[] = compteClients.map((res: any) => ({
                 id: res.id,
@@ -180,7 +182,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
                 nom_type: res.matricule,
             }));
 
-            console.log("------------SuccessClientCompte",clientCompte);
+            // console.log("------------SuccessClientCompte",clientCompte);
             setCompteMatricule(clientCompte)
             // const metadata: MetaDonnee[] = compteClients.flatMap((res: any) => res.metadonnees);
             // setMeta(metadata);

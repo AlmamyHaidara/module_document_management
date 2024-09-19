@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
             await fs.writeFile(absoluteFilePath, new Uint8Array(arrayBuffer));
 
             // Ajouter le chemin relatif à la liste des fichiers
-            filePaths.push({ code: generateID(6), path: relativeFilePath });
+            filePaths.push({ code: "", path: relativeFilePath });
         }
 
         console.log('Données reçues:', filePaths);
