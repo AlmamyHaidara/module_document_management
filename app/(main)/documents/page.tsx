@@ -39,7 +39,7 @@ function DocumentComponent() {
 
     return (
         <div>
-            <DocumentExpendTable document={data} findDocumentByCode={findDocumentByCode} />
+            <DocumentExpendTable document={data as any[]} findDocumentByCode={findDocumentByCode} />
             {visible && <DialogDossier visible={visible} setVisible={setVisible} code={matricule} />}
         </div>
     );

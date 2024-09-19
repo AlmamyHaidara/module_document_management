@@ -38,7 +38,7 @@ function DossierComponent() {
 
     return (
         <>
-            <DossierExpendTable dossier={data} findDossierByCode={findDossier} />
+            <DossierExpendTable dossier={data as any[]} findDossierByCode={findDossier} />
             {
                 visible &&
             <DialogDossier visible={visible} setVisible={setVisible} code={matricule}  />

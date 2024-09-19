@@ -36,7 +36,7 @@ function CompteComponent() {
 
     return (
         <>
-            <CompteExpendTable compte={data} findCompteByCode={findCompteById} />
+            <CompteExpendTable compte={data as any[]} findCompteByCode={findCompteById} />
             {
                 visible &&
             <DialogueCompte visible={visible} setVisible={setVisible} matricule={matricule}  />

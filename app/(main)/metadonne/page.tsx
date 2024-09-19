@@ -40,7 +40,7 @@ function DocumentComponent() {
 
     return (
         <div>
-            <MetaDonnetExpendTable document={data} findDocumentByCode={findDocumentByCode} />
+            <MetaDonnetExpendTable document={data as any[]} findDocumentByCode={findDocumentByCode} />
             {visible && <DialogDossier visible={visible} setVisible={setVisible} code={matricule} />}
         </div>
     );
