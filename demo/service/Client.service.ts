@@ -15,7 +15,7 @@ export const ClientService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          return {};
+          return response.json();
    },
 
     async findClientCompte() {
@@ -24,7 +24,7 @@ export const ClientService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          return {};
+          return response.json();
     },
     async updateClient(id: number, clt: any) {
       console.log("eddws",id,clt);
