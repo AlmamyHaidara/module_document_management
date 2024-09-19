@@ -1,6 +1,3 @@
-import { Demo } from '@/types';
-import { NextRequest, NextResponse } from 'next/server';
-
 
 export const DossierService = {
 
@@ -17,7 +14,7 @@ export const DossierService = {
             throw new Error('Network response was not ok');
         }
 
-        return NextResponse.json({});
+        return {};
     },
 
 
@@ -29,7 +26,7 @@ export const DossierService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     },
     async findAllDossier() {
         // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
@@ -38,7 +35,7 @@ export const DossierService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     },
 
     async updateDossier(id: any, dossier: any) {
@@ -54,7 +51,7 @@ export const DossierService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     },
     async deleteDossier(id: number) {
 
@@ -68,7 +65,7 @@ export const DossierService = {
         }
 
         console.log("-----------DocumentApi: ", response);
-        return NextResponse.json({});
+        return {};
     },
 
 

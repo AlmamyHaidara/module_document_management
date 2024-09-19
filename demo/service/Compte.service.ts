@@ -1,5 +1,4 @@
 import { CompteClient } from "@/types/types";
-import { NextRequest, NextResponse } from 'next/server';
 
 
 export const CompteService = {
@@ -15,7 +14,7 @@ export const CompteService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     },
 
     async findClientComptes() {
@@ -24,7 +23,7 @@ export const CompteService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     },
     async updateCompte(matricule: string, compte: any) {
         console.log("eddws", matricule, compte);
@@ -44,7 +43,7 @@ export const CompteService = {
         }
 
         console.log("-----------UpdateDocument: ", response);
-        return NextResponse.json({});
+        return {};
     },
 
     async deleteCompte(id: number) {
@@ -75,6 +74,6 @@ console.log("-----------DocumentApi: ", id);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     }
 };

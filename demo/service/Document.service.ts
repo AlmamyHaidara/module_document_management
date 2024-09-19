@@ -1,4 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
 
 
 export const DocumentService = {
@@ -16,7 +15,7 @@ export const DocumentService = {
             throw new Error('Network response was not ok');
         }
 
-        return NextResponse.json({});
+        return {};
     },
 
     async findDocumentByCode(code: string) {
@@ -26,7 +25,7 @@ export const DocumentService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return NextResponse.json({});
+        return {};
     },
 
     async findAllDocument() {
@@ -36,7 +35,7 @@ export const DocumentService = {
             throw new Error('Network response was not ok');
         }
 
-        return NextResponse.json({});
+        return {};
     },
 
     async updateDocument(id: number, doc: any) {
@@ -57,7 +56,7 @@ export const DocumentService = {
         }
 
         console.log("-----------UpdateDocument: ", response);
-        return NextResponse.json({});
+        return {};
     },
 
     async deleteDocument(id: number) {
@@ -72,7 +71,7 @@ export const DocumentService = {
         }
 
         console.log("-----------DocumentApi: ", response);
-        return NextResponse.json({});
+        return {};
     },
     async updateMetaDonnee(id: string, updatedData: any) {
         const response = await fetch(`/api/metadonnee/${id}`, {
@@ -82,7 +81,7 @@ export const DocumentService = {
         if (!response.ok) {
             throw new Error('Failed to update metadonnee');
         }
-        return NextResponse.json({});
+        return {};
     }
 
 
