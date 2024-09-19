@@ -1,6 +1,6 @@
 import { Client, CompteClient, Dossier, Piece, MetaDonnee, DocMetaPiece } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 export async function GET() {
@@ -38,7 +38,7 @@ export async function GET() {
     // console.log('o----------------------o: ', dossiers[0].dossiers_typesDocuments[0].type_document.compteClient.id);
     console.log('o----------------------o: ', dossiers);
 
-    return Response.json(dossiers);
+    return NextResponse.json(dossiers);
 }
 type DataSend = {
     compteClient: any;

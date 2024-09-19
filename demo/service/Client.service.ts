@@ -1,5 +1,7 @@
 
 import { Client } from "@/types/types";
+import { NextRequest, NextResponse } from 'next/server';
+
 
 export const ClientService = {
    async createClient(client: Client) {
@@ -14,7 +16,7 @@ export const ClientService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          return response.json();
+          return NextResponse.json({});
    },
 
     async findClientCompte() {
@@ -23,7 +25,7 @@ export const ClientService = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          return response.json();
+          return NextResponse.json({});
     },
     async updateClient(id: number, clt: any) {
       console.log("eddws",id,clt);
@@ -43,7 +45,7 @@ export const ClientService = {
       }
 
       console.log("-----------UpdateDocument: ", response);
-      return response.json();
+      return NextResponse.json({});
     },
 
     async deleteClient(id: number) {
@@ -58,7 +60,7 @@ export const ClientService = {
       }
 
       console.log("-----------DocumentApi: ", response);
-      return response.json();
+      return NextResponse.json({});
     },
 
     async findClient() {
@@ -69,7 +71,7 @@ export const ClientService = {
         }
         console.log("ppppppfffffffffffff",response);
 
-          return response.json();
+          return NextResponse.json({});
     }
 
 };
@@ -82,5 +84,5 @@ export async function findClient() {
     }
     console.log("ppppppfffffffffffff",response);
 
-      return response.json();
+      return NextResponse.json({});
 }

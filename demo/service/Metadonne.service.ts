@@ -1,3 +1,5 @@
+import { NextRequest, NextResponse } from 'next/server';
+
 export const MetaDonneServices = {
 
     async createDocument(document: any) {
@@ -13,7 +15,7 @@ export const MetaDonneServices = {
             throw new Error('Network response was not ok');
         }
 
-        return response.json();
+        return NextResponse.json({});
     },
     async addMetaDonnee(documentId: string, newField: any) {
 
@@ -27,7 +29,7 @@ export const MetaDonneServices = {
         if (!response.ok) {
             throw new Error('Failed to add new metadonnee');
         }
-        return response.json();
+        return NextResponse.json({});
     },
     async findDocumentByCode(code: string) {
         console.log('code', code);
@@ -36,7 +38,7 @@ export const MetaDonneServices = {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json();
+        return NextResponse.json({});
     },
 
     async findAllMetadonne() {
@@ -46,7 +48,7 @@ export const MetaDonneServices = {
             throw new Error('Network response was not ok');
         }
 
-        return response.json();
+        return NextResponse.json({});
     },
 
     async updateDocument(id: number, doc: any) {
@@ -67,7 +69,7 @@ export const MetaDonneServices = {
         }
 
         console.log("-----------UpdateDocument: ", response);
-        return response.json();
+        return NextResponse.json({});
     },
 
     async deleteMetaDonnee(id: number) {
@@ -82,7 +84,7 @@ export const MetaDonneServices = {
         }
 
         console.log("-----------DocumentApi: ", response);
-        return response.json();
+        return NextResponse.json({});
     },
     async updateMetaDonnee(id: string, updatedData: any) {
         const response = await fetch(`/api/metadonnee/${id}`, {
@@ -92,7 +94,7 @@ export const MetaDonneServices = {
         if (!response.ok) {
             throw new Error('Failed to update metadonnee');
         }
-        return response.json();
+        return NextResponse.json({});
     },
     // async deleteMetaDonnee(id: number) {
     //     console.log("-------deleteMetaDonne: ",id);
@@ -104,7 +106,7 @@ export const MetaDonneServices = {
     //     if (!response.ok) {
     //         throw new Error('Failed to delete metadonnee');
     //     }
-    //     return response.json();
+    //     return NextResponse.json({});
     // }
 
 
