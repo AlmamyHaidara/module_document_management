@@ -53,7 +53,7 @@ const PieceTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdate
     const [typeDossiers, setTypeDossiers] = useState<{ id: number; code: string; nom: string }[]>(typeDossier || []);
 
 
-const [selectedDossier,setSelectedDossier] = useState()
+const [selectedDossier,setSelectedDossier] = useState<any>({})
     const [compte, setCompte] = useState<CompteClients | any >(null);
     const [selectedClient, setSelectedClient] = useState<Client[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
@@ -69,10 +69,10 @@ const [selectedDossier,setSelectedDossier] = useState()
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
     const [newTypeCompte, setNewTypeCompte] = useState<string>("");
     const [addingNew, setAddingNew] = useState<boolean>(false);
-    const [pieceSelected,setPieceSelected] = useState({})
+    const [pieceSelected,setPieceSelected] = useState<any>({})
 
     const [products, setProducts] = useState<any[]>([]);
-    const [layout, setLayout] = useState('grid');
+    const [layout, setLayout] = useState<"grid" | "list">('grid');
 
     useEffect(() => {
         setProducts(clients.slice(0, 12))
@@ -308,7 +308,7 @@ const onUpdateMeta = useMutation({
                 <i className="pi pi-search" />
                 {/* <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" /> */}
                 {/* <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" /> */}
-            <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value)} />
+            <DataViewLayoutOptions layout={layout} onChange={(e:any) => setLayout(e.value)} />
 
             </span>
 
