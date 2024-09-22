@@ -132,7 +132,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
             // Identifie les éléments à supprimer
             const fieldsToDelete = deletedFiel;
 
-            console.log('-----------existingFields: ', existingFields);
+            console.log('-----------existingFieldse3eqdwsx: ', existingFields);
             console.log('-----------fieldsToUpdate: ', fieldsToUpdate);
             console.log('-----------fieldsToDelete: ', fieldsToDelete);
             console.log('-----------fieldsToAdd: ', fieldsToAdd);
