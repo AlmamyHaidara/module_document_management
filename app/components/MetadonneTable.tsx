@@ -94,7 +94,6 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
     const hideDialog = () => {
         setSubmitted(false);
         setDocumentDialog(false);
-        setEdit(false)
     };
 
     const hideDeleteDocumentDialog = () => {
@@ -117,10 +116,10 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
             setSubmitted(true);
             document.piece = piece;
             document.metadonnees = fields;
-            console.log('-----------document: ', document);
-            console.log('-----------Fields: ', fields);
-            console.log('-----------Fields: ', deletedFiel);
-            console.log('-----------newPecies: ', selectedCountry);
+            // console.log('-----------document: ', document);
+            // console.log('-----------Fields: ', fields);
+            // console.log('-----------Fields: ', deletedFiel);
+            // console.log('-----------newPecies: ', selectedCountry);
             if (!document?.nom_type && !document.typeDocument.nom_type) {
                 toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Le type de document est requis', life: 3000 });
                 return;
@@ -132,11 +131,11 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
             // Identifie les éléments à supprimer
             const fieldsToDelete = deletedFiel;
 
-            console.log('-----------existingFieldse3eqdwsx: ', existingFields);
-            console.log('-----------fieldsToUpdate: ', fieldsToUpdate);
-            console.log('-----------fieldsToDelete: ', fieldsToDelete);
-            console.log('-----------fieldsToAdd: ', fieldsToAdd);
-            console.log('-----------fieldsToAdd: ', isEditItem);
+            // console.log('-----------existingFieldse3eqdwsx: ', existingFields);
+            // console.log('-----------fieldsToUpdate: ', fieldsToUpdate);
+            // console.log('-----------fieldsToDelete: ', fieldsToDelete);
+            // console.log('-----------fieldsToAdd: ', fieldsToAdd);
+            // console.log('-----------fieldsToAdd: ', isEditItem);
 
             if (!isEditItem) {
                 for (const pc of selectedCountry) {
@@ -151,22 +150,18 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
                 }
             } else {
                 for (const fldAdd of fieldsToAdd) {
-                    console.log('============================:fldAdd', fldAdd);
                     await MetaDonneServices.addMetaDonnee(document.typeDocument.id, fldAdd);
                 }
 
                 for (const pc of selectedCountry) {
-                    console.log('============================:pc', pc);
                     await connectPieceToTypeDocument(pc?.id, document.typeDocument.id);
                 }
 
-                console.log('============================:fldUpdate', fieldsToUpdate);
                 for (const fldUpdate of fieldsToUpdate) {
                     await MetaDonneServices.updateDocument(fldUpdate.id, fldUpdate);
                 }
 
                 for (const fldDelete of fieldsToDelete) {
-                    console.log('============================:fldDelete', fldDelete);
                     await MetaDonneServices.deleteMetaDonnee(fldDelete?.id);
                 }
             }
