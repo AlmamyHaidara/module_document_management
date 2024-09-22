@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import prisma from '@/prisma/prismaClient';
 
 
@@ -74,7 +73,6 @@ export async function POST(req: NextRequest) {
 
             // Revalidation du cache pour la page /documents
         })
-        // revalidatePath('/documents');
 
         return NextResponse.json({
             message: 'Métadonnée ajoutée avec succès',

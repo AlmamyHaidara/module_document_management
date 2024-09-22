@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import { create } from 'domain';
 import { NextRequest, NextResponse } from 'next/server';
 import { metadata } from '../../../../layout';
-import { revalidatePath } from 'next/cache';
 import prisma from '@/prisma/prismaClient';
 
 
@@ -41,7 +40,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { code: str
             await prisma.typesDocuments.deleteMany({
                 where: { code: code }
             });
-            revalidatePath('/documents', 'layout');
             return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
         });
     } catch (error) {

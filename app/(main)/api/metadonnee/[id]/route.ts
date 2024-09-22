@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import prisma from '@/prisma/prismaClient';
 
 
@@ -53,7 +52,6 @@ console.log("-----------------before",data,data.field.typeDocument.id);
                 }
             }
         });
-        // revalidatePath("/documents",'layout')
         console.log("----------After:",updatedMetaDonnee);
 
         return NextResponse.json({ message: 'Métadonnée mise à jour avec succès', data: updatedMetaDonnee }, { status: 200 });

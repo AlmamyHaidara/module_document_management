@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import { create } from 'domain';
 import { NextRequest, NextResponse } from 'next/server';
 import { metadata } from '../../../layout';
-import { revalidatePath } from 'next/cache';
 import prisma from '@/prisma/prismaClient';
 
 
