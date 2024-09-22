@@ -2,9 +2,8 @@ import { Client, CompteClient } from "@/types/types"
 import { PrismaClient } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server";
 import { generateID } from "../../utils/function";
+import prisma from "@/prisma/prismaClient";
 
-
-const prisma = new PrismaClient()
 
 
 export async function POST(req: NextRequest) {

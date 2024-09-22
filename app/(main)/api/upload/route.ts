@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('Erreur lors de la création du dossier:', error);
 
-        return new Response(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
+        return NextResponse.json(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
             headers: { 'Content-Type': 'application/json' },
             status: 500,
         });

@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import prisma from '@/prisma/prismaClient';
 
 
-const prisma = new PrismaClient();
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
     const id = params.id;
@@ -32,21 +32,29 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     try {
         const metaDonnee = await prisma.metaDonnees.findFirst({
             select: { id: true },
-            where: { cle: cle },
+            where: { id: Number(cle) },
         });
 
         if (!metaDonnee) {
             return NextResponse.json({ error: 'Métadonnée non trouvée' }, { status: 404 });
         }
+console.log("-----------------before",data,data.field.typeDocument.id);
 
         const updatedMetaDonnee = await prisma.metaDonnees.update({
             where: { id: Number(metaDonnee.id) },
             data: {
-                cle: data.cle,
-                valeur: data.valeur,
+                cle: data.field.cle,
+                valeur: data.field.valeur,
+                typeDocument:{
+                    connect:{
+                        id:data.field.typeDocument.id,
+                        code:data.field.typeDocument.code
+                    }
+                }
             }
         });
-        revalidatePath("/documents",'layout')
+        // revalidatePath("/documents",'layout')
+        console.log("----------After:",updatedMetaDonnee);
 
         return NextResponse.json({ message: 'Métadonnée mise à jour avec succès', data: updatedMetaDonnee }, { status: 200 });
     } catch (error) {

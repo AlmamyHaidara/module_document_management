@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -10,7 +11,6 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { Client, CompteClient } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
-import { MetaDonneService } from "@/demo/service/MetaDonne.service";
 import { generateID, generateUniqueNumber } from "../(main)/utils/function";
 import { InvalidateQueryFilters, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";

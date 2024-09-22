@@ -36,14 +36,14 @@ export async function GET() {
 
     // })) as unknown as any[];
     console.log("--------------------serverDossier: ",dossiers)
-    return new Response(JSON.stringify(dossiers), {
+    return NextResponse.json(JSON.stringify(dossiers), {
         headers: { 'Content-Type': 'application/json' },
         status: 200,
     });
 } catch (error) {
     console.error('Erreur lors de la récupération des dossiers:', error);
 
-    return new Response(JSON.stringify({ error: 'Erreur lors de la récupération des dossiers' }), {
+    return NextResponse.json(JSON.stringify({ error: 'Erreur lors de la récupération des dossiers' }), {
         headers: { 'Content-Type': 'application/json' },
         status: 500,
     });

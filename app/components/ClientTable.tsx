@@ -446,7 +446,7 @@ const onUpdateMeta = useMutation({
                         <Column field="adresse" header="Adresse" sortable  />
                         <Column field="profession" header="Profession" sortable  />
                         <Column field="nature" header="Nature" sortable  />
-                        <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />
+                        {/* <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  /> */}
                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
                     </DataTable>
 

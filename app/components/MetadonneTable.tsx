@@ -94,6 +94,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
     const hideDialog = () => {
         setSubmitted(false);
         setDocumentDialog(false);
+        setEdit(false)
     };
 
     const hideDeleteDocumentDialog = () => {
@@ -205,7 +206,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
 
     const handleRemove = (index: number) => {
         const fieldToRemove = fields[index];
-        setFields(fields.filter((_, i) => i !== index));
+        setFields(fields.filter((_: any, i: number) => i !== index));
     };
 
     const deleteDocument = () => {
@@ -513,7 +514,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
                                                         icon="pi pi-minus"
                                                         className="p-button-danger"
                                                         onClick={() => {
-                                                            setDeletedFiel((prev) => [...prev, field]);
+                                                            setDeletedFiel((prev:any) => [...prev, field]);
                                                             handleRemove(index);
                                                         }}
                                                     />

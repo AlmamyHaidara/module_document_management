@@ -3,8 +3,7 @@ import { create } from 'domain';
 import { NextRequest, NextResponse } from 'next/server';
 import { metadata } from '../../../layout';
 import { revalidatePath } from 'next/cache';
-
-const prisma = new PrismaClient();
+import prisma from '@/prisma/prismaClient';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {

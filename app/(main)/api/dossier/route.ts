@@ -1,8 +1,8 @@
+import prisma from '@/prisma/prismaClient';
 import { Client, CompteClient, Dossier, Piece, MetaDonnee, DocMetaPiece } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
-const prisma = new PrismaClient();
 export async function GET() {
     const dossiers: DocMetaPiece[] = (await prisma.dossiers.findMany({
         include: {
