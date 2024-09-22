@@ -17,7 +17,7 @@ function DossierComponent() {
     const [matricule, setMatricule] = useState<string>("");
     const { findAllDossier } = DossierService;
 
-    const { isPending, isError, data, error } = useQuery({ queryKey: ['dossiers'], queryFn: findAllDossier });
+    const { isPending, isError, data, error } = useQuery({ queryKey: ["dossiers"], queryFn: findAllDossier });
 
     if (isPending) {
         return (

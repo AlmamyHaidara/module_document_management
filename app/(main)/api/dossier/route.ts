@@ -1,6 +1,6 @@
 import { Client, CompteClient, Dossier, Piece, MetaDonnee, DocMetaPiece } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 export async function GET() {
@@ -36,9 +36,9 @@ export async function GET() {
         }
     })) as unknown as DocMetaPiece[];
     // console.log('o----------------------o: ', dossiers[0].dossiers_typesDocuments[0].type_document.compteClient.id);
-    console.log('o----------------------o: ', dossiers);
+    console.log('o----------------------o: ', dossiers[0].dossiers_typesDocuments);
 
-    return Response.json(dossiers);
+    return NextResponse.json(dossiers);
 }
 type DataSend = {
     compteClient: any;
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     try {
         const data: DataSend = await req.json();
         console.log('Données reçues:', data);
-        console.log('Données reçues44:', data.filePaths.length);
+        console.log('Données reçues44:', data.filePaths);
 
         const transactionResult = await prisma.$transaction(async (prisma) => {
             // Créer le dossier
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
                                 const existingPiece = await prisma.piece.findUnique({
                                     where: { code: filePath.code },
                                 });
-                                
+
                                 // Si la pièce existe déjà, ne pas l'ajouter
                                 if (existingPiece) {
                                     console.log(`La pièce avec le code ${filePath.code} existe déjà`);
@@ -88,12 +88,12 @@ export async function POST(req: NextRequest) {
                                     code: filePath.code,
                                     path: filePath.path,
                                     date_creation: new Date(),
-                                    created_at: new Date(), // Ajuster si nécessaire
-                                    updated_at: new Date(), // Ajuster si nécessaire
+                                    created_at: new Date(),
+                                    updated_at: new Date(),
                                 };
                             })
-                        ).then((pieces) => pieces.filter((piece): piece is any => piece !== null)), // Filtrer les valeurs nulles
-                  
+                        ).then((pieces) => { console.log("_____________",pieces); return pieces.filter((piece): piece is any => piece !== null)}), // Filtrer les valeurs nulles
+
                     },
                     dossierInfos: {
                         create: data.metadonnees.map((value) => ({
@@ -104,9 +104,10 @@ export async function POST(req: NextRequest) {
                 },
                 include: {
                     dossierInfos: true,
+                    piece:true
                 },
             });
-        
+
             // Lier le dossier au type de document
             await prisma.dossiersToTypesDocuments.create({
                 data: {
@@ -114,7 +115,9 @@ export async function POST(req: NextRequest) {
                     typesdocumentsId: data.typeDocument.id,
                 },
             });
-        
+            console.log("==============================")
+            console.table(dossier.dossierInfos);
+
             return dossier; // Retourner le dossier créé
         });
         // Mise à jour du type de document
@@ -139,14 +142,14 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        return new Response(JSON.stringify({ success: 'création du dossier', dossier: transactionResult }), {
+        return NextResponse.json(JSON.stringify({ success: 'création du dossier', dossier: transactionResult }), {
             headers: { 'Content-Type': 'application/json' },
             status: 200,
         });
     } catch (error) {
         console.error('Erreur lors de la création du dossier:', error);
 
-        return new Response(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
+        return NextResponse.json(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
             headers: { 'Content-Type': 'application/json' },
             status: 500,
         });

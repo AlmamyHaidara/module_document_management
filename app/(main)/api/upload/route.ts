@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
 
         // Sauvegarder le fichier
         for (const file of files) {
+            console.log('Données reçues:', file);
             const fileName = generateID(6) + '-' + file.name; // Vous pouvez ajouter un identifiant unique au nom du fichier
             const absoluteFilePath = path.join(uploadDir, fileName);
 
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
             await fs.writeFile(absoluteFilePath, new Uint8Array(arrayBuffer));
 
             // Ajouter le chemin relatif à la liste des fichiers
-            filePaths.push({ code: "", path: relativeFilePath });
+            filePaths.push({ code: generateID(6) , path: relativeFilePath });
         }
 
         console.log('Données reçues:', filePaths);

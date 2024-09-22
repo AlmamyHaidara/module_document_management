@@ -20,6 +20,7 @@ import { DossierContext } from '../(main)/uikit/table/DossierExpandTable';
 import { Image } from 'primereact/image';
 import UploadFileComponent from './UploadFileComponent';
 import { fi } from '@faker-js/faker';
+import { Divider } from 'primereact/divider';
 
 type PropsType = {
     dossiers: any[];
@@ -33,12 +34,13 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     const { dossierContext }: any = useContext(DossierContext);
     const { meta, typeDoc, compteMatricule, fileField } = dossierContext;
 
+    const [filteredDossiers, setFilteredDossiers] = useState(dossiers);
     const [documentDialog, setDossierDialog] = useState(false);
     const [dossier, setDossier] = useState<any | null>({});
     const [submitted, setSubmitted] = useState(false);
     const [nom, setNom] = useState('');
     const [description, setDescription] = useState('');
-    const [docType, setDocType] = useState<{ id: number; code: string; nom_type: string; piece?: any[] }>({ id: 0, code: '', nom_type: '' });
+    const [docType, setDocType] = useState<{ id: number; code: string; nom_type: string; piece?: any[] } | any>({ id: 0, code: '', nom_type: '' });
     const [compteClient, setCompteClient] = useState({ id: 0, code: '', nom_type: '' });
     const [docTypeMeta, setDocTypeMeta] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
@@ -48,6 +50,9 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     const [fileUploaded, setFileUploaded] = useState<any>([]);
     const [deleteDossierDialog, setDeleteDossierDialog] = useState(false);
     const [editAction, setEditAction] = useState(false);
+    const [dossierInfo, setDossierInfo] = useState([]);
+    const [viewClientsDialog, setViewClientsDialog] = useState(false);
+
     const toast = useRef<any>(null);
     const dt = useRef<any>(null);
 
@@ -60,12 +65,13 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     }, [docType, meta]);
 
     useEffect(() => {
+        console.log("----------filePaths",filePaths)
         setFileUploaded([...fileUploaded, ...filePaths]);
     }, [filePaths]);
 
     useEffect(() => {
-        setPieces( docType?.piece)
-        console.log("Is rerended",pieces);
+        setPieces(docType?.piece);
+        console.log('Is rerended', pieces);
     }, [docType]);
 
     const onGlobalFilterChange = (e: any) => {
@@ -92,6 +98,10 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
         setDeleteDossierDialog(false);
     };
 
+    const hideDeleteViewClientDialog = () => {
+        setViewClientsDialog(false);
+    };
+
     const saveDossier = () => {
         setSubmitted(true);
         console.log('-------------FormValues', formValues);
@@ -112,10 +122,10 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                 compteClient: compteClient
             };
 
-            console.log("--------------NewDossier: ", newDossier)
+            console.log('--------------NewDossier: ', newDossier);
             onCreateDossier(newDossier);
-            setDossierDialog(false);
-            setDossier(null);
+            // setDossierDialog(false);
+            // setDossier(null);
         } else {
             console.log('-------------FormValues', formValues);
             console.log('-------------Nom', nom);
@@ -135,8 +145,8 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
 
             // console.log("--------------EditDossier: ", editDossier)
             onUpdateDossier(editDossier);
-            setDossierDialog(false);
-            setDossier(null);
+            // setDossierDialog(false);
+            // setDossier(null);
         }
     };
 
@@ -177,7 +187,6 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
             setDocType(newDoctype);
         }
 
-
         console.log('-------------155document: ', docType);
 
         setFormValues(document.dossierInfos || []);
@@ -185,6 +194,17 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
         setActiveStep(0);
         setDossierDialog(true);
         setEditAction(true);
+    };
+
+    const viewClientInfo = async (rowData: any) => {
+        console.log('ewsdcx ', rowData);
+        setDossier({ ...rowData });
+       setDossierInfo(rowData?.dossierInfos);
+        setPieces(rowData?.dossiers_typesDocuments[0]?.dossier?.piece);
+
+        // console.log("ppppppppppppppppppppppp",rowData);
+
+        setViewClientsDialog(true);
     };
 
     const handleFieldChange = (id: number, cle: string, value: string) => {
@@ -226,6 +246,7 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
+                <Button icon="pi pi-eye" rounded severity="info" className="mr-2" onClick={() => viewClientInfo(rowData)} />
                 <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editDossier(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteDossier(rowData)} />
             </>
@@ -251,14 +272,13 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
             day: '2-digit'
         }).format(new Date(date))}`;
     };
-    const [filteredDossiers, setFilteredDocuments] = useState(dossiers);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const filterValue = e.target.value.toLowerCase();
 
         const filtered = dossiers.filter((dossier: any) => dossier.code.toLowerCase().includes(filterValue));
 
-        setFilteredDocuments(filtered);
+        setFilteredDossiers(filtered);
     };
     const header = (
         <div className="flex justify-content-between">
@@ -318,7 +338,8 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                                 <div className="field">
                                     <label htmlFor="compteClient">Compte client</label>
                                     <DropDownComponent options={compteMatricule} setTypeDocument={setCompteClient} typeDocument={compteClient} placeholder={'Selectionne un compte client'} />
-                                    {submitted && !compteClient?.id && <small className="p-invalid">Le compte client est requis.</small>}
+                                    {/* {submitted && !comptedossier?.id && <small className="p-invalid">Le compte client est requis.</small>} */}
+                                    client?{' '}
                                 </div>
                             </>
                         ) : activeStep === 1 ? (
@@ -331,34 +352,16 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                             <>
                                 {docType?.piece && docType?.piece.map((item: any, index: number) => <UploadFileComponent piece={item} setFilePaths={setFilePaths} key={index} />)}
 
-                               { editAction && <div className="w-full h-200 flex justify-between align-center">
-                                   {JSON.stringify(pieces)}
-                                    {
-                                        pieces.map((item:any,index)=>(
-
-                                            <div className=" w-full h-full object-cover" key={index} >
-                                                 <Image src={item?.path} alt="Image" className="w-full h-full object-fill" />
+                                {editAction && (
+                                    <div className="w-full h-200 flex justify-between align-center">
+                                        {JSON.stringify(pieces)}
+                                        {pieces?.map((item: any, index) => (
+                                            <div className=" w-full h-full object-cover" key={index}>
+                                                <Image src={item?.path} alt="Image" className="w-full h-full object-fill" />
                                             </div>
-
-                                        ))
-                                    }
-                                </div>}
-                                {/* <UploadMultipleFile setFilePaths={setFilePaths} /> */}
-
-                                {/* {
-                                editAction && <div className="w-full h-200 flex justify-between align-center">
-                                    {
-                                        pieces.map((item:any,index)=>(
-
-                                            <div className=" w-full h-full object-cover" key={index} >
-                                                 <Image src={item?.path} alt="Image" className="w-full h-full object-fill" />
-                                            </div>
-
-                                        ))
-                                    }
-                                </div>
-                               } */}
-                                {/* </div> */}
+                                        ))}
+                                    </div>
+                                )}
                             </>
                         )}
                     </Dialog>
@@ -384,6 +387,49 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
                                 </span>
                             )}
                         </div>
+                    </Dialog>
+
+                    <Dialog visible={viewClientsDialog} style={{ width: '70%' }} header={`Les information sur du ${dossier?.nom}`} modal  onHide={hideDeleteViewClientDialog}>
+                        <div className="confirmation-content align-left">
+                            <div className="flex  text-center">
+                                <p className="text-xl">
+                                    <span className="text-2xl font-medium">Code client:</span> {dossier?.code}
+                                </p>
+                            </div>
+                            <div className="flex  text-center">
+                                <p className="text-xl">
+                                    <span className="text-2xl text-left font-medium">Nom:</span> {dossier?.nom}
+
+                                </p>
+                            </div>
+
+                            <Divider />
+                            <p className="text-2xl font-light mt-2 ">La description du dossier </p>
+                            {dossierInfo?.map((res:any, index) => (
+                                <div className="flex  text-center" key={index}>
+                                    <p className="text-xl">
+                                        <span className="text-2xl text-left font-medium">{res?.cle} :</span>
+                                        {' ' + res?.value}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                        <Divider />
+
+                        <p className="text-2xl font-light ">Piece jointe</p>
+                        <div className="card flex justify-content-center">
+                            {
+                               pieces && pieces.map((item: any, index) => (
+                                    <div className="m-5" key={index}>
+                                        <p className="text-2xl font-light ">{item?.nom}</p>
+
+                                        <Image src={item?.path} indicatorIcon={<i className="pi pi-search"></i>} alt="Image" preview className="object-fill" width="100" height="100" />
+                                    </div>
+
+                                ))}
+                        </div>
+
+
                     </Dialog>
                 </div>
             </div>

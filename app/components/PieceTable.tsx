@@ -440,7 +440,7 @@ const gridItem = (product: any) => {
                 </div>
                 <div className="flex flex-column align-items-center gap-3 py-5">
                     <img className="w-9 shadow-2 border-round" src={`${product.path}`} alt={product.nom} />
-                    <div className="text-2xl font-bold">{product.dossierId}</div>
+                    <div className="text-2xl font-bold">{product.nom}</div>
                     {/* <Rating value={product.rating} readOnly cancel={false}></Rating> */}
                 </div>
                 <div className="flex align-items-center justify-content-between">

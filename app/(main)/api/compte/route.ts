@@ -1,6 +1,6 @@
 import { Client, CompteClient, CompteClients } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
         }
     }))
 
-    return Response.json(clients);
+    return NextResponse.json(clients);
 }
 
 
@@ -34,6 +34,6 @@ export async function POST(req:NextRequest) {
 
     })
 
-    return Response.json(compteData);
+    return NextResponse.json(compteData);
 
 }

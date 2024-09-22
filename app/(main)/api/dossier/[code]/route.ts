@@ -1,6 +1,7 @@
 import { Client, CompteClient, DocMetaPiece, TypeDocument } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
 import { create } from 'domain';
+import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 export async function GET(req: Request, { params }: { params: { code: string } }) {
@@ -13,7 +14,7 @@ export async function GET(req: Request, { params }: { params: { code: string } }
 
     })) as unknown as DocMetaPiece[] & TypeDocument[];
 
-    return Response.json(dossier);
+    return NextResponse.json(dossier);
 }
 
 export async function PUT(req: Request, { params }: { params: { code: string } }) {

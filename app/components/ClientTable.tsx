@@ -125,7 +125,7 @@ const onUpdateMeta = useMutation({
         setClient(null);
         } catch (error) {
             console.error("Erreur lors de la mise à jour de la métadonnée:", error);
-                         toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour des métadonnées', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour des métadonnées', life: 3000 });
 
         }
     };

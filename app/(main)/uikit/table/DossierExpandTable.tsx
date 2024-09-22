@@ -89,13 +89,15 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     const createMutation = useMutation({
         mutationFn: (doc: Omit<TypeDocument, "id">) => DossierService.createDossier(doc),
         onSuccess: () => {
-            toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["dossiers"] as InvalidateQueryFilters);
+            queryClient.invalidateQueries({queryKey:["dossiers"] });
+            queryClient.invalidateQueries({queryKey:["compteClient"]});
+            queryClient.invalidateQueries({queryKey:["typeDocument"]});
             setProductDialog(false);
+            toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
         },
         onError: (error) => {
-            toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du document a échoué', life: 3000 });
             console.log("onError", error);
+            toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du document a échoué', life: 3000 });
         }
     });
 
@@ -107,8 +109,10 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             return DossierService.updateDossier(doc.id, doc);
         },
         onSuccess: () => {
-            toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
             queryClient.invalidateQueries({ queryKey: ["dossiers"] });
+            queryClient.invalidateQueries({queryKey:["compteClient"]});
+            queryClient.invalidateQueries({queryKey:["typeDocument"]});
+            toast.current?.show({ severity: 'success', summary: 'Document Updated', detail: 'Le document a été mis à jour avec succès', life: 3000 });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du document a échoué', life: 3000 });
@@ -120,7 +124,10 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
         mutationFn: (id: number) => DossierService.deleteDossier(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["dossiers"] });
+            queryClient.invalidateQueries({queryKey:["compteClient"]});
+            queryClient.invalidateQueries({queryKey:["typeDocument"]});
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
+            
         },
         onError: (error) => {
             console.log("onDeleteError", error);
@@ -129,6 +136,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     });
 
     const handleCreateDossier = (newDocument: TypeDocument) => {
+        console.log("oooooooooooooooo",newDocument)
         createMutation.mutate(newDocument);
     };
 
