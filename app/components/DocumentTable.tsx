@@ -41,15 +41,17 @@ const DocumentTable = ({ documents, globalFilterValue, setGlobalFilterValue, onU
     const dt = useRef<DataTable<any>>(null);
     const typeDoc:{name:string}[]= ([{name:"text"},{name:"number"},{name:"email"},{name:"tel"},{name:"date"},{name:"file"}]);
     const [docType, setDocType] = useState<{name:string}>({name:""});
-    const [filteredDocuments, setFilteredDocuments] = useState(documents);
+    const [filteredDocuments, setFilteredDocuments] = useState<any[]>([]);
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setGlobalFilterValue(value);
     };
     useEffect(()=>{
-       console.log("-----------docType: ",docType)
-    }, [docType]);
+
+        setFilteredDocuments(documents)
+       console.log("-----------docType: ",typeof documents)
+    }, [documents]);
     const openNew = () => {
         setDocument({ id: 0, nom_type: ""});
         setFields([{ id: 0, cle: "", valeur: "" }]);

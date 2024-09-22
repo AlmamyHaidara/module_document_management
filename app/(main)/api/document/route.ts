@@ -13,7 +13,7 @@ export async function GET() {
         }
     })) as unknown as DocMetaPiece[];
 
-    return NextResponse.json(JSON.stringify(dossiers), {
+    return NextResponse.json(dossiers, {
         headers: { 'Content-Type': 'application/json' },
         status: 200,
     });
