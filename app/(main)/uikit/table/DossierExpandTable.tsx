@@ -87,7 +87,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<TypeDocument, "id">) => DossierService.createDossier(doc),
+        mutationFn: (doc: Omit<any, "id">) => DossierService.createDossier(doc),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:["dossiers"] });
             queryClient.invalidateQueries({queryKey:["compteClient"]});

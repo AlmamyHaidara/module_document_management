@@ -72,7 +72,7 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<TypeDocument, "id">) => MetaDonneServices.addMetaDonnee(doc.docId, doc.field),
+        mutationFn: (doc: Omit<any, "id">) => MetaDonneServices.addMetaDonnee(doc.docId, doc.field),
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
             queryClient.invalidateQueries(["metadonne"] as InvalidateQueryFilters);

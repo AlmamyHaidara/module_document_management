@@ -73,7 +73,7 @@ const CompteExpendTable = ({ compte, findCompteByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (clt: Omit<CompteClient, "id">) => CompteService.createCompte(clt as CompteClient),
+        mutationFn: (clt: Omit<any, "id">) => CompteService.createCompte(clt as CompteClient),
         onSuccess: (clt) => {
             toast.current?.show({ severity: 'success', summary: 'CompteClient Created', detail: 'Le compte a été créé avec succès', life: 3000 });
             queryCompte.invalidateQueries(["compte"] as InvalidateQueryFilters);

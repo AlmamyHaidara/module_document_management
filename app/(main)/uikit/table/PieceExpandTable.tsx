@@ -77,7 +77,7 @@ const PieceExpendTable = ({ piece, findCLientByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (clt: Omit<Client, "id">) => ClientService.createClient(clt as Client),
+        mutationFn: (clt: Omit<any, "id">) => ClientService.createClient(clt as Client),
         onSuccess: (clt) => {
             toast.current?.show({ severity: 'success', summary: 'Client Created', detail: 'Le piece a été créé avec succès', life: 3000 });
             queryClient.invalidateQueries(["piece"] as InvalidateQueryFilters);

@@ -72,7 +72,7 @@ const DocumentExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<string, "id">) => DocumentService.createDocument(doc),
+        mutationFn: (doc: Omit<any, "id">) => DocumentService.createDocument(doc),
         onSuccess: (doc) => {
             queryClient.invalidateQueries({queryKey:["document"]});
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
