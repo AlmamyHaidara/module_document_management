@@ -6,6 +6,7 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
 import { Tag } from 'primereact/tag';
+import Image from 'next/image';
 
 interface PropsType {
     setFilePaths: React.Dispatch<React.SetStateAction<any[]>>
@@ -74,7 +75,7 @@ export default function UploadMultipleFile({setFilePaths}:PropsType) {
         return (
             <div className="flex align-items-center flex-wrap">
                 <div className="flex align-items-center" style={{ width: '40%' }}>
-                    <img alt={file.name} role="presentation" src={file?.objectURL} width={100} />
+                    <Image alt={file.name} role="presentation" src={file?.objectURL} width={100} />
                     <span className="flex flex-column text-left ml-3">
                         {file.name}
                         <small>{new Date().toLocaleDateString()}</small>

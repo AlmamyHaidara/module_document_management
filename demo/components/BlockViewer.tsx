@@ -1,3 +1,4 @@
+import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
 import { classNames } from 'primereact/utils';
 import React, { useRef, useState } from 'react';
@@ -37,9 +38,9 @@ const BlockViewer = (props: BlockViewerProps) => {
                         <button className={classNames('p-link', { 'block-action-active': blockView === 'CODE' })} onClick={() => setBlockView('CODE')}>
                             <span>Code</span>
                         </button>
-                        <button ref={actionCopyRef} tabIndex={0} className="p-link block-action-copy" onClick={copyCode}>
+                        <Button ref={actionCopyRef} tabIndex={0} className="p-link block-action-copy" onClick={copyCode}>
                             <i className="pi pi-copy"></i>
-                        </button>
+                        </Button>
                         <Tooltip target={actionCopyRef as any} position="bottom" content="Copied to clipboard" event="focus" />
                     </div>
                 </div>

@@ -17,7 +17,7 @@ type PropsType ={
 }
 function DialogueCompte({ visible = false, setVisible,matricule }: PropsType) {
     // console.log(compte.TypesDocuments)
-    const { isPending, isError, data, error } = useQuery({ queryKey: ['`compte'], queryFn: ()=>CompteService.findClientCompte(matricule) });
+    const { isPending, isError, data, error } = useQuery({ queryKey: ['compte'], queryFn: ()=>CompteService.findClientCompte(matricule) });
     if (isPending) {
         return (
             <div className="w-full h-full flex align-items-center justify-content-center">

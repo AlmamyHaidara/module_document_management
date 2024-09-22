@@ -38,46 +38,15 @@ const CompteExpendTable = ({ compte, findCompteByCode }: PropsType) => {
     });
 
     const toast = React.useRef<Toast>(null);
-    const [productDialog, setProductDialog] = React.useState(false);
-    const [isUpdateMode, setIsUpdateMode] = React.useState(false);
-    const [selectedDocument, setSelectedDocument] = React.useState<TypeDocument | null>(null);
-
-    useEffect(()=>{
-        console.log("-----------------------CompteClient:",compte)
-    },[])
-    const openNew = () => {
-        setProductDialog(true);
-        setIsUpdateMode(false);
-        reset({
-            nom: "",
-            code: "",
-            fields: [{ cle: "text", valeur: "" }],
-        });
-    };
-
-    // const openUpdate = (doc: TypeDocument) => {
-    const openUpdate = (doc: any) => {
-        setProductDialog(true);
-        setIsUpdateMode(true);
-        setSelectedDocument(doc);
-        reset({
-            nom: doc.nom,
-            code: doc.code,
-            fields: doc.fields || [{ id:0,cle: "text", valeur: "" }],
-        });
-    };
-
-    const hideDialog = () => {
-        setProductDialog(false);
-        reset();
-    };
+   
+ 
 
     const createMutation = useMutation({
         mutationFn: (clt: Omit<CompteClient, "id">) => CompteService.createCompte(clt as CompteClient),
         onSuccess: (clt) => {
             toast.current?.show({ severity: 'success', summary: 'CompteClient Created', detail: 'Le compte a été créé avec succès', life: 3000 });
             queryCompte.invalidateQueries(["compte"] as InvalidateQueryFilters);
-            setProductDialog(false);
+            // setProductDialog(false);
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du compte a échoué', life: 3000 });

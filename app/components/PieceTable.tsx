@@ -53,7 +53,7 @@ const PieceTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdate
     const [typeDossiers, setTypeDossiers] = useState<{ id: number; code: string; nom: string }[]>(typeDossier || []);
 
 
-const [selectedDossier,setSelectedDossier] = useState()
+const [selectedDossier,setSelectedDossier] = useState<any>()
     const [compte, setCompte] = useState<CompteClients | any >(null);
     const [selectedClient, setSelectedClient] = useState<Client[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
@@ -69,10 +69,10 @@ const [selectedDossier,setSelectedDossier] = useState()
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
     const [newTypeCompte, setNewTypeCompte] = useState<string>("");
     const [addingNew, setAddingNew] = useState<boolean>(false);
-    const [pieceSelected,setPieceSelected] = useState({})
+    const [pieceSelected,setPieceSelected] = useState<any>({})
 
     const [products, setProducts] = useState<any[]>([]);
-    const [layout, setLayout] = useState('grid');
+    const [layout, setLayout] = useState<'list' | 'grid' | (string & Record<string, unknown>)>('grid');
 
     useEffect(() => {
         setProducts(clients.slice(0, 12))
@@ -402,7 +402,7 @@ const listItem = (product: any, index: number) => {
     return (
         <div className="col-12" key={product.id}>
             <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4', { 'border-top-1 surface-border': index !== 0 })}>
-                <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={`${product.path}`} alt={product.name} />
+                <Image className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={`${product.path}`} alt={product.name} />
                 <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                     <div className="flex flex-column align-items-center sm:align-items-start gap-3">
                         <div className="text-2xl font-bold text-900">{product.name}</div>
@@ -439,7 +439,7 @@ const gridItem = (product: any) => {
                     {/* <Tag value={product.inventoryStatus} severity={getSeverity(product)}></Tag> */}
                 </div>
                 <div className="flex flex-column align-items-center gap-3 py-5">
-                    <img className="w-9 shadow-2 border-round" src={`${product.path}`} alt={product.nom} />
+                    <Image className="w-9 shadow-2 border-round" src={`${product.path}`} alt={product.nom} />
                     <div className="text-2xl font-bold">{product.nom}</div>
                     {/* <Rating value={product.rating} readOnly cancel={false}></Rating> */}
                 </div>
@@ -454,12 +454,12 @@ const gridItem = (product: any) => {
     );
 };
 
-const itemTemplate = (product: any, layout: string, index: number) => {
+const itemTemplate = (product: any, layout: string, index?: number) => {
     if (!product) {
         return;
     }
 
-    if (layout === 'list') return listItem(product, index);
+    if (layout === 'list' && index) return listItem(product, index);
     else if (layout === 'grid') return gridItem(product);
 };
 

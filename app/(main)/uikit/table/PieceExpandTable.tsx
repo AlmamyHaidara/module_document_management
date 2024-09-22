@@ -42,16 +42,13 @@ const PieceExpendTable = ({ piece, findCLientByCode }: PropsType) => {
     });
 
     const toast = React.useRef<Toast>(null);
-    const [productDialog, setProductDialog] = React.useState(false);
-    const [isUpdateMode, setIsUpdateMode] = React.useState(false);
-    const [selectedDocument, setSelectedDocument] = React.useState<TypeDocument | null>(null);
+    // const [productDialog, setProductDialog] = React.useState(false);
+    // const [isUpdateMode, setIsUpdateMode] = React.useState(false);
+    // const [selectedDocument, setSelectedDocument] = React.useState<TypeDocument | null>(null);
 
-    useEffect(()=>{
-        console.log("-----------------------Piece:",piece)
-    },[])
     const openNew = () => {
-        setProductDialog(true);
-        setIsUpdateMode(false);
+        // setProductDialog(true);
+        // setIsUpdateMode(false);
         reset({
             nom: "",
             code: "",
@@ -61,9 +58,9 @@ const PieceExpendTable = ({ piece, findCLientByCode }: PropsType) => {
 
     // const openUpdate = (doc: TypeDocument) => {
     const openUpdate = (doc: any) => {
-        setProductDialog(true);
-        setIsUpdateMode(true);
-        setSelectedDocument(doc);
+        // setProductDialog(true);
+        // setIsUpdateMode(true);
+        // setSelectedDocument(doc);
         reset({
             nom: doc.nom,
             code: doc.code,
@@ -71,17 +68,17 @@ const PieceExpendTable = ({ piece, findCLientByCode }: PropsType) => {
         });
     };
 
-    const hideDialog = () => {
-        setProductDialog(false);
-        reset();
-    };
+    // const hideDialog = () => {
+    //     setProductDialog(false);
+    //     reset();
+    // };
 
     const createMutation = useMutation({
         mutationFn: (clt: Omit<Client, "id">) => ClientService.createClient(clt as Client),
         onSuccess: (clt) => {
             toast.current?.show({ severity: 'success', summary: 'Client Created', detail: 'Le piece a été créé avec succès', life: 3000 });
             queryClient.invalidateQueries(["piece"] as InvalidateQueryFilters);
-            setProductDialog(false);
+            // setProductDialog(false);
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du piece a échoué', life: 3000 });

@@ -9,9 +9,10 @@ import { InputText } from 'primereact/inputtext';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Sidebar } from 'primereact/sidebar';
 import { Toast } from 'primereact/toast';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { ProductService } from '../../../../demo/service/ProductService';
 import type { Demo } from '@/types';
+import Image from 'next/image';
 
 type ButtonEvent = React.MouseEvent<HTMLButtonElement>;
 const OverlayDemo = () => {
@@ -91,9 +92,9 @@ const OverlayDemo = () => {
 
     const basicDialogFooter = <Button type="button" label="OK" onClick={() => setDisplayBasic(false)} icon="pi pi-check" outlined />;
     const imageBodyTemplate = (data: Demo.Product) => (
-        <img
+        <Image
             src={`/demo/images/product/${data.image}`}
-            alt={data.image}
+            alt={`${data.image}`}
             className="product-image"
             width="60"
             style={{
@@ -112,6 +113,7 @@ const OverlayDemo = () => {
     return (
         <>
             <Toast ref={toast} />
+            <Suspense fallback={<>Loading...</>}>
             <div className="grid">
                 <div className="col-12 lg:col-6">
                     <div className="card">
@@ -135,7 +137,7 @@ const OverlayDemo = () => {
                             <div>
                                 <Button type="button" label="Image" onClick={toggle} outlined />
                                 <OverlayPanel ref={op} appendTo={typeof window !== 'undefined' ? document.body : null} showCloseIcon>
-                                    <img src="/demo/images/nature/nature9.jpg" alt="nature1" />
+                                    <Image src="/demo/images/nature/nature9.jpg" alt="nature1" />
                                 </OverlayPanel>
                             </div>
                             <div>
@@ -215,6 +217,8 @@ const OverlayDemo = () => {
                     </div>
                 </div>
             </div>
+            </Suspense>
+
         </>
     );
 };

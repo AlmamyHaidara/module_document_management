@@ -67,11 +67,10 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     useEffect(() => {
         console.log("----------filePaths",filePaths)
         setFileUploaded([...fileUploaded, ...filePaths]);
-    }, [filePaths]);
+    }, [filePaths,fileUploaded]);
 
     useEffect(() => {
         setPieces(docType?.piece);
-        console.log('Is rerended', pieces);
     }, [docType]);
 
     const onGlobalFilterChange = (e: any) => {

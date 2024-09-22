@@ -46,7 +46,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
     const typeDoc: { name: string }[] = [{ name: 'text' }, { name: 'number' }, { name: 'email' }, { name: 'tel' }, { name: 'date' }, { name: 'file' }];
     const [docType, setDocType] = useState<{ name: string }>({ name: '' });
     const [typee, setTypee] = useState<any>({});
-    const [deletedFiel, setDeletedFiel] = useState([]);
+    const [deletedFiel, setDeletedFiel] = useState<any[]>([]);
     const [piece, setPiece] = useState<{ id: number; code: string; nom: string }>({ id: 0, code: '', nom: '' });
     const [addingNew, setAddingNew] = useState<boolean>(false);
     const { isSuccess: isSuccessPiece, data: typePiece } = useQuery({ queryKey: ['TypePiece'], queryFn: async () => fetchPiece() });
@@ -57,14 +57,13 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
     const { isSuccess, data: typeDocum }: { isSuccess: boolean; data: any } = useQuery({ queryKey: ['typeDocumentValue'], queryFn: async () => await fetchTypeDocuments() });
     const queryCompte = useQueryClient();
 
-    const [newType, setNewType] = useState();
+    const [newType, setNewType] = useState<any>();
     const [del, setDel] = useState({ id: 0, code: 'string', nom: 'string' });
-    const [selectedCountry, setSelectedCountry] = useState([]);
+    const [selectedCountry, setSelectedCountry] = useState<any[]>([]);
 
     useEffect(() => {
         setTypeDocuments(typeDocum);
-        console.log('-----------TypeDocuments: ', typeDocuments);
-    }, [isSuccess]);
+    }, [isSuccess,typeDocum]);
 
     useEffect(() => {
         const tt = selectedCountry.filter((item: any) => item.id != del?.id);
@@ -79,10 +78,6 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
         }
     }, [isSuccessPiece]);
 
-    useEffect(() => {
-        console.log('Nouvelle valeur de typee :', typee);
-    }, [typee]);
-
     const openNew = () => {
         setDocument({ id: 0, nom_type: '', metadonnees: [] });
         setFields([{ id: 0, cle: '', valeur: '' }]);
@@ -94,7 +89,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
     const hideDialog = () => {
         setSubmitted(false);
         setDocumentDialog(false);
-        setEdit(false)
+        // setEdit(false)
     };
 
     const hideDeleteDocumentDialog = () => {
@@ -130,7 +125,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
             const fieldsToAdd = fields.filter((field) => field.id == 0); // Ajoute documentId à chaque élément
             const fieldsToUpdate = existingFields.filter((field: any) => (deletedFiel.length != 0 ? deletedFiel.some((deleteField: any) => field.id !== 0 && deleteField.id !== field.id) : field));
             // Identifie les éléments à supprimer
-            const fieldsToDelete = deletedFiel;
+            const fieldsToDelete:any[] = deletedFiel;
 
             console.log('-----------existingFields: ', existingFields);
             console.log('-----------fieldsToUpdate: ', fieldsToUpdate);
@@ -185,7 +180,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
         }
     };
 
-    const editDocument = (document: TypeDocument) => {
+    const editDocument = (document: any) => {
         console.log('***************document', document.typeDocument);
 
         // const editType = { nom_type: { id: document.typeDocument?.id, code: document?.typeDocument?.code, nom_type: document.typeDocument?.nom_type } }
@@ -193,7 +188,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
         setTypee(editType);
         console.log('***************document', typee);
         setDocument({ ...document });
-        setFields([document] || [{ id: 0, cle: '', valeur: '' }]);
+        setFields([document]);
         setSelectedCountry(document.typeDocument && document.typeDocument?.pieceName);
         setDocumentDialog(true);
         setIsEditItem(true);
@@ -411,7 +406,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
         );
     };
 
-    const customChip = (item) => {
+    const customChip = (item:any) => {
         return (
             <div>
                 <span>{item.nom}</span>
@@ -458,7 +453,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
 
                             <Dropdown
                                 name="nom_type"
-                                value={typeDocuments?.find((doc) => doc.nom_type === typee?.nom_type) || typee?.nom_type}
+                                value={typeDocuments?.find((doc:any) => doc.nom_type === typee?.nom_type) || typee?.nom_type}
                                 options={typeDocuments}
                                 onChange={(e) => {
                                     console.log('ppppppppp', typee);
@@ -514,7 +509,7 @@ const MetadonneTable = ({ documents, onUpdateDocument, onCreateDocument, onDelet
                                                         icon="pi pi-minus"
                                                         className="p-button-danger"
                                                         onClick={() => {
-                                                            setDeletedFiel((prev:any) => [...prev, field]);
+                                                            setDeletedFiel((prev) => [...prev, field]);
                                                             handleRemove(index);
                                                         }}
                                                     />
