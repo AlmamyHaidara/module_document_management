@@ -53,7 +53,7 @@ const PieceTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdate
     const [typeDossiers, setTypeDossiers] = useState<{ id: number; code: string; nom: string }[]>(typeDossier || []);
 
 
-const [selectedDossier,setSelectedDossier] = useState()
+const [selectedDossier,setSelectedDossier] = useState<any>()
     const [compte, setCompte] = useState<CompteClients | any >(null);
     const [selectedClient, setSelectedClient] = useState<Client[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
@@ -69,10 +69,10 @@ const [selectedDossier,setSelectedDossier] = useState()
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
     const [newTypeCompte, setNewTypeCompte] = useState<string>("");
     const [addingNew, setAddingNew] = useState<boolean>(false);
-    const [pieceSelected,setPieceSelected] = useState({})
+    const [pieceSelected,setPieceSelected] = useState<any>({})
 
     const [products, setProducts] = useState<any[]>([]);
-    const [layout, setLayout] = useState('grid');
+    const [layout, setLayout] = useState<"grid" | "list" | (string & Record<string, unknown>)>('grid');
 
     useEffect(() => {
         setProducts(clients.slice(0, 12))
@@ -454,12 +454,12 @@ const gridItem = (product: any) => {
     );
 };
 
-const itemTemplate = (product: any, layout: string, index: number) => {
+const itemTemplate = (product: any, layout: string, index?: number) => {
     if (!product) {
         return;
     }
 
-    if (layout === 'list') return listItem(product, index);
+    if (layout === 'list' && index) return listItem(product, index);
     else if (layout === 'grid') return gridItem(product);
 };
 

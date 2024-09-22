@@ -37,6 +37,7 @@ const Layout = ({ children }: ChildContainerProps) => {
 
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    
     useEffect(() => {
         hideMenu();
         hideProfileMenu();

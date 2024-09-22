@@ -63,7 +63,7 @@ export async function PUT(req: Request, { params }: { params: { code: string } }
         })
         console.log(dossier);
 
-        return Response.json(dossier);
+        return NextResponse.json(dossier);
     } catch (error) {
         console.error('Erreur lors de la création du dossier:', error);
 
@@ -87,13 +87,13 @@ export async function DELETE(req:Request,{params}:{params:{code:string}}){
             })
         })
 
-        return Response.json({
+        return NextResponse.json({
             message:"Le dossier a ete suprimer avec success"
         })
     } catch (error) {
         console.error('Erreur lors de la création du dossier:', error);
 
-        return new Response(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
+        return NextResponse.json(JSON.stringify({ error: 'Erreur lors de la création du dossier' }), {
             headers: { 'Content-Type': 'application/json' },
             status: 500
         });

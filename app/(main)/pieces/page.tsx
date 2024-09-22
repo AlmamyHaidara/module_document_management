@@ -6,6 +6,7 @@ import { CompteClient, TypeDocument } from '@/types/types';
 import { PieceService} from '@/demo/service/Piece.service';
 import PieceExpendTable from '../uikit/table/PieceExpandTable';
 
+
 function ClientsComponent() {
     const [visible, setVisible] = useState(false);
     const [matricule, setMatricule] = useState<string>("");
