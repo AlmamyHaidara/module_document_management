@@ -72,7 +72,7 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (doc: Omit<TypeDocument, "id">) => MetaDonneServices.addMetaDonnee(doc.docId, doc.field),
+        mutationFn: (doc: Omit<any, "id">) => MetaDonneServices.addMetaDonnee(doc?.docId, doc?.field),
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
             queryClient.invalidateQueries(["metadonne"] as InvalidateQueryFilters);
@@ -103,7 +103,7 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => MetaDonneServices.deleteDocument(id),
+        mutationFn: (id: number) => MetaDonneServices.deleteMetaDonnee(id),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:["metadonne"]});
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
@@ -131,16 +131,11 @@ const MetaDonnetExpendTable = ({ document, findDocumentByCode }: PropsType) => {
             <div className="col-12">
                 <div className="card">
                     <Toast ref={toast} />
-                    {/* <ToolbarComponent onNewClick={openNew} /> */}
-                    {/*globalFilterValue, setGlobalFilterValue, onUpdateCompte, onCreateCompte, onDeleteCompte */}
                     <MetadonneTable
                         documents={document}
-                        globalFilterValue=""
-                        setGlobalFilterValue={() => { }}
                         onCreateDocument={handleCreateDocument}
                         onUpdateDocument={handleUpdateDocument}
                         onDeleteDocument={handleDeleteDocument}
-                        // onRowEditClick={openUpdate}  // Passez la fonction pour l'édition
                     />
                 </div>
             </div>

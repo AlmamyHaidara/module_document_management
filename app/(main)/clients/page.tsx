@@ -3,8 +3,7 @@ import React, {  useState } from 'react';
 import ClientExpendTable from '../uikit/table/ClientExpandTable';
 import { useQuery } from '@tanstack/react-query';
 import DialogueCompte from '@/demo/components/DialogueCompte';
-import { CompteClient, TypeDocument } from '@/types/types';
-import { findClient ,ClientService} from '@/demo/service/Client.service';
+import { ClientService} from '@/demo/service/Client.service';
 
 function ClientsComponent() {
     const [visible, setVisible] = useState(false);

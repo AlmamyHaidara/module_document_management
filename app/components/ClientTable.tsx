@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import { DataTable, DataTableExpandedRows, DataTableRowEvent, DataTableValueArray } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -9,7 +10,6 @@ import { FileUpload } from "primereact/fileupload";
 import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { Client,CompteClients } from "@/types/types";
-import { DocumentService } from "@/demo/service/Document.service";
 import { generateID } from "../(main)/utils/function";
 import { useRouter } from "next/navigation";
 import { Tooltip } from 'primereact/tooltip';
@@ -51,7 +51,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     const router = useRouter()
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const natures:{name:string}[]= ([{name:"Physique"},{name:"Moral"}]);
+    const natures:{name:string}[]= ([{name:"Physique"},{name:"Morale"}]);
     const [nature, setNature] = useState<{name:string}>({name:""});
     const [value, setValue] = useState<{ id: number }>({ id: 0 });
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
@@ -115,7 +115,7 @@ const onUpdateMeta = useMutation({
             setSubmitted(true);
             console.log("------------client",{client:{...client}, compte:{...compte}})
             if(client && client?.id){
-                console.log("-----------ClientModifier: ",{client:{...client}, compte:{...compte}})
+                console.log("-----------ClientModifier1: ",{client:{...client}, compte:{...compte}})
                 onUpdateClient({client:{...client}, compte:{...compte}})
             }else{
 
@@ -125,7 +125,7 @@ const onUpdateMeta = useMutation({
         setClient(null);
         } catch (error) {
             console.error("Erreur lors de la mise à jour de la métadonnée:", error);
-                         toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour des métadonnées', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour des métadonnées', life: 3000 });
 
         }
     };
@@ -179,10 +179,9 @@ const onUpdateMeta = useMutation({
 
     const editDocument = (client: Client) => {
         setClient({ ...client });
-        setCompte(client?.comptes ? client.comptes[0] : null); // Set the first compte or null if none exist
-        console.log("ewsdcx ", compte);
+        setCompte(client?.comptes ? client.comptes[0]: null); // Set the first compte or null if none exist
         // setTypeComptes(client.)
-        console.log("ppppppppppppppppppppppp",client.comptes[0]);
+        console.log("ppppppppppppppppppppppp",clients);
 
         // setFields(client.metadonnees || [{ id: 0, cle: "", valeur: "" }]);
         setClientDialog(true);
@@ -280,11 +279,40 @@ const onUpdateMeta = useMutation({
         </>
     );
 
+    const [filteredDocuments, setFilteredDocuments] = useState(clients);
+
+    useEffect(() => {
+        console.log("Data is changed :)");
+        setFilteredDocuments(clients)
+    }, [clients]);
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const filterValue = e.target.value.toLowerCase(); // Convertir en minuscules pour une recherche insensible à la casse
+        console.log('Search Value:', clients);
+
+        const filtered = clients.filter((client:any) =>
+            client.code.toLowerCase().includes(filterValue) ||
+            client.nom.toLowerCase().includes(filterValue) ||
+            client.prenom.toLowerCase().includes(filterValue) ||
+            client.telephone.toLowerCase().includes(filterValue) ||
+            client.adresse.toLowerCase().includes(filterValue) ||
+            client.profession.toLowerCase().includes(filterValue) ||
+            client.nature.toLowerCase().includes(filterValue)||
+            client.created_at.toLowerCase().includes(filterValue)
+        );
+
+        setFilteredDocuments(filtered);
+    //    'nom', 'prenom','telephone','addresse','profession','nature', 'created_at'
+
+    };
+
     const header = (
         <div className="flex justify-content-between">
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" />
+                {/* <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Recherche par mots-clés" /> */}
+                <InputText type="search" onInput={handleSearch}  placeholder="Recherche par mots-clés" />
+
             </span>
         </div>
     );
@@ -337,7 +365,10 @@ const onUpdateMeta = useMutation({
         return (
             <div className="p-3">
                 <h5>Les comptes du clients {data.nom}</h5>
-                <DataTable value={data.comptes}>
+                <DataTable
+                    value={data.comptes}
+
+                >
                     <Column field="id" header="Id" sortable></Column>
                      <Column field="matricule" header="Matricule" sortable></Column>
                     <Column field="numero_compte" header="numéro du compte" sortable></Column>
@@ -381,9 +412,29 @@ const onUpdateMeta = useMutation({
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate} />
                     {/* <DataTable ref={dt} value={clients} responsiveLayout="scroll" dataKey="id" header={header}> */}
 
-                         <DataTable ref={dt} value={clients} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
-                    onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
-                    dataKey="id" header={header} tableStyle={{ minWidth: '60rem' }}>
+                         <DataTable
+                            ref={dt}
+                            value={filteredDocuments}
+                            expandedRows={expandedRows}
+                            onRowToggle={(e) => setExpandedRows(e.data)}
+                            onRowExpand={onRowExpand}
+                            onRowCollapse={onRowCollapse}
+                            rowExpansionTemplate={rowExpansionTemplate}
+                            dataKey="id"
+                            header={header}
+                            tableStyle={{ minWidth: '60rem' }}
+                            className="datatable-responsive"
+                            paginator
+                            rows={10}
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                            rowsPerPageOptions={[5, 10, 25]}
+                            // globalFilter={globalFilter}
+                            globalFilterFields={['nom', 'prenom','telephone','addresse','profession','nature', 'created_at']}
+                            filterDisplay="row"
+                            emptyMessage="No products found."
+
+                        >
                 <Column expander={allowExpansion} style={{ width: '5rem' }} />
 
 

@@ -1,7 +1,7 @@
 import prisma from '@/prisma/prismaClient';
 import { Client, CompteClient, CompteClients } from '@/types/types';
 import { PrismaClient } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
     const clients = (await prisma.compteClients.findMany({
@@ -12,7 +12,7 @@ export async function GET() {
         }
     }))
 
-    return Response.json(clients);
+    return NextResponse.json(clients);
 }
 
 
@@ -34,6 +34,6 @@ export async function POST(req:NextRequest) {
 
     })
 
-    return Response.json(compteData);
+    return NextResponse.json(compteData);
 
 }

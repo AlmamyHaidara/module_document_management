@@ -9,11 +9,17 @@ import '../styles/demo/Demos.scss';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import './global.css';
+import { Viewport } from 'next';
 
 interface RootLayoutProps {
     children: React.ReactNode;
 }
 const queryClient = new QueryClient()
+
+export const viewport: Viewport = {
+    themeColor: '#000',
+  }
+
 
 export default function RootLayout({ children }: RootLayoutProps) {
     return (

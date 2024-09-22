@@ -26,8 +26,9 @@ import { Rating } from "primereact/rating";
 import { SelectButton } from "primereact/selectbutton";
 import { Slider } from "primereact/slider";
 import { ToggleButton } from "primereact/togglebutton";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { CountryService } from "../../../../demo/service/CountryService";
+import Image from "next/image";
 
 interface InputValue {
     name: string;
@@ -135,7 +136,8 @@ const InputDemo: Page = () => {
     const itemTemplate = (option: InputValue) => {
         return (
             <div className="flex align-items-center">
-                <img
+                    <Suspense fallback={<>Loading...</>}>
+                <Image
                     alt={option.name}
                     src={`/demo/images/flag/flag_placeholder.png`}
                     onError={(e) =>
@@ -146,7 +148,9 @@ const InputDemo: Page = () => {
                     style={{ width: "21px" }}
                 />
                 <span className="ml-2">{option.name}</span>
+                    </Suspense>
             </div>
+
         );
     };
 

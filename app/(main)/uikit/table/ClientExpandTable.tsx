@@ -45,35 +45,8 @@ const ClientExpendTable = ({ client, findCLientByCode }: PropsType) => {
     const [isUpdateMode, setIsUpdateMode] = React.useState(false);
     const [selectedDocument, setSelectedDocument] = React.useState<TypeDocument | null>(null);
 
-    useEffect(()=>{
-        console.log("-----------------------Client:",client)
-    },[])
-    const openNew = () => {
-        setProductDialog(true);
-        setIsUpdateMode(false);
-        reset({
-            nom: "",
-            code: "",
-            fields: [{ cle: "text", valeur: "" }],
-        });
-    };
 
-    // const openUpdate = (doc: TypeDocument) => {
-    const openUpdate = (doc: any) => {
-        setProductDialog(true);
-        setIsUpdateMode(true);
-        setSelectedDocument(doc);
-        reset({
-            nom: doc.nom,
-            code: doc.code,
-            fields: doc.fields || [{ id:0,cle: "text", valeur: "" }],
-        });
-    };
 
-    const hideDialog = () => {
-        setProductDialog(false);
-        reset();
-    };
 
     const createMutation = useMutation({
         mutationFn: (clt: Omit<Client, "id">) => ClientService.createClient(clt as Client),
