@@ -90,7 +90,6 @@ export async function PUT(req: NextRequest) {
                 })
 
         }))
-        revalidatePath("/documents",'layout')
         return NextResponse.json("Document mise a jour avec succes", { status: 200 });
 
     } catch (error) {
