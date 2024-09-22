@@ -19,10 +19,10 @@ import { PrismaClient } from '@prisma/client';
 export const fetchTypeDocument = async () => {
    const data =  await prisma.typesDocuments.findMany({
         include: {
-            metadonnees: true
+            metadonnees: true,
+            pieceName:true
         }
     });
-    console.log("ewds",data);
     return data
 
 }
@@ -30,10 +30,10 @@ export const fetchTypeDocument = async () => {
 export const fetchClientCompte = async () => {
    const data =  await prisma.compteClients.findMany({
         include: {
-            client: true
+            client: true,
+
         }
     });
-    console.log("ewds",data);
     return data
 
 }
@@ -61,6 +61,42 @@ const newOption = await prisma.typeCompte.create({
 
 }
 
+export const createPiece = async (option:{nom:string,code:string})=>{
+    try{
+const newPiece = await prisma.pieceName.create({
+        data:option
+    })
+
+    console.log("ooooo",newPiece)
+    return newPiece;
+    }catch(errors){
+        console.log(errors)
+    }
+
+}
+
+export const connectPieceToTypeDocument = async (pieceId:number, docId:number)=>{
+    console.log("Is update :) ", pieceId,docId)
+    try{
+const newPiece = await prisma.pieceName.update({
+    where:{
+        id:pieceId
+    },
+        data:{
+            typesDocuments:{
+                connect:{
+                    id: docId
+                }
+            }
+        }
+    })
+    return newPiece;
+    }catch(errors){
+        console.log(errors)
+    }
+
+}
+
 export const fetchOption = async()=>{
     try {
         return await prisma.typeCompte.findMany()
@@ -69,6 +105,56 @@ export const fetchOption = async()=>{
         return []
     }
 }
+
+export const fetchPiece = async()=>{
+    try {
+        return await prisma.pieceName.findMany({
+            select:{
+                id:true,
+                code:true,
+                nom:true
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return []
+    }
+}
+
+export const fetchDossier = async()=>{
+    try {
+        return await prisma.dossiers.findMany({
+            select:{
+                id:true,
+                code:true,
+                nom:true
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return []
+    }
+}
+
+export const attachPieceToDossier = async (pieceId:number, dossierId:number)=>{
+    try {
+       
+        return await prisma.piece.update({
+            where:{
+                id:pieceId
+            },
+            data:{
+                dossierId:dossierId
+            },
+
+        })
+        
+    } catch (error) {
+        console.error(error)
+        return {}
+    }
+}
+
 
 export const deleteOption = async (id:number)=>{
     try {
@@ -82,6 +168,37 @@ export const deleteOption = async (id:number)=>{
     }
 }
 
+export const deletePiece = async (id:number)=>{
+    console.log("pppppppppppppp,",id);
+    
+    try {
+        return await prisma.pieceName.delete({
+            where:{
+                id:id
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+}
+
+
+export const deletedPiece = async (id:number)=>{
+    console.log("pppppppppppppp,",id);
+    
+    try {
+        return await prisma.piece.deleteMany({
+            where:{
+                id:id
+            }
+        })
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+}
+
 export const fetchTypeDocuments = async ()=>{
     try{
         const typesDoc =  await prisma.typesDocuments.findMany({
@@ -89,6 +206,7 @@ export const fetchTypeDocuments = async ()=>{
                 id:true,
                 code:true,
                 nom_type:true,
+                pieceName:true
             }
         });
 

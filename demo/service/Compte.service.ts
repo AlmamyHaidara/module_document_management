@@ -24,6 +24,16 @@ export const CompteService = {
         }
         return response.json();
     },
+
+    async findClientCompte(matricule:string) {
+        // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
+        const response = await fetch('/api/compte')
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    },
+
     async updateCompte(matricule: string, compte: any) {
         console.log("eddws", matricule, compte);
 

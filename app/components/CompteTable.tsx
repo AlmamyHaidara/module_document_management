@@ -11,6 +11,7 @@ import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { Client, CompteClient } from "@/types/types";
 import { DocumentService } from "@/demo/service/Document.service";
+import { MetaDonneServices } from "@/demo/service/Metadonne.service";
 import { generateID, generateUniqueNumber } from "../(main)/utils/function";
 import { InvalidateQueryFilters, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";

@@ -15,7 +15,20 @@ export const MetaDonneServices = {
 
         return response.json();
     },
+    async addMetaDonnee(documentId: string, newField: any) {
 
+        console.log("[[[[[[[[[[[", documentId, newField,{ documentId, ...newField });
+        const response = await fetch(`/api/metadonnee`, {
+            method: 'POST',
+            body: JSON.stringify({ documentId, ...newField }),
+        });
+        console.log("response",response);
+
+        if (!response.ok) {
+            throw new Error('Failed to add new metadonnee');
+        }
+        return response.json();
+    },
     async findDocumentByCode(code: string) {
         console.log('code', code);
         const response = await fetch(`/api/document/${code.toLowerCase()}`);
@@ -57,7 +70,7 @@ export const MetaDonneServices = {
         return response.json();
     },
 
-    async deleteDocument(id: number) {
+    async deleteMetaDonnee(id: number) {
 
         console.log("-----------DocumentApi: ", id);
         const response = await fetch(`/api/metadonnee/${id}`, {
@@ -80,23 +93,7 @@ export const MetaDonneServices = {
             throw new Error('Failed to update metadonnee');
         }
         return response.json();
-    },
-
-    async addMetaDonnee(documentId: string, newField: any) {
-
-        console.log("[[[[[[[[[[[", documentId, newField);
-        const response = await fetch(`/api/metadonnee`, {
-            method: 'POST',
-            body: JSON.stringify({ documentId, ...newField }),
-        });
-        console.log("response",response);
-
-        if (!response.ok) {
-            throw new Error('Failed to add new metadonnee');
-        }
-        return response.json();
-    },
-    
+    }
 
 
 };

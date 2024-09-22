@@ -1,5 +1,5 @@
 "use client";
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect, Suspense } from 'react';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClientService } from '@/demo/service/Client.service';
 import { CompteService } from '@/demo/service/Compte.service';
@@ -40,8 +40,10 @@ function DocumentComponent() {
 
     return (
         <div>
+            <Suspense fallback={<div > Loading... </div>}>
             <MetaDonnetExpendTable document={data} findDocumentByCode={findDocumentByCode} />
             {visible && <DialogDossier visible={visible} setVisible={setVisible} code={matricule} />}
+            </Suspense>
         </div>
     );
 }

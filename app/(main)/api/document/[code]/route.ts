@@ -18,6 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { code: string
             where: { code: code },
             include: {
                 metadonnees: true,  // Inclure les métadonnées associées
+
             },
         });
 
@@ -37,12 +38,13 @@ export async function GET(req: NextRequest, { params }: { params: { code: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { code: string } }) {
     const code = params.code;
+
     try {
 
         await prisma.typesDocuments.deleteMany({
-            where: { id: Number(code) },
+            where: { code: code },
         });
-        revalidatePath("/documents",'layout')
+        
         return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });
 
     } catch (error) {
@@ -61,15 +63,34 @@ export async function PUT(req: NextRequest) {
 
         console.log("Metadonneees: ",  id, metadonnees )
 
-        await prisma.typesDocuments.update({
-            where:{
-                id:id
-            },
-            data:{
-                nom_type:data.nom_type
-            }
-        })
-        // revalidatePath("/documents",'layout')
+        await Promise.all( metadonnees.map(async (field: any) => {
+
+            console.log("MetadonneeesId: ",field.id )
+                 await prisma.metaDonnees.upsert({
+                    where: { id: field.id },
+                    update:{
+                        cle: field.cle, valeur: field.valeur,
+
+                        typeDocument:{
+                            update:{
+                                nom_type:data.nom_type
+                            }
+                        }
+                    },
+                    create:{
+                        cle: field.cle,
+                        valeur: field.valeur,
+
+                        typeDocument:{
+                          connect:{
+                            id:Number(id)
+                          }
+                        }
+                    }
+                })
+
+        }))
+        revalidatePath("/documents",'layout')
         return NextResponse.json("Document mise a jour avec succes", { status: 200 });
 
     } catch (error) {

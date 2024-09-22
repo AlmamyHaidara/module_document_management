@@ -1,144 +1,161 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
+// datasource db {
+//   provider = "postgresql"
+//   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+// }
 generator dbml {
-  provider   = "prisma-dbml-generator"
-  output     = "./dbml"
-  outputName = "docNumerisation.dbml"
+    provider   = "prisma-dbml-generator"
+    output     = "./dbml"
+    outputName = "docNumerisation.dbml"
 }
 
 model Clients {
-  id         Int             @id @default(autoincrement())
-  code       String          @unique @db.VarChar(50)
-  nom        String          @db.VarChar(100)
-  prenom     String          @db.VarChar(100)
-  adresse    String          @db.VarChar(255)
-  telephone  String          @db.VarChar(20)
-  profession String          @db.VarChar(100)
-  nature     NatureEnum
-  comptes    CompteClients[]
-  created_at DateTime         @default(now())
-  updated_at DateTime         @updatedAt
+    id         Int             @id @default(autoincrement())
+    code       String          @unique @db.VarChar(50)
+    nom        String          @db.VarChar(100)
+    prenom     String          @db.VarChar(100)
+    adresse    String          @db.VarChar(255)
+    telephone  String          @db.VarChar(20)
+    profession String          @db.VarChar(100)
+    nature     NatureEnum
+    comptes    CompteClients[]
+    created_at DateTime        @default(now())
+    updated_at DateTime        @updatedAt
 
-  @@index([nom, prenom])
+    @@index([nom, prenom])
 }
 
 model TypeCompte {
-  id       Int             @id @default(autoincrement())
-  name     String          @unique @db.VarChar(50)
-  comptes  CompteClients[]
+    id      Int             @id @default(autoincrement())
+    name    String          @unique @db.VarChar(50)
+    comptes CompteClients[]
 }
 
 model CompteClients {
-  id              Int             @id @default(autoincrement())
-  matricule       String          @unique @db.VarChar(50)
-  numero_compte   String          @unique @db.VarChar(20)
-  agence          String          @db.VarChar(100)
-  code_gestionnaire String       @db.VarChar(20)
-  type_compte_id  Int?
-  client_id       Int
-  type_compte     TypeCompte?     @relation(fields: [type_compte_id], references: [id])
-  client          Clients         @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  type_documents  TypesDocuments[]
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
+    id                Int              @id @default(autoincrement())
+    matricule         String           @unique @db.VarChar(50)
+    numero_compte     String           @unique @db.VarChar(20)
+    agence            String           @db.VarChar(100)
+    code_gestionnaire String           @db.VarChar(20)
+    type_compte_id    Int?
+    client_id         Int
+    type_compte       TypeCompte?      @relation(fields: [type_compte_id], references: [id])
+    client            Clients          @relation(fields: [client_id], references: [id], onDelete: Cascade)
+    type_documents    TypesDocuments[]
+    created_at        DateTime         @default(now())
+    updated_at        DateTime         @updatedAt
 
-  @@index([client_id, numero_compte])
+    @@index([client_id, numero_compte])
 }
 
 model DossiersToTypesDocuments {
-  dossiersId      Int
-  typesdocumentsId Int
+    dossiersId       Int
+    typesdocumentsId Int
 
-  type_document TypesDocuments @relation(fields:[typesdocumentsId], references:[id])
-  dossier Dossiers @relation(fields:[dossiersId], references:[id])
+    type_document TypesDocuments @relation(fields: [typesdocumentsId], references: [id])
+    dossier       Dossiers       @relation(fields: [dossiersId], references: [id], onDelete: Cascade)
 
-  @@id([dossiersId, typesdocumentsId])
-  @@index([dossiersId])
-  @@index([typesdocumentsId])
+    @@id([dossiersId, typesdocumentsId])
+    @@index([dossiersId])
+    @@index([typesdocumentsId])
 }
+
 model TypesDocuments {
-  id          Int             @id @default(autoincrement())
-  code        String          @unique @db.VarChar(50)
-  nom_type    String          @db.VarChar(100)
-  compte_id   Int?
-  metadonnees MetaDonnees[]
-  compteClient CompteClients?  @relation(fields: [compte_id], references: [id])
+    id           Int            @id @default(autoincrement())
+    code         String         @unique @db.VarChar(50)
+    nom_type     String         @db.VarChar(100)
+    compte_id    Int?
+    metadonnees  MetaDonnees[]
+    compteClient CompteClients? @relation(fields: [compte_id], references: [id])
+    pieceName    PieceName[]
+    created_at   DateTime       @default(now())
+    updated_at   DateTime       @updatedAt
 
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt
+    dossiers_typesDocuments DossiersToTypesDocuments[]
 
-  dossiers_typesDocuments DossiersToTypesDocuments[]
-
-  @@index([code, nom_type])
+    @@index([code, nom_type])
 }
 
 model DossierInfo {
-  id         Int             @id @default(autoincrement())
-  cle        String          @db.VarChar(100)
-  value      String          @db.VarChar(255)
-  dossierId Int
+    id        Int    @id @default(autoincrement())
+    cle       String @db.VarChar(100)
+    value     String @db.VarChar(255)
+    dossierId Int?
 
-  dossier  Dossiers  @relation(fields: [dossierId], references: [id])
+    dossier Dossiers? @relation(fields: [dossierId], references: [id])
 }
 
 model Dossiers {
-  id             Int             @id @default(autoincrement())
-  code           String          @unique @db.VarChar(50)
-  nom            String          @db.VarChar(100)
-  description    String          @db.VarChar(255)
-  // piece_id       Int
-  // dossier_info_id Int
-  piece        Piece[]
-  dossierInfos DossierInfo[]
+    id          Int     @id @default(autoincrement())
+    code        String  @unique @db.VarChar(50)
+    nom         String  @db.VarChar(100)
+    description String? @db.VarChar(255)
+    // piece_id       Int
+    piece       Piece[]
+    // dossier_info_id Int
 
-  // piece          Piece           @relation(fields: [piece_id], references: [id], onDelete: Cascade)
-  // dossierInfos   DossierInfo     @relation(fields: [dossier_info_id], references: [id])
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
+    dossierInfos DossierInfo[]
 
-  dossiers_typesDocuments DossiersToTypesDocuments[]
-  @@index([code, nom])
+    // piece          Piece           @relation(fields: [piece_id], references: [id], onDelete: Cascade)
+    // dossierInfos   DossierInfo     @relation(fields: [dossier_info_id], references: [id])
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    dossiers_typesDocuments DossiersToTypesDocuments[]
+
+    @@index([code, nom])
+}
+
+model PieceName {
+    id             Int             @id @default(autoincrement())
+    code           String  @unique @db.VarChar(50)
+    nom            String          @db.VarChar(100)
+    typeComptId    Int?
+    typesDocuments TypesDocuments? @relation(fields: [typeComptId], references: [id], onDelete: Cascade)
+    created_at     DateTime        @default(now())
+    updated_at     DateTime        @updatedAt
 }
 
 model Piece {
-  id            Int             @id @default(autoincrement())
-  code          String          @unique @db.VarChar(50)
-  nom           String?         @db.VarChar(100)
-  path          String          @db.VarChar(255)
-  date_creation DateTime        @default(now())
-  dossierId Int?
+    id            Int      @id @default(autoincrement())
+    code          String   @unique @db.VarChar(50)
+    nom           String?  @db.VarChar(100)
+    path          String?  @db.VarChar(255)
+    date_creation DateTime @default(now())
 
-  dossier  Dossiers? @relation(fields: [dossierId], references: [id])
+    dossierId      Int?
+    typesDocuments Dossiers? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 
-  @@index([code])
-  @@index([date_creation])
+    @@index([code])
+    @@index([date_creation])
 }
 
 model MetaDonnees {
-  id           Int             @id @default(autoincrement())
-  cle          String          @db.VarChar(50)
-  valeur       String          @db.Text
-  typesDocID   Int?
-  typeDocument TypesDocuments?  @relation(fields: [typesDocID], references: [id])
-  created_at   DateTime        @default(now())
-  updated_at   DateTime        @updatedAt
+    id           Int             @id @default(autoincrement())
+    cle          String          @db.VarChar(50)
+    valeur       String          @db.VarChar(200)
+    content      String?         @db.Text
+    typesDocID   Int?
+    typeDocument TypesDocuments? @relation(fields: [typesDocID], references: [id])
+    created_at   DateTime        @default(now())
+    updated_at   DateTime        @updatedAt
 
-  @@index([cle])
+    @@index([cle])
 }
 
-
-
 enum NatureEnum {
-  Physique
-  Morale
+    Physique
+    Morale
 }
