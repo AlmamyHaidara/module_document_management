@@ -1,30 +1,28 @@
-
-import React, { useEffect, useState } from "react";
+import React,{useEffect} from "react";
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import { TypeDoc } from "@/types/types";
 
-interface Country {
-    name: string;
-    code: string;
-}
-interface PropsType{
-    options:any[];
-    setTypeDocument:React.Dispatch<React.SetStateAction<any>>;
-     typeDocument:any;
-     placeholder:string
+interface PropsType {
+    options: any[];
+    setTypeDocument: React.Dispatch<React.SetStateAction<any | null>>;
+    typeDocument: TypeDoc | null;
+    placeholder: string;
 }
 
-export default function DropDownComponent({options,setTypeDocument, typeDocument, placeholder}:PropsType) {
+export default function DropDownComponent({ options, setTypeDocument, typeDocument, placeholder }: PropsType) {
 
+    useEffect(() => {
+        if (typeDocument) {
+            console.log('Type de document mis à jour : ', typeDocument);
+        }
+    }, [typeDocument]);
 
-    const selectedCountryTemplate = (option: any, props:any) => {
-        console.log(option)
+    const selectedOptionTemplate = (option: TypeDoc, props: any) => {
         if (option) {
             return (
                 <div className="flex align-items-center">
-
-                    <div>{option.nom_type || option.name}</div>
+                    <div>{option.nom_type}</div>
                 </div>
             );
         }
@@ -32,20 +30,31 @@ export default function DropDownComponent({options,setTypeDocument, typeDocument
         return <span>{props.placeholder}</span>;
     };
 
-    const countryOptionTemplate = (option: any) => {
-        // console.log("potion--------------------p", option);
-
+    const optionTemplate = (option: TypeDoc) => {
         return (
             <div className="flex align-items-center">
-                <div>{option.nom_type || option.name}</div>
+                <div>{option.nom_type}</div>
             </div>
         );
     };
 
     return (
         <div className="flex w-full">
-            <Dropdown  value={typeDocument} onChange={(e: DropdownChangeEvent) => setTypeDocument(e.value)} options={options} optionLabel={"nom_type"} placeholder={placeholder}
-                filter valueTemplate={selectedCountryTemplate} itemTemplate={countryOptionTemplate} className="w-full" />
+            <Dropdown
+             value={typeDocument?.id}  // Utiliser seulement l'id pour comparer la valeur sélectionnée
+             onChange={(e: DropdownChangeEvent) => {
+                 const selectedOption = options.find(option => option.id === e.value); // Trouver l'objet complet
+                 setTypeDocument(selectedOption || null);  // Mettre à jour l'état avec l'objet sélectionné complet
+             }}
+             options={options}
+             optionLabel="nom_type"
+             optionValue="id" // Utilisation de l'ID pour faire la correspondance
+             placeholder={placeholder}
+             filter
+             valueTemplate={selectedOptionTemplate}
+             itemTemplate={optionTemplate}
+             className="w-full"
+            />
         </div>
-    )
+    );
 }
