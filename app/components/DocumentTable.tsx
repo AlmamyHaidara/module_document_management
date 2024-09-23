@@ -122,7 +122,9 @@ const onUpdateMeta = useMutation({
     };
 
     const deleteDocument = () => {
+
         if (document?.id) {
+            console.log("onDeleteDocument ... ",document.id)
             onDeleteDocument(document.id);
             toast?.current?.show({ severity: 'success', summary: 'Document supprimé', detail: 'Le document a été supprimé avec succès', life: 3000 });
         } else {

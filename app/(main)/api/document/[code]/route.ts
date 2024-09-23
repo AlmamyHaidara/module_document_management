@@ -41,7 +41,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { code: str
     try {
 
         await prisma.typesDocuments.deleteMany({
-            where: { code: code },
+            where: { id: Number(code) },
         });
         
         return NextResponse.json({ message: 'Document supprimé avec succès' }, { status: 200 });

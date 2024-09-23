@@ -92,8 +92,9 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             queryClient.invalidateQueries({queryKey:["dossiers"] });
             queryClient.invalidateQueries({queryKey:["compteClient"]});
             queryClient.invalidateQueries({queryKey:["typeDocument"]});
-            setProductDialog(false);
+
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
+            
         },
         onError: (error) => {
             console.log("onError", error);
