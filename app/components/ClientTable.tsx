@@ -6,7 +6,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from "primereact/dialog";
-import { FileUpload } from "primereact/fileupload";
+import { FileUpload, FileUploadUploadEvent } from "primereact/fileupload";
 import { InputText } from 'primereact/inputtext';
 import { classNames } from "primereact/utils";
 import { Client,CompteClients } from "@/types/types";
@@ -17,9 +17,10 @@ import { Dropdown } from "primereact/dropdown";
 import { Fieldset } from "primereact/fieldset";
 import { NatureEnum } from "@prisma/client";
 import { InvalidateQueryFilters, useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
-import { createOption, deleteOption, fetchClientCode, fetchOption } from '@/app/api/action';
+import { createOption, deleteOption, fetchClientCode, fetchOption, insertCompteExcelRows } from '@/app/api/action';
 import { Divider } from 'primereact/divider';
 import { MetaDonneServices } from "@/demo/service/Metadonne.service";
+import * as XLSX from 'xlsx';
 
 
 interface ClientTableProps {
@@ -38,6 +39,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     const [deleteClientDialog, setDeleteDocumentDialog] = useState(false);
     const [deleteClientsDialog, setDeleteDocumentsDialog] = useState(false);
     const [viewClientsDialog, setViewClientsDialog] = useState(false);
+    const [viewExelsDialog, setViewExelsDialog] = useState(false);
     const [client, setClient] = useState<Client | any >(null);
     const { isSuccess, data: typeComptes } = useQuery({ queryKey: ['typeCompte'], queryFn: async () => fetchOption() });
     const [type_comptes, setTypeComptes] = useState<{ id: number, name: string }[]>(typeComptes || []);
@@ -57,6 +59,7 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows | DataTableValueArray | undefined>(undefined);
     const [newTypeCompte, setNewTypeCompte] = useState<string>("");
     const [addingNew, setAddingNew] = useState<boolean>(false);
+    const [excelData, setExcelData] = useState<any>(null);
 
 
 
@@ -101,6 +104,10 @@ const ClientTable = ({ clients, globalFilterValue, setGlobalFilterValue, onUpdat
 
     const hideDeleteViewClientDialog = () => {
         setViewClientsDialog(false);
+    };
+
+    const hideClosViewExelDialog = () => {
+        setViewExelsDialog(false);
     };
 
 const onUpdateMeta = useMutation({
@@ -249,10 +256,142 @@ const onUpdateMeta = useMutation({
         );
     };
 
+    const handleFileUpload = (event: FileUploadUploadEvent) => {
+        const file = event.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e: any) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // Récupérer toutes les lignes pour chercher les en-têtes
+            const allRows: any = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+            // Trouver la ligne où les en-têtes se trouvent
+            const headerRowIndex = allRows.findIndex((row: any) =>
+                row.includes('AGENCE') &&
+                row.includes('CODE AGENCE') &&
+                row.includes('TYPE DE COMPTE') &&
+                row.includes('ANNEE') &&
+                row.includes('Immatriculation') &&
+                row.includes('N° DE COMTE') &&
+                row.includes('RAISON SOCIALE') &&
+                row.includes('DATE DE CREATION')
+            );
+
+            if (headerRowIndex !== -1) {
+                // Utiliser cette ligne comme en-tête
+                const sheetData = XLSX.utils.sheet_to_json(firstSheet, {
+                    header: allRows[headerRowIndex], // Utiliser la ligne trouvée comme en-tête
+                    range: headerRowIndex + 1, // Ignorer la ligne des en-têtes dans les données
+                });
+
+                // Ajouter un ID unique à chaque ligne et convertir la date
+                const sheetDataWithIds = sheetData.map((row: any, index: number) => {
+                    let dateCreation = null;
+
+                    // Vérifier et convertir la "DATE DE CREATION" si elle existe et est au format Excel (numéro)
+                    if (row['DATE DE CREATION']) {
+                        const excelDate = row['DATE DE CREATION'];
+
+                        // Si la date est sous forme de nombre (comme 43598), utiliser la conversion
+                        if (!isNaN(excelDate)) {
+                            const parsedDate = XLSX.SSF.parse_date_code(excelDate);
+                            if (parsedDate) {
+                                dateCreation = new Date(parsedDate.y, parsedDate.m - 1, parsedDate.d);
+                            }
+                        }
+                    }
+
+                    return {
+                        id: index + 1,  // Génère un ID unique pour chaque ligne
+                        ...row,
+                        'DATE DE CREATION': dateCreation  // Remplace par la date convertie
+                    };
+                });
+
+                setExcelData(sheetDataWithIds); // Stocker les données avec des IDs uniques et la date convertie
+            } else {
+                console.error('Ligne d\'en-tête non trouvée');
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+        setViewExelsDialog(true);
+    };
+
+
+
+const handleValidation = async () => {
+    console.log('Validation des données Excel',excelData);
+    setSubmitted(true)
+//     const BATCH_SIZE = 1000; // Exemple de taille de lot
+// const batchedData = [];
+
+// for (let i = 0; i < excelData.length; i += BATCH_SIZE) {
+//     batchedData.push(excelData.slice(i, i + BATCH_SIZE));
+// }
+// try {
+//     for (const batch of batchedData) {
+//         await insertCompteExcelRows(batch);
+//     }
+//     console.log('Données insérées avec succès');
+//     setSubmitted(false)
+//     queryClient.invalidateQueries({queryKey:["typeCompte"]})
+//     queryClient.invalidateQueries({queryKey:["client"]})
+//     setViewExelsDialog(false)
+
+//     toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Les donner sont enregistre avec success', life: 3000 });
+
+// } catch (error:any) {
+//     console.error('Erreur lors de l\'insertion des données:', error.message);
+// }
+
+insertMutation.mutate()
+
+};
+
+
+const extractionFunc = async()=>{
+    const BATCH_SIZE = 1000; // Exemple de taille de lot
+    const batchedData = [];
+    
+    for (let i = 0; i < excelData.length; i += BATCH_SIZE) {
+        batchedData.push(excelData.slice(i, i + BATCH_SIZE));
+    }
+    try {
+        for (const batch of batchedData) {
+            await insertCompteExcelRows(batch);
+        }
+        
+    } catch (error:any) {
+        console.error('Erreur lors de l\'insertion des données:', error.message);
+    }
+    
+}
+const insertMutation = useMutation({
+    mutationFn: () => extractionFunc(),
+    onSuccess: (clt) => {
+        console.log('Données insérées avec succès');
+        setSubmitted(false)
+        queryClient.invalidateQueries({queryKey:["typeCompte"]})
+        queryClient.invalidateQueries({queryKey:["client"]})
+        setViewExelsDialog(false)
+    
+        toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Les donner sont enregistre avec success', life: 3000 });
+    
+    },
+    onError: (error) => {
+        toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du client a échoué', life: 3000 });
+        console.log("onError", error);
+    }
+});
+
     const rightToolbarTemplate = () => {
         return (
             <>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Importer" className="mr-2 inline-block" />
+                <FileUpload name="excelFiles[]"  mode="basic" accept=".xlsx, .xls" chooseLabel="Importer" className="mr-2 inline-block" onSelect={handleFileUpload} c/>
                 <Button label="Exporter" icon="pi pi-upload" severity="help" onClick={() => dt.current?.exportCSV()} />
             </>
         );
@@ -598,6 +737,49 @@ const onUpdateMeta = useMutation({
                     <Column field="created_at" header="Date creation" sortable body={(rowData) => formatDate(rowData.created_at)}  />
 </DataTable>
                     </Dialog>
+
+
+                    <Dialog
+            visible={viewExelsDialog}
+            style={{ width: '70%' }}
+            header="Les informations sur le client"
+            modal
+            footer={
+                <div>
+                    <Button label="Annuler" icon="pi pi-times" className="p-button-text" onClick={hideClosViewExelDialog} />
+                    <Button label="Valider" icon="pi pi-check" disabled={submitted} className="p-button-text" onClick={handleValidation} />
+                </div>
+            }
+            onHide={hideClosViewExelDialog}
+        >
+            <DataTable
+                ref={dt}
+                value={excelData}
+                dataKey="id"
+                tableStyle={{ minWidth: '60rem' }}
+                className="datatable-responsive"
+                paginator
+                rows={10}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} clients"
+                rowsPerPageOptions={[5, 10, 25, 50, 100]}
+                filterDisplay="row"
+                emptyMessage="No clients found."
+            >
+                <Column field="id" header="ID" sortable />
+                <Column field="AGENCE" header="AGENCE" sortable />
+                <Column field="CODE AGENCE" header="CODE AGENCE" sortable />
+                <Column field="TYPE DE COMPTE" header="TYPE DE COMPTE" sortable />
+                <Column field="ANNEE" header="ANNEE" sortable />
+                <Column field="Immatriculation" header="Immatriculation" sortable />
+                <Column field="N° DE COMTE" header="N° DE COMTE" sortable />
+                <Column field="RAISON SOCIALE" header="RAISON SOCIALE" sortable />
+                <Column field="DATE DE CREATION" header="DATE DE CREATION" sortable
+                    body={(rowData) => formatDate(rowData['DATE DE CREATION'])}  // Formater la date ici
+                />
+
+            </DataTable>
+        </Dialog>
                 </div>
             </div>
         </div>

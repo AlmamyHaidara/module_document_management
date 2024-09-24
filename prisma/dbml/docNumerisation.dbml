@@ -5,12 +5,12 @@
 Table Clients {
   id Int [pk, increment]
   code String [unique, not null]
-  nom String [not null]
-  prenom String [not null]
-  adresse String [not null]
-  telephone String [not null]
-  profession String [not null]
-  nature NatureEnum [not null]
+  nom String
+  prenom String
+  adresse String
+  telephone String
+  profession String
+  nature NatureEnum
   comptes CompteClients [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
@@ -24,14 +24,15 @@ Table TypeCompte {
 
 Table CompteClients {
   id Int [pk, increment]
-  matricule String [unique, not null]
-  numero_compte String [unique, not null]
+  matricule String [not null]
+  numero_compte String [not null]
   agence String [not null]
   code_gestionnaire String [not null]
   type_compte_id Int
-  client_id Int [not null]
+  annee String
+  client_id Int
   type_compte TypeCompte
-  client Clients [not null]
+  client Clients
   type_documents TypesDocuments [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]

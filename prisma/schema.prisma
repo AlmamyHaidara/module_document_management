@@ -2,16 +2,16 @@ generator client {
     provider = "prisma-client-js"
 }
 
-datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-}
-
 // datasource db {
-//   provider = "postgresql"
-//   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+//     provider = "mysql"
+//     url      = env("DATABASE_URL")
 // }
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
 generator dbml {
     provider   = "prisma-dbml-generator"
     output     = "./dbml"
@@ -21,12 +21,12 @@ generator dbml {
 model Clients {
     id         Int             @id @default(autoincrement())
     code       String          @unique @db.VarChar(50)
-    nom        String          @db.VarChar(100)
-    prenom     String          @db.VarChar(100)
-    adresse    String          @db.VarChar(255)
-    telephone  String          @db.VarChar(20)
-    profession String          @db.VarChar(100)
-    nature     NatureEnum
+    nom        String?          @db.VarChar(100)
+    prenom     String?          @db.VarChar(100)
+    adresse    String?          @db.VarChar(255)
+    telephone  String?          @db.VarChar(20)
+    profession String?          @db.VarChar(100)
+    nature     NatureEnum?
     comptes    CompteClients[]
     created_at DateTime        @default(now())
     updated_at DateTime        @updatedAt
@@ -42,14 +42,15 @@ model TypeCompte {
 
 model CompteClients {
     id                Int              @id @default(autoincrement())
-    matricule         String           @unique @db.VarChar(50)
-    numero_compte     String           @unique @db.VarChar(20)
+    matricule         String            @db.VarChar(50)
+    numero_compte     String            @db.VarChar(100)
     agence            String           @db.VarChar(100)
     code_gestionnaire String           @db.VarChar(20)
     type_compte_id    Int?
-    client_id         Int
+    annee             String?
+    client_id         Int?
     type_compte       TypeCompte?      @relation(fields: [type_compte_id], references: [id])
-    client            Clients          @relation(fields: [client_id], references: [id], onDelete: Cascade)
+    client            Clients?          @relation(fields: [client_id], references: [id], onDelete: Cascade)
     type_documents    TypesDocuments[]
     created_at        DateTime         @default(now())
     updated_at        DateTime         @updatedAt

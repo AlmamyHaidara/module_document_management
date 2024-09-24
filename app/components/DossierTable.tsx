@@ -8,7 +8,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
-import { FileUpload } from 'primereact/fileupload';
+import { FileUpload, FileUploadUploadEvent } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import { CompteMatricule, Dossier, MetaDonnee, TypeDoc, TypeDocument } from '@/types/types';
@@ -21,6 +21,7 @@ import { DossierContext } from '../(main)/uikit/table/DossierExpandTable';
 import { Image } from 'primereact/image';
 import UploadFileComponent from './UploadFileComponent';
 import { Divider } from 'primereact/divider';
+
 
 type PropsType = {
     dossiers: any[];
@@ -53,6 +54,9 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     const [editAction, setEditAction] = useState(false);
     const [dossierInfo, setDossierInfo] = useState([]);
     const [viewClientsDialog, setViewClientsDialog] = useState(false);
+
+    const [excelData, setExcelData] = useState<any>(null);
+
 
     const router = useRouter();
     const toast = useRef<any>(null);
@@ -231,6 +235,20 @@ const DossierTable = ({ dossiers, globalFilterValue, setGlobalFilterValue, onUpd
     const leftToolbarTemplate = () => (
         <Button label="Nouveau" icon="pi pi-plus" severity="success" className="mr-2" onClick={openNew} />
     );
+
+    const handleFileUpload = (event:FileUploadUploadEvent) => {
+        console.log("ooooooooooooooo",event)
+        // const file = event.files[0];
+        // const reader = new FileReader();
+        // reader.onload = (e:any) => {
+        //     const data = new Uint8Array(e.target.result);
+        //     const workbook = XLSX.read(data, { type: 'array' });
+        //     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        //     const sheetData = XLSX.utils.sheet_to_json(firstSheet);
+        //     setExcelData(sheetData); // Stocker les données dans un état
+        // };
+        // reader.readAsArrayBuffer(file);
+    };
 
     const rightToolbarTemplate = () => (
         <>
