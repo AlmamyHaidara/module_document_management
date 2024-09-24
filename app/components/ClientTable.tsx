@@ -393,6 +393,7 @@ const insertMutation = useMutation({
             <>
                 <FileUpload name="excelFiles[]"  mode="basic" accept=".xlsx, .xls" chooseLabel="Importer" className="mr-2 inline-block" onSelect={(e:any)=>handleFileUpload(e)} />
                 <Button label="Exporter" icon="pi pi-upload" severity="help" onClick={() => dt.current?.exportCSV()} />
+
             </>
         );
     };
@@ -526,7 +527,7 @@ const insertMutation = useMutation({
     };
 
     const onRowCollapse = (event: DataTableRowEvent) => {
-        toast.current?.show({ severity: 'success', summary: 'Product Collapsed', detail: event.data.nom, life: 3000 });
+        toast.current?.show({ severity: 'success', summary: 'Product Collapsedd', detail: event.data.nom, life: 3000 });
     };
 
     // const expandAll = () => {
