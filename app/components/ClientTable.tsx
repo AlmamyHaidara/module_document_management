@@ -356,7 +356,7 @@ insertMutation.mutate()
 const extractionFunc = async()=>{
     const BATCH_SIZE = 1000; // Exemple de taille de lot
     const batchedData = [];
-    
+
     for (let i = 0; i < excelData.length; i += BATCH_SIZE) {
         batchedData.push(excelData.slice(i, i + BATCH_SIZE));
     }
@@ -364,11 +364,11 @@ const extractionFunc = async()=>{
         for (const batch of batchedData) {
             await insertCompteExcelRows(batch);
         }
-        
+
     } catch (error:any) {
         console.error('Erreur lors de l\'insertion des données:', error.message);
     }
-    
+
 }
 const insertMutation = useMutation({
     mutationFn: () => extractionFunc(),
@@ -378,9 +378,9 @@ const insertMutation = useMutation({
         queryClient.invalidateQueries({queryKey:["typeCompte"]})
         queryClient.invalidateQueries({queryKey:["client"]})
         setViewExelsDialog(false)
-    
+
         toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Les donner sont enregistre avec success', life: 3000 });
-    
+
     },
     onError: (error) => {
         toast.current?.show({ severity: 'error', summary: 'Creation Failed', detail: 'La création du client a échoué', life: 3000 });
@@ -391,7 +391,7 @@ const insertMutation = useMutation({
     const rightToolbarTemplate = () => {
         return (
             <>
-                <FileUpload name="excelFiles[]"  mode="basic" accept=".xlsx, .xls" chooseLabel="Importer" className="mr-2 inline-block" onSelect={handleFileUpload} c/>
+                <FileUpload name="excelFiles[]"  mode="basic" accept=".xlsx, .xls" chooseLabel="Importer" className="mr-2 inline-block" onSelect={(e:any)=>handleFileUpload(e)} />
                 <Button label="Exporter" icon="pi pi-upload" severity="help" onClick={() => dt.current?.exportCSV()} />
             </>
         );
