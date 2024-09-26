@@ -15,7 +15,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         const document = await prisma.typesDocuments.findUnique({
             where: { id: Number(id) },
             include: {
-                metadonnees: true // Inclure les métadonnées associées
+                metadonnees: true ,
+                compteClient:{
+                    include:{
+                        agences:true,
+                        type_compte:true,
+                        type_documents:true,
+                    }
+                }
             }
         });
 
@@ -59,9 +66,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         const { client } = Clients;
         console.log("johikrk",compte);
 
-
-        // delete client.comptes.id
-        // Supprimez l'id du client pour éviter des erreurs
         if (client) {
             delete client.id;
         }
@@ -74,8 +78,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             data: {
                 adresse: client.adresse,
                 nature: client.nature,
-                nom: client.nom,
-                prenom: client.prenom,
+                intitule: client.intitule,
                 profession: client.profession,
                 telephone: client.telephone
 
@@ -86,28 +89,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
                     id: compteId
                 },
                 data: {
-                    ...compte
+                    
+                    ...{...compte,agences: compte.agence}
                 }
             });
-
-
-        // Ensuite, mettez à jour les comptes (relation imbriquée)
-        // if (comptes && comptes.length > 0) {
-        //     // Supposons que vous ayez plusieurs comptes à mettre à jour
-        //     for (const compte of comptes) {
-        //         await prisma.compteClients.updateMany({
-        //             where: { id: compte.id },
-        //             data: {
-        //                 matricule: compte.matricule,
-        //                 numero_compte: compte.numero_compte,
-        //                 agence: compte.agence,
-        //                 code_gestionnaire: compte.code_gestionnaire,
-        //                 type_compte_id: compte.type_compte_id,
-        //                 updated_at: new Date(),
-        //             },
-        //         });
-        //     }
-        // }
 
         return NextResponse.json('Document mis à jour avec succès', { status: 200 });
     } catch (error) {

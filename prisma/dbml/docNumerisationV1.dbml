@@ -5,7 +5,8 @@
 Table Clients {
   id Int [pk, increment]
   code String [unique, not null]
-  intitule String
+  nom String
+  prenom String
   adresse String
   telephone String
   profession String
@@ -23,27 +24,16 @@ Table TypeCompte {
 
 Table CompteClients {
   id Int [pk, increment]
-  cle Int [not null]
-  natCompte Int [not null]
-  libelleNatCompte String [not null]
-  chapitre Int [not null]
-  numero_compte String [unique, not null]
+  matricule String [not null]
+  numero_compte String [not null]
+  agence String [not null]
+  code_gestionnaire String [not null]
   type_compte_id Int
+  annee String
   client_id Int
   type_compte TypeCompte
-  agences Agence [not null]
   client Clients
   type_documents TypesDocuments [not null]
-  created_at DateTime [default: `now()`, not null]
-  updated_at DateTime [not null]
-}
-
-Table Agence {
-  id Int [pk, increment]
-  ageCreat Int [unique, not null]
-  libAgence String [not null]
-  compte_id Int
-  compteClientId CompteClients
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
 }
@@ -52,7 +42,7 @@ Table DossiersToTypesDocuments {
   dossiersId Int [not null]
   typesdocumentsId Int [not null]
   type_document TypesDocuments [not null]
-  dossier Dossiers
+  dossier Dossiers [not null]
 
   indexes {
     (dossiersId, typesdocumentsId) [pk]
@@ -133,8 +123,6 @@ Enum NatureEnum {
 Ref: CompteClients.type_compte_id > TypeCompte.id
 
 Ref: CompteClients.client_id > Clients.id [delete: Cascade]
-
-Ref: Agence.compte_id > CompteClients.id
 
 Ref: DossiersToTypesDocuments.typesdocumentsId > TypesDocuments.id
 

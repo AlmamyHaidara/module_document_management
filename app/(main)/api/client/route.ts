@@ -11,37 +11,47 @@ export async function POST(req: NextRequest) {
       const data: any = await req.json();
       const {client,compte} = data
 console.log("-******************** DATA: ",data)
-     const clientCreated = await prisma.clients.create({
-      data:{
-        code: generateID(6),
-        nom: client.nom,
-        prenom:client.prenom,
-        adresse: client.adresse,
-        nature: client.nature,
-        profession:client.profession,
-        telephone: client.telephone,
-        comptes: {
-          create:{
-            agence: compte.agence,
-            matricule: compte.matricule,
-            numero_compte: compte.numero_compte,
-            code_gestionnaire: compte.code_gestionnaire, // Added missing property
-            type_compte:{
-                connect:{
-                    id:compte.type_compte.id
-                }
-            }
-          },
 
-        }
-      }
-     })
+   const clientCreated = await prisma.$transaction(async (prisma)=>{
+        return await prisma.clients.create({
+         data:{
+           code: generateID(6),
+           intitule: client.intitule,
+           adresse: client.adresse,
+           nature: client.nature,
+           profession:client.profession,
+           telephone: client.telephone,
+           comptes: {
+             create:{
+                 natCompte:Number(compte.natCompte),
+                 cle:Number(compte.cle),
+                 libelleNatCompte:compte.libelleNatCompte,
+                 chapitre:Number(compte.chapitre),
+                 numero_compte: compte.numero_compte,
+                 created_at: compte.created_at,
+                 agences:{
+                   connect:{
+                       ageCreat:Number(compte.agence.ageCreat)
+                   }
+                 },
+               type_compte:{
+                   connect:{
+                       id:compte.type_compte.id
+                   }
+               }
+             },
+   
+           }
+         }
+        })
+        
+        
+    })
+    return NextResponse.json(JSON.stringify({ data:clientCreated }), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 201,
+    });
 
-
-      return NextResponse.json(JSON.stringify({ data: clientCreated }), {
-          headers: { 'Content-Type': 'application/json' },
-          status: 201,
-      });
 
   } catch (error) {
       console.error('Erreur lors de la création du dossier:', error);
@@ -60,7 +70,8 @@ export async function GET() {
       include:{
         comptes:{
             include:{
-                type_compte:true
+                type_compte:true,
+                agences:true,
             }
         },
 

@@ -9,7 +9,7 @@ import { findClient ,ClientService} from '@/demo/service/Client.service';
 function ClientsComponent() {
     const [visible, setVisible] = useState(false);
     const [matricule, setMatricule] = useState<string>("");
-    const { isLoading, isError, data, error, isSuccess } = useQuery({ queryKey: ["client"], queryFn: ()=> ClientService.findClient() });
+    const { isLoading, isError, data, error, isSuccess } = useQuery({ queryKey: ["clients"], queryFn: ()=> ClientService.findClient() });
 
 
     if (isLoading) {
@@ -23,6 +23,11 @@ function ClientsComponent() {
 
     if (isError) {
         return <span>Error: {error.message}</span>;
+    }
+
+    if(isSuccess){
+        console.info(data);
+
     }
 
 

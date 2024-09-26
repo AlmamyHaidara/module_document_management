@@ -79,7 +79,7 @@ const ClientExpendTable = ({ client, findCLientByCode }: PropsType) => {
         mutationFn: (clt: Omit<any, "id">) => ClientService.createClient(clt as Client),
         onSuccess: (clt) => {
             toast.current?.show({ severity: 'success', summary: 'Client Created', detail: 'Le client a été créé avec succès', life: 3000 });
-            queryClient.invalidateQueries(["client"] as InvalidateQueryFilters);
+            queryClient.invalidateQueries(["clients"] as InvalidateQueryFilters);
             setProductDialog(false);
         },
         onError: (error) => {
@@ -98,7 +98,7 @@ const ClientExpendTable = ({ client, findCLientByCode }: PropsType) => {
         },
         onSuccess: (doc) => {
             toast.current?.show({ severity: 'success', summary: 'Client Updated', detail: 'Le client a été mis à jour avec succès', life: 3000 });
-            queryClient.invalidateQueries({ queryKey: ["client"] });
+            queryClient.invalidateQueries({ queryKey: ["clients"] });
         },
         onError: (error) => {
             toast.current?.show({ severity: 'error', summary: 'Update Failed', detail: 'La mise à jour du client a échoué', life: 3000 });
@@ -109,7 +109,7 @@ const ClientExpendTable = ({ client, findCLientByCode }: PropsType) => {
     const deleteMutation = useMutation({
         mutationFn: (id: number) => ClientService.deleteClient(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey:["client"]});
+            queryClient.invalidateQueries({queryKey:["clients"]});
             toast.current?.show({ severity: 'success', summary: 'Client Deleted', detail: 'Le client a été supprimé avec succès', life: 3000 });
         },
         onError: (error) => {

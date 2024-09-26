@@ -57,6 +57,19 @@ export const createOption = async (option: { name: string }) => {
     }
 };
 
+
+export const createAgence = async (option:{ ageCreat: number, libAgence: string}) => {
+    console.log("lllllllllllllllllllllllllllllllll")
+    try {
+        const newOption = await prisma.agence.create({
+            data: option
+        });
+        return newOption;
+    } catch (errors) {
+        console.log(errors);
+    }
+};
+
 export const createPiece = async (option: { nom: string; code: string }) => {
     try {
         const newPiece = await prisma.pieceName.create({
@@ -91,9 +104,20 @@ export const connectPieceToTypeDocument = async (pieceId: number, docId: number)
     }
 };
 
-export const fetchOption = async () => {
+export const fetchTypeCompte = async () => {
     try {
         return await prisma.typeCompte.findMany();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
+export const fetchAgences = async () => {
+    try {
+        console.log("pppppppppppppppppppppppp",await prisma.agence.findMany());
+        
+        return await prisma.agence.findMany();
     } catch (error) {
         console.error(error);
         return [];
@@ -158,6 +182,19 @@ export const deleteOption = async (id: number) => {
     }
 };
 
+export const deleteAgence = async (id: number) => {
+    try {
+        return await prisma.agence.delete({
+            where: {
+                id: id
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+
 export const deletePiece = async (id: number) => {
     console.log('pppppppppppppp,', id);
 
@@ -212,16 +249,16 @@ export const fetchTypeDocuments = async () => {
 //     "TYPE DE COMPTE",ok
 //     "ANNEE",ok
 //     "Immatriculation",ok
-//     "N° DE COMTE",ok
+//     "Num compte",ok
 //     "RAISON SOCIALE",
-//     "DATE DE CREATION"ok
+//     "Date ouverture"ok
 // ]
 // export const insertCompteExcelRows = async (exelRows: any[]) =>{
 //     try {
 //         await prisma.$transaction(async (prisma) => {
 //             for (const exelRow of exelRows) {
 //                 console.log(exelRow.AGENCE);
-//                 const createdAtDate = new Date(exelRow["DATE DE CREATION"]); // Exemple de date
+//                 const createdAtDate = new Date(exelRow["Date ouverture"]); // Exemple de date
 //                 const isoCreatedAt = createdAtDate.toISOString(); // Convertir en format ISO-8601
 
 //                 await prisma.compteClients.upsert({
@@ -232,7 +269,7 @@ export const fetchTypeDocuments = async () => {
 //                         agence:exelRow.AGENCE,
 //                         matricule: `${exelRow.Immatriculation}`,
 //                         code_gestionnaire:`${exelRow["CODE AGENCE"]}`,
-//                         numero_compte:`${exelRow["N° DE COMTE"]}`,
+//                         numero_compte:`${exelRow["Num compte"]}`,
 //                         annee:`${exelRow["ANNEE"]}`,
 //                         created_at:`${isoCreatedAt}`,
 //                         client:{
@@ -277,7 +314,7 @@ function hasDuplicates(array:any[], keys:any[]) {
 function removeDuplicates(array:any[], keys:any[]) {
     const uniqueSet = new Set();
     const duplicates:any[] = [];
-    
+
     const uniqueArray = array.filter(item => {
         const compositeKey = keys.map(key => item[key]).join('|');
 
@@ -297,22 +334,22 @@ export const insertCompteExcelRows = async (exelRows:any[]) => {
     try {
         const operations = [];
         const operations1 = [];
-        const { uniqueArray, duplicates } = removeDuplicates(exelRows, ['id', 'Immatriculation', "N° DE COMTE"]);
+        const { uniqueArray, duplicates } = removeDuplicates(exelRows, ['id', 'AGE CREAT', "Num compte"]);
 
         console.log('Unique Array:', uniqueArray.length);
         console.log('Duplicates:', duplicates.length);
-        console.log('Has Duplicates:', hasDuplicates(uniqueArray, ['id', 'Immatriculation',  "N° DE COMTE"]));
+        console.log('Has Duplicates:', hasDuplicates(uniqueArray, ['id',  "Num compte","AGE CREAT"]));
 
         for (const exelRow of uniqueArray) {
-            if (!exelRow.AGENCE || !exelRow.Immatriculation || !exelRow['CODE AGENCE'] || !exelRow['N° DE COMTE'] || !exelRow.ANNEE || !exelRow['TYPE DE COMPTE']) {
+            if (!exelRow['Num compte'] || !exelRow['AGE CREAT'] || !exelRow['LIB Agence'] || !exelRow['Nat cpt'] || !exelRow['AGE CPT'] || !exelRow['Num compte'] || !exelRow['CLE'] || !exelRow['Chapitre'] || !exelRow['Intitule compte']) {
                 console.warn('Ligne sautée à cause des valeurs manquantes ou invalides:', exelRow);
                 continue;
             }
 
             // Gestion de la date de création
             let isoCreatedAt;
-            const createdAtDate = new Date(exelRow['DATE DE CREATION']);
-            isoCreatedAt = isNaN(createdAtDate.getTime()) 
+            const createdAtDate = new Date(exelRow['Date ouverture']);
+            isoCreatedAt = isNaN(createdAtDate.getTime())
                 ? new Date('01/01/2024').toISOString() // Date par défaut
                 : createdAtDate.toISOString();
 
@@ -320,48 +357,76 @@ export const insertCompteExcelRows = async (exelRows:any[]) => {
             const existingCompte = await prisma.compteClients.findFirst({
                 where: {
                     OR: [
-                        { matricule: String(exelRow.Immatriculation) },
-                        { numero_compte: String(exelRow['N° DE COMTE']) }
+                        // { matricule: String(exelRow.Immatriculation) },
+                        { numero_compte: String(exelRow['Num compte']) }
                     ]
                 }
             });
             if (existingCompte) {
                 operations1.push(existingCompte)
-                console.log(`Matricule ${exelRow.Immatriculation} ou compte ${exelRow['N° DE COMTE']} existe déjà, aucune action effectuée.`);
+                console.log(`Num compte ${exelRow['Num compte']} existe déjà, aucune action effectuée.`);
                 continue;
             }
-            
+
             // // Préparer l'opération de création
             operations.push(
                 prisma.clients.create({
                     data:{
                         code:generateID(6),
-                        nom: exelRow['RAISON SOCIALE'],
-                        nature:"Morale",
+                        intitule: exelRow['Intitule compte'],
+                        // nature:"Morale",
                         comptes:{
                             create:{
-                                    agence:String(exelRow.AGENCE),
-                                    matricule: String(exelRow.Immatriculation),
-                                    code_gestionnaire: String(exelRow['CODE AGENCE']),
-                                    numero_compte: String(exelRow['N° DE COMTE']),
-                                    annee: String(exelRow['ANNEE']),
-                                    created_at: isoCreatedAt,
-                                    type_compte: {
-                                        connectOrCreate: {
-                                            where: { name: exelRow['TYPE DE COMPTE'] },
-                                            create: { name: exelRow['TYPE DE COMPTE'] }
+                                chapitre:Number(exelRow['Chapitre']),
+                                cle:Number(exelRow['CLE']),
+                                libelleNatCompte:exelRow['Libelle nat cpte'],
+                                natCompte:Number(exelRow['Nat cpt']),
+                                numero_compte:exelRow['Num compte'],
+                                created_at: new Date(exelRow['Date ouverture']),
+
+                                agences:{
+                                    connectOrCreate: {
+                                        where: { ageCreat: Number(exelRow['AGE CREAT']) },
+                                        create: {
+                                            ageCreat: Number(exelRow['AGE CREAT']), 
+                                            libAgence: exelRow['LIB Agence'] 
                                         }
                                     }
-                            } 
-                            
+                                  
+                                },
+                                type_compte:{
+                                    connectOrCreate: {
+                                        where: { name: exelRow['Libelle nat cpte'] },
+                                        create: { name: exelRow['Libelle nat cpte'] }
+                                    }
+                                },
+                            }
                         }
+                        // comptes:{
+                        //     create:{
+                        //         agences
+                                    // agence:String(exelRow.AGENCE),
+                                    // matricule: String(exelRow.Immatriculation),
+                                    // code_gestionnaire: String(exelRow['CODE AGENCE']),
+                        //             numero_compte: String(exelRow['Num compte']),
+                        //             // annee: String(exelRow['ANNEE']),
+                        //             created_at: isoCreatedAt,
+                        //             type_compte: {
+                        //                 connectOrCreate: {
+                        //                     where: { name: exelRow['TYPE DE COMPTE'] },
+                        //                     create: { name: exelRow['TYPE DE COMPTE'] }
+                        //                 }
+                        //             }
+                        //     }
+
+                        // }
                     }
                 })
             );
         }
-        
+
         // Exécuter toutes les opérations dans une transaction
-       
+
         await prisma.$transaction(operations);
         console.log('Toutes les opérations ont été exécutées avec succès.',operations1.length);
     } catch (error) {

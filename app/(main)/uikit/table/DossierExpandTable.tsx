@@ -67,7 +67,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
 
     const openUpdate = (doc: Dossier) => {
         // console.log("-----------doc")
-        
+
         console.info(doc)
 
         updateMutation.mutate(doc)
@@ -94,7 +94,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             queryClient.invalidateQueries({queryKey:["typeDocument"]});
 
             toast.current?.show({ severity: 'success', summary: 'Document Created', detail: 'Le document a été créé avec succès', life: 3000 });
-            
+
         },
         onError: (error) => {
             console.log("onError", error);
@@ -128,7 +128,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             queryClient.invalidateQueries({queryKey:["compteClient"]});
             queryClient.invalidateQueries({queryKey:["typeDocument"]});
             toast.current?.show({ severity: 'success', summary: 'Document Deleted', detail: 'Le document a été supprimé avec succès', life: 3000 });
-            
+
         },
         onError: (error) => {
             console.log("onDeleteError", error);
@@ -162,7 +162,7 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
             //     nom_type: res.nom_type,
             // }));
             console.info(data);
-            
+
             const typeDocu: TypeDoc[] = data.map((res: any) => ({
                 id: res.id,
                 code: res.code,
@@ -185,11 +185,13 @@ const DossierExpendTable = ({ dossier, findDossierByCode }: PropsType) => {
 
             // console.log("------------SuccesscompteClients",compteClients);
 
-            const clientCompte: CompteMatricule[] = compteClients.map((res: any) => ({
-                id: res.id,
-                code: res.matricule,
-                nom_type: res.matricule,
-            }));
+            const clientCompte: CompteMatricule[] = compteClients.map((res: any) => {
+                // console.log("SuccessClientCompte",res)
+                return {
+                id: res.client.id,
+                code: res.client.code,
+                nom_type: res.client.intitule,
+            }});
 
             // console.log("------------SuccessClientCompte",clientCompte);
             setCompteMatricule(clientCompte)

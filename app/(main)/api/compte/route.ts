@@ -22,11 +22,24 @@ export async function POST(req:NextRequest) {
     console.log(compteData);
     const compte = await prisma.compteClients.create({
         data: {
-            matricule: compteData.matricule,
-            agence: compteData.agence,
+            cle:0,
+            libelleNatCompte:"",
+            natCompte:0,
+            chapitre: 0,
             numero_compte: compteData.numero_compte,
-            code_gestionnaire: compteData.code_gestionnaire,
             client: { connect: { id: compteData.client.id } }, // Using client_id from compteData
+            agences:{
+                connectOrCreate:{
+                    where:{
+                        id:0,
+                        ageCreat:0,
+                    },
+                    create:{
+                        libAgence:"",
+                        ageCreat:0,
+                    },
+                }
+            },
             type_compte: {
                 connect: { id: compteData.type_compte.id } // Wrapping id in an object for correct type
             },

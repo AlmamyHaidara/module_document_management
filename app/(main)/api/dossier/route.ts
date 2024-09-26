@@ -36,7 +36,7 @@ export async function GET() {
         }
     })) as unknown as DocMetaPiece[];
     // console.log('o----------------------o: ', dossiers[0].dossiers_typesDocuments[0].type_document.compteClient.id);
-    console.log('o----------------------o: ', dossiers[0].dossiers_typesDocuments);
+    console.log('o----------------------o: ', dossiers[0]);
 
     return NextResponse.json(dossiers);
 }
