@@ -15,18 +15,20 @@ console.log("-******************** DATA: ",data)
      const clientCreated = await prisma.clients.create({
       data:{
         code: generateID(6),
-        nom: client.nom,
-        prenom:client.prenom,
+        intitule: client.intitule,
         adresse: client.adresse,
         nature: client.nature,
         profession:client.profession,
         telephone: client.telephone,
         comptes: {
           create:{
-            agence: compte.agence,
-            matricule: compte.matricule,
+            chapitre:compte.chapitre,
+            cle:compte.cle,
+            libelleNatCompte: compte.libelleNatCompte,
+            natCompte: compte.libelleNatCompte,
+
+            agences: compte.agence,
             numero_compte: compte.numero_compte,
-            code_gestionnaire: compte.code_gestionnaire, // Added missing property
             type_compte:{
                 connect:{
                     id:compte.type_compte.id
