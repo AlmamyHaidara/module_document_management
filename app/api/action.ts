@@ -113,10 +113,23 @@ export const fetchTypeCompte = async () => {
     }
 };
 
+
+
+export const fetchOption = async () => {
+    try {
+        console.log("pppppppppppppppppppppppp",await prisma.typeCompte.findMany());
+
+        return await prisma.typeCompte.findMany();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
 export const fetchAgences = async () => {
     try {
         console.log("pppppppppppppppppppppppp",await prisma.agence.findMany());
-        
+
         return await prisma.agence.findMany();
     } catch (error) {
         console.error(error);
@@ -388,11 +401,11 @@ export const insertCompteExcelRows = async (exelRows:any[]) => {
                                     connectOrCreate: {
                                         where: { ageCreat: Number(exelRow['AGE CREAT']) },
                                         create: {
-                                            ageCreat: Number(exelRow['AGE CREAT']), 
-                                            libAgence: exelRow['LIB Agence'] 
+                                            ageCreat: Number(exelRow['AGE CREAT']),
+                                            libAgence: exelRow['LIB Agence']
                                         }
                                     }
-                                  
+
                                 },
                                 type_compte:{
                                     connectOrCreate: {
