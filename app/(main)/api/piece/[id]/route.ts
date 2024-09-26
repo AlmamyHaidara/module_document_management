@@ -75,8 +75,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             data: {
                 adresse: client.adresse,
                 nature: client.nature,
-                nom: client.nom,
-                prenom: client.prenom,
+                intitule:client?.intituler,
                 profession: client.profession,
                 telephone: client.telephone
 
