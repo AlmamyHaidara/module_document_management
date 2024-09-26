@@ -41,7 +41,7 @@ model TypeCompte {
 
 model CompteClients {
     id                Int              @id @default(autoincrement())
-    cle               Int
+    cle               Int?
     natCompte         Int
     libelleNatCompte  String           @db.VarChar(250)
     chapitre          Int

@@ -23,7 +23,7 @@ Table TypeCompte {
 
 Table CompteClients {
   id Int [pk, increment]
-  cle Int [not null]
+  cle Int
   natCompte Int [not null]
   libelleNatCompte String [not null]
   chapitre Int [not null]
