@@ -592,7 +592,7 @@ const handleFileUpload = (event: FileUploadUploadEvent) => {
 
     const formatDate = (date:Date) => {
 
-        console.log("kdjlgnuvihgiuvehgbuivrehugke",date)
+        // console.log("kdjlgnuvihgiuvehgbuivrehugke",date)
         return `Le ${new Intl.DateTimeFormat('fr-FR', {
             year: 'numeric',
             month: 'long',
@@ -756,7 +756,7 @@ const handleFileUpload = (event: FileUploadUploadEvent) => {
                         <Fieldset legend="Les information du compte">
 
                         <div className="p-fluid grid">
-                            
+
                             <div className="field col">
                                 <label htmlFor="type_compte">Agence</label>
                                 <Dropdown

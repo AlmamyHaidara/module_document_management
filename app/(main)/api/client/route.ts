@@ -40,14 +40,15 @@ console.log("-******************** DATA: ",data)
                    }
                }
              },
-   
+
            }
          }
         })
-        
-        
+
+
     })
-    return NextResponse.json(JSON.stringify({ data:clientCreated }), {
+
+    return NextResponse.json(JSON.stringify({ data:clientCreated && []}), {
         headers: { 'Content-Type': 'application/json' },
         status: 201,
     });
