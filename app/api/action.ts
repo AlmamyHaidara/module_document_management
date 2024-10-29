@@ -2,7 +2,7 @@
 import prisma from '@/prisma/prismaClient';
 import { PrismaClient } from '@prisma/client';
 import { generateID } from '../(main)/utils/function';
-export const maxDuration = 5; 
+// export const maxDuration = 5; 
 // import { InvalidateQueryFilters, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // export const findTypeDocument= async()=>{
