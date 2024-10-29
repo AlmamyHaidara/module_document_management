@@ -1,11 +1,9 @@
 {
   "functions": {
-    "api/client/*.ts": {
+    "api/client/**": {
       "maxDuration": 60 
     },
-   "api/client/[id]/*.ts": {
-        "maxDuration": 60 
-      }
+   
    
   }
 }
