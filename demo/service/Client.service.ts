@@ -1,6 +1,6 @@
 
 import { Client } from "@/types/types";
-export const maxDuration = 5; 
+export const maxDuration = 60; 
 export const ClientService = {
    async createClient(client: Client) {
         // return fetch('https://freetestapi.com/api/v1/products', { headers: { 'Cache-Control': 'no-cache' } })
