@@ -5,7 +5,7 @@ import { generateID } from "../../utils/function";
 import prisma from "@/prisma/prismaClient";
 
 
-
+export const maxDuration = 5; 
 export async function POST(req: NextRequest) {
   try {
       const data: any = await req.json();
