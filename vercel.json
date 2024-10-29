@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/client/**": {
+    "api/client/": {
       "maxDuration": 60 
     }
    
