@@ -2,8 +2,7 @@
   "functions": {
     "api/client/**": {
       "maxDuration": 60 
-    },
-   
+    }
    
   }
 }
