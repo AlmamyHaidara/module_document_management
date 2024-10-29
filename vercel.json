@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/client/*.ts": {
+      "maxDuration": 60 // This function can run for a maximum of 30 seconds
+    },
+   "api/client/[id]/*.ts": {
+        "maxDuration": 60 // This function can run for a maximum of 30 seconds
+      },
+   
+  }
+}
